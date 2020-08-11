@@ -37,7 +37,7 @@
             "Command":"execuspeak",
             "ArgCount": 1,
             "ReplacementStrings": [
-                "Don't you worry about @REPLACEMENT1@, let me worry about @REPLACEMENT@.",
+                "Don't you worry about @REPLACEMENT1@, let me worry about @REPLACEMENT1@.",
                 "@REPLACEMENT1@? @REPLACEMENT1@?! You're not looking at the big picture!"
             ]
         },
