@@ -2,6 +2,7 @@
     "Gimmicks" : [
         {
             "Command":"8ball",
+            "Description":"Ask the Magic 8 Ball",
             "ArgCount": 0,
             "ReplacementStrings": [
                 "It is certain."
@@ -27,7 +28,16 @@
             ]
         },
         {
+            "Command":"doubleking",
+            "Description":"Gets the doubleking",
+            "ArgCount": 0,
+            "ReplacementStrings": [
+                ":crown:\n:crown:\n:eyes:"
+            ]
+        },
+        {
             "Command":"excuse",
+            "Description":"Get an excuse for why things went wrong",
             "ArgCount":0,
             "ReplacementStrings":[
                 "yaml and sadness"
@@ -502,6 +512,7 @@
         },
         {
             "Command":"homie",
+            "Description":"All the homies will echo your opinion",
             "ArgCount": 1,
             "ReplacementStrings": [
                 "Fuck @REPLACEMENT1@!\nAll my homies hate @REPLACEMENT1@."
@@ -509,14 +520,17 @@
         },
         {
             "Command":"execuspeak",
+            "Description":"Practice your execuspeak",
             "ArgCount": 1,
             "ReplacementStrings": [
                 "Don't you worry about @REPLACEMENT1@, let me worry about @REPLACEMENT1@.",
-                "@REPLACEMENT1@? @REPLACEMENT1@?! You're not looking at the big picture!"
+                "@REPLACEMENT1@? @REPLACEMENT1@?! You're not looking at the big picture!",
+                "@REPLACEMENT1@ is the past, what you need to look for is the next @REPLACEMENT1@"
             ]
         },
         {
             "Command": "plagueis",
+            "Description":"Tell the tale of Darth Plagueis the wise",
             "ArgCount": 2,
             "ArgSplitter": ",",
             "ReplacementStrings":[

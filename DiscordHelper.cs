@@ -1,39 +1,62 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+
 namespace homiebot 
 {
     public class DiscordHelper
     {
+        private readonly ILogger<HomieBot> logger;
+        private readonly IConfiguration config;
+        private readonly IServiceProvider services;
         private string token;
+        private IEnumerable<string> commandMarkers;
         private bool connected;
         private DiscordClient discordClient;
-        private ChatReplacer chatReplacer;
+        private CommandsNextExtension commands;
         public bool Connected {
             get => connected;
         }
-        public DiscordHelper(string token)
+        public DiscordHelper(string token, IEnumerable<string> commandMarkers, IConfiguration config, ILogger<HomieBot> logger, IServiceProvider services)
         {
             this.token = token;
+            this.commandMarkers = commandMarkers;
+            this.config = config;
+            this.logger = logger;
+            this.services = services;
             connected = false;
         }
 
-        public void ReloadConfig()
+        public async Task Initialize()
         {
-            chatReplacer.Initialize();
-        }
-
-        public async Task Initialize(ChatReplacer chatReplacer)
-        {
-            this.chatReplacer = chatReplacer;
+            logger.LogInformation("Starting up main discord client");
             discordClient = new DiscordClient( new DiscordConfiguration(){
                 AutoReconnect = true,
                 Token = token,
                 TokenType = TokenType.Bot,
-                UseInternalLogHandler = true,
-                LogLevel = LogLevel.Info
+                LogLevel = DSharpPlus.LogLevel.Info,
             });
+            commands = discordClient.UseCommandsNext(new CommandsNextConfiguration(){
+                CaseSensitive = false,
+                EnableDefaultHelp = true,
+                StringPrefixes = commandMarkers,
+                Services = services
+            });
+            logger.LogInformation("Registering custom parser");
+            //commands.RegisterConverter(new StringArrayParamConverter());
+            logger.LogInformation("Registering Baseline Commands");
+            commands.RegisterCommands<HomieCommands>();
+            logger.LogInformation("Parsing gimmicks");
+            HomieCommands hc = new HomieCommands((Random)services.GetService(typeof(Random)),logger,config);
+            //var childgimmicks = config.GetSection("Gimmicks").GetChildren();
+            var Gimmicks = config.GetSection("Gimmicks").Get<IEnumerable<Gimmick>>();
+            logger.LogInformation("Registering Gimmicks");
+            commands.RegisterCommands(hc.GetDynamicGimmickCommands(Gimmicks));
+            logger.LogInformation("Trying Connect");
             try
             {
                 await discordClient.ConnectAsync();
@@ -41,24 +64,8 @@ namespace homiebot
             }
             catch(Exception e)
             {
-                Program.Log($"Exception trying to connect: {e.Message}");
+                logger.LogError(e,"Exception trying to connect: {errorMessage}",e.Message);
             }
-        }
-
-        public void RegisterCommands()
-        {
-            discordClient.MessageCreated+= async e=> {
-                if(e.Message.Content.ToLower().StartsWith("!"))
-                {
-                    if(e.Message.Content.ToLower() == "reload"){this.ReloadConfig(); return;}
-                    string[] trimmedcommands = e.Message.Content.ToLower().TrimStart('!').Split(' ');
-                    if(trimmedcommands.Length>1){
-                        await e.Message.RespondAsync(chatReplacer.Replace(trimmedcommands[0],trimmedcommands.SubArray(1,trimmedcommands.Length-1)));
-                    }else{
-                        await e.Message.RespondAsync(chatReplacer.Replace(trimmedcommands[0]));
-                    }
-                }
-            };
         }
 
         public async Task Disconnect()
@@ -79,7 +86,7 @@ namespace homiebot
             }
             catch(Exception e)
             {
-                Program.Log($"Exception trying to reconnect: {e.Message}");
+                logger.LogError(e,"Exception trying to reconnect: {errorMessage}", e.Message);
                 return false;
             }
             

@@ -10,8 +10,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DSharpPlus" Version="3.2.3" />
-    <PackageReference Include="DSharpPlus.CommandsNext" Version="3.2.3" />
+    <PackageReference Include="DSharpPlus" Version="4.0.0-nightly-00711" />
+    <PackageReference Include="DSharpPlus.CommandsNext" Version="4.0.0-nightly-00711" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.7" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="3.1.7" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="3.1.7" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.7" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.1.7" />
   </ItemGroup>
 
   <ItemGroup>

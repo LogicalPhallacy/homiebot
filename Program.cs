@@ -2,29 +2,69 @@
 using System.Threading.Tasks;
 using System.Text.Json;
 using System.IO;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
+using System.Threading;
 
 namespace homiebot
 {
-    public static class Extensions
+    public class HomieBot : BackgroundService
     {
-        public static T[] SubArray<T>(this T[] array, int offset, int length)
+        private readonly ILogger<HomieBot> logger;
+        private readonly Random random;
+        private readonly IConfiguration configuration;
+        private readonly IServiceProvider services;
+        public HomieBot(ILogger<HomieBot> logger, Random random, IConfiguration configuration, IServiceProvider services)
         {
-            return new ArraySegment<T>(array, offset, length)
-                        .ToArray();
+            this.logger = logger;
+            this.random = random;
+            this.configuration = configuration;
+            this.services = services;
         }
-    }
-    public class BotConfig
-    {
-        public string DiscordToken {get; set;}
+        
+        protected override async Task ExecuteAsync(CancellationToken token)
+        {
+            logger.LogInformation("Starting Up");
+            BotConfig b = configuration.GetSection("BotConfig").Get<BotConfig>();
+            DiscordHelper d = new DiscordHelper(b.DiscordToken,b.CommandPrefixes,configuration,logger,services);
+            await d.Initialize();
+            while (!token.IsCancellationRequested)
+            {
+                await Task.Delay(1000, token);
+            }
+            logger.LogInformation("Shutting Down");
+            await d.Disconnect();
+        }
     }
     class Program
     {
-        public static Random random;
-        public static ChatReplacer chatReplacer;
-        private static DiscordHelper discord;
-        private static BotConfig config;
-        static async Task<int> Main(string[] args)
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+        Host.CreateDefaultBuilder(args)
+            .ConfigureAppConfiguration(
+                ac=> {
+                    foreach(string jsonfile in Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory,"*.json"))
+                    {
+                        ac.AddJsonFile(jsonfile);
+                    }
+                    ac.Build();
+                })
+            .ConfigureLogging( l => {
+                l.AddConsole().AddDebug();
+            })
+            .ConfigureServices((hostContext, services) =>
+            {
+
+                services.AddSingleton(typeof(Random))
+                .AddHostedService<HomieBot>();
+            })
+            .UseWindowsService();
+
+        static async Task Main(string[] args)
         {
+            await CreateHostBuilder(args).Build().RunAsync();
+            /*
             Log("Homiebot starting up");
             config = JsonSerializer.Deserialize<BotConfig>(File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"BotConfig.json")));
             Log("Parsing BotConfig");
@@ -43,27 +83,7 @@ namespace homiebot
             await Task.Delay(-1);
             Log("Exiting");
             return await Exit();
-        }
-
-        protected static void Exit(object sender, ConsoleCancelEventArgs args)
-        {
-            Log("Kill signal recieved, signing off and shutting down");
-            Exit().Wait();
-        }
-
-        protected static async Task<int> Exit()
-        {
-            if(discord.Connected)
-            {
-                Log("Logging off discord");
-                await discord.Disconnect();
-            }
-            return 0;
-        }
-
-        public static void Log(string message)
-        {
-            Console.WriteLine($"{DateTime.Now.ToShortTimeString()}-{DateTime.Now.ToShortTimeString()}: {message}");
-        }
+            */
+        }    
     }
 }
