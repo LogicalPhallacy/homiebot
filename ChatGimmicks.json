@@ -32,7 +32,7 @@
             "Description":"Gets the doubleking",
             "ArgCount": 0,
             "ReplacementStrings": [
-                ":crown:\n:crown:\n:eyes:"
+                "🞝\n:crown:\n:crown:\n:eyes:"
             ]
         },
         {
