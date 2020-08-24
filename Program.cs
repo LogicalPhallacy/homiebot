@@ -46,7 +46,7 @@ namespace homiebot
                 ac=> {
                     foreach(string jsonfile in Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory,"*.json"))
                     {
-                        ac.AddJsonFile(jsonfile);
+                        ac.AddJsonFile(jsonfile,false,true);
                     }
                     ac.Build();
                 })
@@ -59,6 +59,7 @@ namespace homiebot
                 services.AddSingleton(typeof(Random))
                 .AddHostedService<HomieBot>();
             })
+            // We can use this to do Windows Service Hosting, but since we're moving this to an appservice...
             .UseWindowsService();
 
         static async Task Main(string[] args)
