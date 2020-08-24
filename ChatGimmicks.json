@@ -511,6 +511,14 @@
             ]
         },
         {
+            "Command":"pressf",
+            "Description":"Homiebot will pay respects",
+            "ArgCount":0,
+            "ReplacementStrings":[
+                "```\nFFFFFFFF\nFF\nF\nFFFFF\nF\nF\nF\n```"
+            ]
+        },
+        {
             "Command":"homie",
             "Description":"All the homies will echo your opinion",
             "ArgCount": 1,
