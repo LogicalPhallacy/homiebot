@@ -1,10 +1,14 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
+using DSharpPlus.EventArgs;
+using DSharpPlus.Entities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using System.Text.RegularExpressions;
 
 namespace homiebot 
 {
@@ -56,6 +60,26 @@ namespace homiebot
             var Gimmicks = config.GetSection("Gimmicks").Get<IEnumerable<Gimmick>>();
             logger.LogInformation("Registering Gimmicks");
             commands.RegisterCommands(hc.GetDynamicGimmickCommands(Gimmicks));
+            discordClient.MessageCreated += async (MessageCreateEventArgs message) => 
+            {
+                if(message.MentionedUsers.Contains(discordClient.CurrentUser))
+                {
+                    await message.Channel.TriggerTypingAsync();
+                    logger.LogInformation("Mentioned by name figuring out what to do with that");
+                    switch (message.Message.Content){
+                        case var m when new Regex(@"\b(why)\b").IsMatch(m):
+                            logger.LogInformation("Matched on why, so making an excuse");
+                            var context = discordClient.GetCommandsNext().CreateContext(message.Message,"::",discordClient.GetCommandsNext().RegisteredCommands["campaign"]);
+                            await discordClient.GetCommandsNext().RegisteredCommands["campaign"].ExecuteAsync(context);
+                            break;
+                        default:
+                            logger.LogInformation("I was pinged but couldn't find a match command, returning help instructions");
+                            await message.Channel.SendMessageAsync($"{message.Author.Mention} I don't know what to do with that, but you can use the command {commandMarkers.FirstOrDefault()}help for some help");
+                            break;
+                    }
+                }
+                return;
+            };
             logger.LogInformation("Trying Connect");
             try
             {
