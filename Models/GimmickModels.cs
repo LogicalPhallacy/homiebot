@@ -1,16 +1,11 @@
-using System.Collections.Generic;
 using System.Linq;
 using System;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using Microsoft.Extensions.Logging;
-
+using System.Collections.Generic;
 namespace homiebot
 {
-    public class GimmickFile 
-    {
-        public IEnumerable<Gimmick> Gimmicks {get; set;}
-    }
     public class Gimmick
     {
         public string Command {get; set;}
@@ -67,48 +62,6 @@ namespace homiebot
             logger.LogInformation("Params for command are {params}", string.Join(',',args));
             string returnstring = this.Replace(args);
             await ctx.RespondAsync(returnstring);
-        }
-    }
-
-    public class BotConfig
-    {
-        public string DiscordToken {get; set;}
-        public IEnumerable<string> CommandPrefixes{get;set;}
-    }
-
-    public class MemoryItem : StoredItem
-    {
-        private const string containerName = "RememberItems";
-        public string Message{get;set;}
-        public MemoryItem(string key) : base(key,containerName)
-        {
-            
-        }
-    }
-
-    public class ReminderItem : StoredItem
-    {
-        private const string containerName = "ReminderItems";
-        public string User {get; set;}
-        public DateTime Time {get; set;}
-        public string Message {get; set;}
-        public ReminderItem(string user, DateTime time) : base($"{user}-{time.ToString()}", containerName)
-        {
-        }
-    }
-
-    public abstract class StoredItem
-    {
-        private string key;
-        private string containerName;
-        public string Key 
-        {
-            get => key;
-        }
-        public StoredItem(string key, string containerName)
-        {
-            this.key = key;
-            this.containerName = containerName;
         }
     }
 }
