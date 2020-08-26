@@ -70,7 +70,7 @@ namespace homiebot
                         case var m when new Regex(@"\b(why)\b").IsMatch(m):
                             logger.LogInformation("Matched on why, so making an excuse");
                             var context = discordClient.GetCommandsNext().CreateContext(message.Message,"::",discordClient.GetCommandsNext().RegisteredCommands["campaign"]);
-                            await discordClient.GetCommandsNext().RegisteredCommands["campaign"].ExecuteAsync(context);
+                            await discordClient.GetCommandsNext().RegisteredCommands["excuse"].ExecuteAsync(context);
                             break;
                         default:
                             logger.LogInformation("I was pinged but couldn't find a match command, returning help instructions");
