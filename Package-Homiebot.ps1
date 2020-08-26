@@ -23,7 +23,8 @@ PROCESS {
     dotnet publish $PSScriptRoot -o $PubDir | Write-Verbose
     $LASTEXITCODE
     Write-Verbose "Creating Zip file"
-    Compress-Archive -Path $PubDir -DestinationPath $Path -Force
+    Compress-Archive -Path ($PubDir + "\*") -DestinationPath $Path -Force
+    rm $PubDir -Force -Recurse
 }
 END {
 
