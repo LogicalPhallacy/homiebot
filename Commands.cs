@@ -34,11 +34,21 @@ namespace homiebot
         private readonly Random random;
         private readonly ILogger logger;
         private readonly IConfiguration config;
+        private IEnumerable<Gimmick> Gimmicks;
         public HomieCommands(Random random, ILogger<HomieBot> logger, IConfiguration config)
         {
             this.random = random;
             this.logger = logger;
             this.config = config;
+            InitializeGimmicks();
+        }
+        public void InitializeGimmicks()
+        {
+            Gimmicks = config.GetSection("Gimmicks").Get<IEnumerable<Gimmick>>();
+            foreach(var gimmick in Gimmicks)
+            {
+                gimmick.Inject(random,logger);
+            }
         }
         public CommandBuilder[] GetDynamicGimmickCommands(IEnumerable<Gimmick> gimmicks)
         {
@@ -63,7 +73,7 @@ namespace homiebot
         {
             await context.RespondAsync("Reloading gimmicks, please wait");
             // Get the gimmick list and try and unregister them
-            var Gimmicks = config.GetSection("Gimmicks").Get<IEnumerable<Gimmick>>();
+            Gimmicks = config.GetSection("Gimmicks").Get<IEnumerable<Gimmick>>();
             var CommandList = new List<Command>();
             foreach (var gimmick in Gimmicks)
             {
