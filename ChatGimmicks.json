@@ -36,6 +36,30 @@
             ]
         },
         {
+            "Command":"campaign",
+            "Description":"Gets a reason to vote for TypePromiscuous",
+            "ArgCount": 0,
+            "ReplacementStrings": [
+                "because together, we as a nation will find a cure for Charlie Kirk",
+                "don't make me tap the sign",
+                "because Type doesn't make the rules... yet",
+                "because nothing else about this year has made any goddamn sense",
+                "choose the obvious evil",
+                "everyone's going to stand for the National Anthem: https://www.youtube.com/watch?v=dAU9YqBYrz4",
+                "Because we all know you're gonna write someone in anyway this time",
+                "Defensive war against the Cephalopods", 
+                "An immediate ban on Suit wearing",
+                "Admission of New States until we have a prime number of them.",
+                "Mandatory Cyberbullying of all public figures",
+                "Legalize planting the mystery seeds",
+                "Criminalize planting the mystery seeds",
+                "Restore the institution of Trial by Combat",
+                "Traditional Marriages! No alliance? No wedding.",
+                "Workers of the world unite, you havbe nothing to lose but your keycards",
+                "I too would like to get off the Major Historical Event"
+            ]
+        },
+        {
             "Command":"excuse",
             "Description":"Get an excuse for why things went wrong",
             "ArgCount":0,
