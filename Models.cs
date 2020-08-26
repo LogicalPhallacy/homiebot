@@ -18,13 +18,19 @@ namespace homiebot
         public IEnumerable<string> ReplacementStrings {get; set;}
         public string ArgSplitter {get;set;}
         public int ArgCount {get;set;}
+        public bool Injected{get; set;}
 
         private Random random;
         private ILogger logger;
 
+        public Gimmick()
+        {
+            Injected = false;
+        }
         public void Inject(Random random, ILogger logger){
             this.random = random;
             this.logger = logger;
+            Injected = true;
         }
         public string Replace(params string[] args)
         {
@@ -68,5 +74,41 @@ namespace homiebot
     {
         public string DiscordToken {get; set;}
         public IEnumerable<string> CommandPrefixes{get;set;}
+    }
+
+    public class MemoryItem : StoredItem
+    {
+        private const string containerName = "RememberItems";
+        public string Message{get;set;}
+        public MemoryItem(string key) : base(key,containerName)
+        {
+            
+        }
+    }
+
+    public class ReminderItem : StoredItem
+    {
+        private const string containerName = "ReminderItems";
+        public string User {get; set;}
+        public DateTime Time {get; set;}
+        public string Message {get; set;}
+        public ReminderItem(string user, DateTime time) : base($"{user}-{time.ToString()}", containerName)
+        {
+        }
+    }
+
+    public abstract class StoredItem
+    {
+        private string key;
+        private string containerName;
+        public string Key 
+        {
+            get => key;
+        }
+        public StoredItem(string key, string containerName)
+        {
+            this.key = key;
+            this.containerName = containerName;
+        }
     }
 }
