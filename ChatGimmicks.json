@@ -57,7 +57,8 @@
                 "Traditional Marriages! No alliance? No wedding.",
                 "Workers of the world unite, you havbe nothing to lose but your keycards",
                 "I too would like to get off the Major Historical Event"
-            ]
+            ],
+            "StringTerminator":"\nVote TypePromiscuous 2020!"
         },
         {
             "Command":"excuse",

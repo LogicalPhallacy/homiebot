@@ -11,6 +11,7 @@ namespace homiebot
         public string Command {get; set;}
         public string Description {get; set;}
         public IEnumerable<string> ReplacementStrings {get; set;}
+        public string StringTerminator{get;set;}
         public string ArgSplitter {get;set;}
         public int ArgCount {get;set;}
         public bool Injected{get; set;}
@@ -51,6 +52,10 @@ namespace homiebot
                         retstr = retstr.Replace($"@REPLACEMENT{i+1}@",joined);
                     }
                 }
+            }
+            if(!string.IsNullOrWhiteSpace(StringTerminator))
+            {
+                retstr+=StringTerminator;
             }
             return retstr;
         }
