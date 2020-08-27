@@ -1,0 +1,31 @@
+{
+    "ReactionPacks":[
+        {
+            "ReactionName": "CoffinDance",
+            "TriggerReaction": ":coffin:",
+            "Reactions":
+            [
+                ":coffindance1:",
+                ":coffindance2:",
+                ":coffindance3:",
+                ":coffindance4:"
+            ]
+
+        },
+        {
+            "ReactionName": "GunsOut",
+            "TriggerReaction": ":sos:",
+            "Reactions":
+            [
+                ":leftgun:",
+                ":wtf_gun:",
+                ":smilinggun:",
+                ":gundma:",
+                ":dogegun:",
+                ":cat_gun:",
+                ":rightgun:"
+            ]
+
+        }
+    ]
+}

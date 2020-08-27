@@ -19,6 +19,7 @@ namespace homiebot
         private readonly IServiceProvider services;
         private string token;
         private IEnumerable<string> commandMarkers;
+        private IEnumerable<ReactionConfig> reactionConfigs;
         private bool connected;
         private DiscordClient discordClient;
         private CommandsNextExtension commands;
@@ -79,6 +80,24 @@ namespace homiebot
                     }
                 }
                 return;
+            };
+            logger.LogInformation("Registering reactions");
+            reactionConfigs = config.GetSection("ReactionPacks").Get<IEnumerable<ReactionConfig>>();
+            discordClient.MessageReactionAdded += async (messageReaction) => 
+            {
+                switch(messageReaction.Emoji.GetDiscordName())
+                {
+                    case var mr when reactionConfigs.Where(rc=>rc.TriggerReaction == mr).FirstOrDefault() != null:
+                        var react = reactionConfigs.Where(rc=>rc.TriggerReaction == mr).FirstOrDefault();
+                        logger.LogInformation("Saw a reaction that should trigger reactionpack: {packname}",react.ReactionName);
+                        foreach(var reaction in react.Reactions)
+                        {
+                            await messageReaction.Message.CreateReactionAsync(DiscordEmoji.FromName(discordClient,reaction));
+                        }
+                        break;
+                    default:
+                        break;
+                }
             };
             logger.LogInformation("Trying Connect");
             try

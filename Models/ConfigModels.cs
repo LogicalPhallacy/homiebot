@@ -17,4 +17,10 @@ namespace homiebot
         public string ConnectionKey {get;set;}
         public string DatabaseName {get;set;}
     }
+    public class ReactionConfig
+    {
+        public string ReactionName {get;set;}
+        public string TriggerReaction {get;set;}
+        public IEnumerable<string> Reactions {get;set;}
+    }
 }
