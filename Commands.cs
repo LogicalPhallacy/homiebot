@@ -13,6 +13,7 @@ using System.ComponentModel;
 using System.Text.Json;
 using System.IO;
 using DSharpPlus.Entities;
+using DSharpPlus.EventArgs;
 
 namespace homiebot 
 {
@@ -35,12 +36,14 @@ namespace homiebot
         private readonly ILogger logger;
         private readonly IConfiguration config;
         private IEnumerable<Gimmick> Gimmicks;
+        private IEnumerable<ReactionConfig> reactionConfigs;
         public HomieCommands(Random random, ILogger<HomieBot> logger, IConfiguration config)
         {
             this.random = random;
             this.logger = logger;
             this.config = config;
             InitializeGimmicks();
+            reactionConfigs = config.GetSection("ReactionPacks").Get<IEnumerable<ReactionConfig>>();
         }
         public void InitializeGimmicks()
         {
@@ -66,6 +69,38 @@ namespace homiebot
                 );
             }
             return commands.ToArray();
+        }
+
+        public async Task ProcessReaction(MessageReactionAddEventArgs messageReaction)
+        {
+            switch(messageReaction.Emoji.GetDiscordName())
+            {
+                case var mr when reactionConfigs.Where(rc=>rc.TriggerReaction == mr).FirstOrDefault() != null:
+                    await messageReaction.Channel.TriggerTypingAsync();
+                    var react = reactionConfigs.Where(rc=>rc.TriggerReaction == mr).FirstOrDefault();
+                    logger.LogInformation("Saw a reaction that should trigger reactionpack: {packname}",react.ReactionName);
+                    foreach(var reaction in react.Reactions)
+                    {
+                        await messageReaction.Message.CreateReactionAsync(DiscordEmoji.FromName(messageReaction.Client,reaction));
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        [Command("reactions")]
+        [DSharpPlus.CommandsNext.Attributes.Description(
+            "List the emoji groupings that will be triggered by one emoji when you react to a message with it")]
+        public async Task GetReactionTriggers(CommandContext context)
+        {
+            await context.TriggerTypingAsync();
+            string outmessage = string.Empty;
+            foreach(ReactionConfig react in reactionConfigs)
+            {
+                outmessage+= $"{react.ReactionName} - Trigger with: {react.TriggerReaction}, homiebot will add {string.Join(',',react.Reactions)}\n";
+            }
+            await context.RespondAsync(outmessage);
         }
 
         [Command("reload")]

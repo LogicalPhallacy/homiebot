@@ -5,10 +5,10 @@
             "TriggerReaction": ":coffin:",
             "Reactions":
             [
-                ":coffindance1:",
-                ":coffindance2:",
-                ":coffindance3:",
-                ":coffindance4:"
+                ":CoffinDance1:",
+                ":CoffinDance2:",
+                ":CoffinDance3:",
+                ":Coffindance4:"
             ]
 
         },
@@ -19,8 +19,8 @@
             [
                 ":leftgun:",
                 ":wtf_gun:",
-                ":smilinggun:",
-                ":gundma:",
+                ":smiling_gun:",
+                ":Gundma:",
                 ":dogegun:",
                 ":cat_gun:",
                 ":rightgun:"
