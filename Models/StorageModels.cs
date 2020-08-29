@@ -1,48 +1,80 @@
 using System;
+using Newtonsoft.Json;
 namespace homiebot 
 {
     public class MemoryFile : StoredItem
     {
+        [NonSerialized]
         private const string containerName = "RememberItems";
         public byte[] File;
-        public MemoryFile(string key) : base(key,containerName)
+        private static PartitionKey partKey = new PartitionKey(){
+            KeyName = "Key",
+            KeyPath = "/Key",
+            KeyType = typeof(string)
+        };
+        public MemoryFile(string key) : base(key,containerName,partKey)
         {
 
         }
     }
     public class MemoryItem : StoredItem
     {
+        [NonSerialized]
         private const string containerName = "RememberItems";
-        public string Message{get;set;}
-        public MemoryItem(string key) : base(key,containerName)
+        public string User;
+        public string Message;
+        private static PartitionKey partKey = new PartitionKey(){
+            KeyName = "Key",
+            KeyPath = "/Key",
+            KeyType = typeof(string)
+        };
+        public MemoryItem(string key) : base(key,containerName,partKey)
         {
             
         }
     }
 
-    public class ReminderItem : StoredItem
+    public class ReminderItem
     {
-        private const string containerName = "ReminderItems";
-        public string User {get; set;}
-        public DateTime Time {get; set;}
-        public string Message {get; set;}
-        public ReminderItem(string user, DateTime time) : base($"{user}-{time.ToString()}", containerName)
+        [NonSerialized]
+        public const string containerName = "Reminders";
+        [NonSerialized]
+        public static PartitionKey partKey = new PartitionKey(){
+            KeyName = "User",
+            KeyPath = "/User",
+            KeyType = typeof(string)
+        };
+        public DateTime Time;
+        public string Message;
+        public string User;
+        public ReminderItem(string user, DateTime time)
         {
+            this.User = user;
+            this.Time = time;
         }
     }
 
     public abstract class StoredItem
     {
-        private string key;
-        private string containerName;
-        public string Key 
+        [NonSerialized]
+        public string ContainerName;
+        [NonSerialized]
+        public PartitionKey PartitionKey;
+        public string Key {get;set;}
+        public string Owner;
+        public StoredItem(string key, string containerName, PartitionKey partitionKey)
         {
-            get => key;
+            this.Key = key;
+            ContainerName = containerName;
+            this.PartitionKey = partitionKey;
         }
-        public StoredItem(string key, string containerName)
-        {
-            this.key = key;
-            this.containerName = containerName;
-        }
+    }
+
+    public class PartitionKey
+    {
+        public string KeyPath{get; set;}
+        public string KeyName{get; set;}
+        public object KeyValue{get;set;}
+        public Type KeyType{get;set;}
     }
 }

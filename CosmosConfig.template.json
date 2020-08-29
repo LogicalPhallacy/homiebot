@@ -1,0 +1,7 @@
+{
+    "CosmosStorageConfig":{
+        "EndPoint":"",
+        "ConnectionKey":"",
+        "DatabaseName":"homiebot"
+    }
+}
