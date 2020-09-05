@@ -9,9 +9,6 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.CommandsNext.Builders;
 using DSharpPlus.CommandsNext.Converters;
-using System.ComponentModel;
-using System.Text.Json;
-using System.IO;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 

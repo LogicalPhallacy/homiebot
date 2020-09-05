@@ -11,6 +11,7 @@
   <ItemGroup>
     <PackageReference Include="DSharpPlus" Version="4.0.0-nightly-00711" />
     <PackageReference Include="DSharpPlus.CommandsNext" Version="4.0.0-nightly-00711" />
+    <PackageReference Include="Magick.NET-Q8-AnyCPU" Version="7.21.1" />
     <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.12.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.7" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="3.1.7" />
@@ -27,6 +28,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="ReactionPack.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="images/homies.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
