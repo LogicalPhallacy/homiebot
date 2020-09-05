@@ -11,10 +11,10 @@ namespace homiebot
     public class ImageMeme 
     {
         public MemeTemplate Template {get; set;}
-        public Byte[] GetImage(params string[] replacements) 
+        public async Task<Byte[]> GetImageAsync(params string[] replacements) 
         {
             var factory = new MagickImageFactory();
-            using (var image = factory.Create(Template.ImageBase))
+            using (var image = factory.Create(await Template.ImageBase.LoadBytesAsync()))
             {
                 List<MagickImage> MemeTexts = new List<MagickImage>(); 
                 foreach(var m in Template.memeText)
@@ -47,7 +47,7 @@ namespace homiebot
     public class MemeTemplate
     {
         public string Name {get;set;}
-        public FileInfo ImageBase{get;set;}
+        public IStoredFile ImageBase{get;set;}
         public IEnumerable<MemeText> memeText {get;set;}
     }
 

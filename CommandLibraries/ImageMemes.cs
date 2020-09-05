@@ -27,7 +27,11 @@ namespace homiebot
             {
                 Template = new MemeTemplate
                 {
-                    ImageBase = new FileInfo("images/homies.jpg"),
+                    ImageBase = new LocallyStoredFile()
+                    {
+                        Identifier = "images/homies.jpg",
+                        Name = "homies"
+                    },
                     memeText = new MemeText[] {
                         new MemeText
                         {
@@ -54,7 +58,7 @@ namespace homiebot
         {
             logger.LogInformation("Got a request for a homies imagememe");
             await ctx.TriggerTypingAsync();
-            await ctx.RespondWithFileAsync("homies.jpg", new MemoryStream(homiesMeme.GetImage(args)));
+            await ctx.RespondWithFileAsync("homies.jpg", new MemoryStream(await homiesMeme.GetImageAsync(args)));
         }
     }
 }
