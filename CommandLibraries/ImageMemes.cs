@@ -58,7 +58,7 @@ namespace homiebot
         {
             logger.LogInformation("Got a request for a homies imagememe");
             await ctx.TriggerTypingAsync();
-            await ctx.RespondWithFileAsync("homies.jpg", new MemoryStream(await homiesMeme.GetImageAsync(args)));
+            await ctx.RespondWithFileAsync("homies.jpg", new MemoryStream(await homiesMeme.GetImageAsync(string.Join(" ",args))));
         }
     }
 }
