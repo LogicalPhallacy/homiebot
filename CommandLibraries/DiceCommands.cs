@@ -39,7 +39,7 @@ namespace homiebot
              if(regexmatch.Success)
              {
                  logger.LogInformation("input string {string} is a valid dice roll, parsing math",diceroll);
-                 int numrolls = 0;
+                 int numrolls = 1;
                  int dicecount = 0;
                  int sides = 0;
                  int opinteger = 0;
@@ -54,21 +54,21 @@ namespace homiebot
                             {
                                 case "1":
                                     numrolls = int.Parse(g.Value);
-                                    if(numrolls >= 10)
+                                    if(numrolls > 10)
                                     {
                                         throw new ArgumentOutOfRangeException("You only get ten rolls at a time, thems the rules");
                                     }
                                     break;
                                 case "2":
                                     dicecount = int.Parse(g.Value);
-                                    if(dicecount >= 20)
+                                    if(dicecount > 20)
                                     {
                                         throw new ArgumentOutOfRangeException("You only get twenty dice at a time, thems the rules");
                                     }
                                     break;
                                 case "3":
                                     sides = int.Parse(g.Value);
-                                    if(sides >= 1000)
+                                    if(sides > 1000)
                                     {
                                         throw new ArgumentOutOfRangeException("No one needs more than a d1000 don't run up the Azure bill");
                                     }
@@ -139,6 +139,7 @@ namespace homiebot
 
         private async IAsyncEnumerable<string> GetDiceRoll(int numdice, int dicesides, DiceOperations firstOp = DiceOperations.None, int opinteger = 0, int numrolls = 1)
         {
+            logger.LogInformation("Rolling {numdice}d{dicesides} {numrolls} times. Also doing {diceop} with operatorvalue {opinteger}",numdice,dicesides,numrolls,firstOp,opinteger);
             int grandtotal = 0;
             List<string> Retstrings = new List<string>();
             yield return $"Rolling {numdice} d {dicesides} {numrolls} times:";
@@ -199,6 +200,7 @@ namespace homiebot
                 outstr += $"***Roll Total***: {subtotal}";
                 yield return outstr;
                 subtotals.Add(subtotal);
+                currentroll++;
             }
             if (subtotals.Count == 1)
             {
