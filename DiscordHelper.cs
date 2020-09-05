@@ -55,6 +55,7 @@ namespace homiebot
             logger.LogInformation("Registering Baseline Commands");
             commands.RegisterCommands<HomieCommands>();
             commands.RegisterCommands<ImageMemeCommands>();
+            commands.RegisterCommands<DiceCommands>();
             logger.LogInformation("Parsing gimmicks");
             HomieCommands hc = new HomieCommands((Random)services.GetService(typeof(Random)),logger,config);
             //var childgimmicks = config.GetSection("Gimmicks").GetChildren();
