@@ -546,6 +546,14 @@
             ]
         },
         {
+            "Command":"sayno",
+            "Description":"Homiebot will help you just say no",
+            "ArgCount":0,
+            "ReplacementStrings":[
+                "```   No    No   No\n  No No No  No  No\n No  NoNo   No  No\nNo    No      No```"
+            ]
+        },
+        {
             "Command":"homie",
             "Description":"All the homies will echo your opinion",
             "ArgCount": 1,
