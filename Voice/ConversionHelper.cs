@@ -28,7 +28,7 @@ namespace homiebot.voice
                     int copyamount = remaining > resampleStream.SourceBuffer.Length ? resampleStream.SourceBuffer.Length : remaining;
                     Buffer.BlockCopy(audiodata,offset,resampleStream.SourceBuffer,0,copyamount);
                     int sourceBytesConverted = 0;
-                    logger.LogInformation("Resampling");
+                    // logger.LogInformation("Resampling");
                     var convertedBytes = resampleStream.Convert(copyamount, out sourceBytesConverted);
                     if (sourceBytesConverted != copyamount)
                     {
@@ -44,7 +44,7 @@ namespace homiebot.voice
             {
                 Buffer.BlockCopy(audiodata,0,resampleStream.SourceBuffer,0,audiodata.Length);
                 int sourceBytesConverted = 0;
-                logger.LogInformation("Resampling");
+                // logger.LogInformation("Resampling");
                 var convertedBytes = resampleStream.Convert(audiodata.Length, out sourceBytesConverted);
                 if (sourceBytesConverted != audiodata.Length)
                 {

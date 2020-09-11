@@ -9,6 +9,7 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.CommandsNext.Builders;
 using DSharpPlus.CommandsNext.Converters;
+using homiebot.voice;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 
@@ -34,11 +35,13 @@ namespace homiebot
         private readonly IConfiguration config;
         private IEnumerable<Gimmick> Gimmicks;
         private IEnumerable<ReactionConfig> reactionConfigs;
-        public HomieCommands(Random random, ILogger<HomieBot> logger, IConfiguration config)
+        private ITextToSpeechHelper textToSpeechHelper;
+        public HomieCommands(Random random, ILogger<HomieBot> logger, IConfiguration config,ITextToSpeechHelper textToSpeechHelper)
         {
             this.random = random;
             this.logger = logger;
             this.config = config;
+            this.textToSpeechHelper = textToSpeechHelper;
             InitializeGimmicks();
             reactionConfigs = config.GetSection("ReactionPacks").Get<IEnumerable<ReactionConfig>>();
         }
@@ -47,7 +50,7 @@ namespace homiebot
             Gimmicks = config.GetSection("Gimmicks").Get<IEnumerable<Gimmick>>();
             foreach(var gimmick in Gimmicks)
             {
-                gimmick.Inject(random,logger);
+                gimmick.Inject(random,logger,textToSpeechHelper);
             }
         }
         public CommandBuilder[] GetDynamicGimmickCommands(IEnumerable<Gimmick> gimmicks)
@@ -55,7 +58,7 @@ namespace homiebot
             var commands = new List<CommandBuilder>();
             foreach(var gimmick in gimmicks)
             {
-                gimmick.Inject(random,logger);
+                gimmick.Inject(random,logger,textToSpeechHelper);
                 commands.Add(new CommandBuilder()
                 //.WithAlias(gimmick.Command)
                 .WithName(gimmick.Command)
@@ -64,6 +67,17 @@ namespace homiebot
                     new CommandOverloadBuilder(new RunGimmick(gimmick.RunGimmick)).WithPriority(0)
                     )
                 );
+                if(gimmick.CanVoice)
+                {
+                    commands.Add(
+                        new CommandBuilder()
+                        .WithName($"say{gimmick.Command}")
+                        .WithDescription($"{gimmick.Description} over voice chat")
+                        .WithOverload(
+                            new CommandOverloadBuilder(new RunGimmick(gimmick.SpeakGimmick)).WithPriority(0)
+                        )
+                    );
+                }
             }
             return commands.ToArray();
         }

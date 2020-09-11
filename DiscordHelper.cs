@@ -60,7 +60,7 @@ namespace homiebot
             commands.RegisterCommands<ImageMemeCommands>();
             commands.RegisterCommands<DiceCommands>();
             logger.LogInformation("Parsing gimmicks");
-            HomieCommands hc = new HomieCommands((Random)services.GetService(typeof(Random)),logger,config);
+            HomieCommands hc = new HomieCommands((Random)services.GetService(typeof(Random)),logger,config,(ITextToSpeechHelper)services.GetService(typeof(ITextToSpeechHelper)));
             //var childgimmicks = config.GetSection("Gimmicks").GetChildren();
             var Gimmicks = config.GetSection("Gimmicks").Get<IEnumerable<Gimmick>>();
             logger.LogInformation("Registering Gimmicks");

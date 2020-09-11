@@ -28,8 +28,15 @@ namespace homiebot.voice
         }
         public IEnumerable<IVoiceProvider> VoiceProviders => voiceProviders;
 
-        public VoicePersona CurrentVoice { get => currentVoice; set => currentVoice = AvailableVoices.Where(v => v == value).FirstOrDefault(); }
-
+        public VoicePersona CurrentVoice { 
+            get => currentVoice; 
+            set => setVoice(value); 
+            }
+        private void setVoice(VoicePersona newVoice)
+        {
+            currentVoice = newVoice;
+            currentVoice.VoiceProvider.ActiveVoice = newVoice;
+        }
         public IEnumerable<VoicePersona> AvailableVoices => getVoices();
 
         private IEnumerable<VoicePersona> getVoices() 

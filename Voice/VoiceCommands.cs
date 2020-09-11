@@ -63,46 +63,28 @@ namespace homiebot.voice
         [Description("If connected to a voice channel, Homiebot will use TTS to speak what you asked for")]
         public async Task Speak(CommandContext context, [RemainingText]string text)
         {
-            var voiceNext = context.Client.GetVoiceNext();
-            var connection = voiceNext.GetConnection(context.Guild);
-            if(connection == null)
-            {
-                await context.TriggerTypingAsync();
-                await context.RespondAsync("I'm not connected to a channel right now. Tell me to ::getin one");
-            }
-            if(text.Length > textToSpeechHelper.CurrentVoice.CharLimit)
-            {
-                await context.TriggerTypingAsync();
-                await context.RespondAsync($"Sorry, there's a TTS character limit and you're over it by {textToSpeechHelper.CurrentVoice.CharLimit - text.Length}");
-            }
-            await connection.SendSpeakingAsync();
-            var transit = connection.GetTransmitStream();
-            await textToSpeechHelper.Speak(text,transit);
-            await connection.WaitForPlaybackFinishAsync();
-            await transit.FlushAsync();
-            await transit.DisposeAsync();
+            await SpeechHelper.Speak(textToSpeechHelper,context,text);
         }
 
         [Command("showvoice")]
-        [Description("Shows the available TTS voices and some details about them")]
-        public async Task ShowVoice(CommandContext context)
+        [Description("Shows the available TTS voices, add a specific voice to see detailed info on it")]
+        public async Task ShowVoice(CommandContext context, string text)
         {
             await context.TriggerTypingAsync();
-            await context.RespondAsync($"CURRENT VOICE\n{textToSpeechHelper.CurrentVoice.ToString()}");
-            string others = "AVAILABLE VOICES\n";
-            foreach(var v in textToSpeechHelper.AvailableVoices)
+            if(!string.IsNullOrWhiteSpace(text))
             {
-                if(others.Length > 1000)
+                var requestedVoice = textToSpeechHelper.AvailableVoices.Where(v => v.Equals(text)).FirstOrDefault();
+                if(requestedVoice == null)
                 {
-                    await context.RespondAsync(others);        
-                    others = "AVAILABLE VOICES CONT.\n";
+                    await context.RespondAsync("Couldn't find a voice by that name");
+                    return;
                 }
-                if(v!=textToSpeechHelper.CurrentVoice)
-                {
-                    others+=v.ToString();
-                    others+="\n";    
-                }
+                await context.RespondAsync($"Voice Information for {requestedVoice.VoiceName}:\n{requestedVoice.ToString()}");
+                return;
             }
+            await context.RespondAsync($"CURRENT VOICE\n{textToSpeechHelper.CurrentVoice.VoiceName}");
+            string others = "AVAILABLE VOICES:\n";
+            others+= string.Join(' ',textToSpeechHelper.AvailableVoices.Select(v => v.VoiceName));
             await context.RespondAsync(others);
         }
         [Command("setvoice")]
@@ -121,12 +103,6 @@ namespace homiebot.voice
             }
             textToSpeechHelper.CurrentVoice = newVoice;
             await context.RespondAsync($"Voice updated to:\n{newVoice.ToString()}");
-        }
-        [Command("sayhomies")]
-        [Description("TTS version of the homies meme")]
-        public async Task SayHomies(CommandContext context, [RemainingText]string text)
-        {
-            await Speak(context, $"Fuck {text}! All my homies hate {text}");
         }
     }
 }
