@@ -16,6 +16,7 @@ namespace homiebot.voice
     {
         public VoicePersona(IVoiceProvider provider, string name, int CharLimit, VoiceSex sex, int sampleRate = 16000)
         {
+            VoiceProvider = provider;
             this.VoiceName = name;
             this.CharLimit = CharLimit;
             this.VoiceSex = sex;

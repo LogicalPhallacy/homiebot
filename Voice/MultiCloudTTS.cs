@@ -14,8 +14,7 @@ namespace homiebot.voice
 
         private List<IVoiceProvider> voiceProviders;
         private VoicePersona currentVoice;
-        private List<VoicePersona> voices;
-        public MultiCloudTTS(IServiceProvider services, ILogger logger)
+        public MultiCloudTTS(IServiceProvider services, ILogger<HomieBot> logger)
         {
             this.logger = logger;
             logger.LogInformation("Initializing multicloud provider");
@@ -31,7 +30,18 @@ namespace homiebot.voice
 
         public VoicePersona CurrentVoice { get => currentVoice; set => currentVoice = value; }
 
-        public IEnumerable<VoicePersona> AvailableVoices => voices;
+        public IEnumerable<VoicePersona> AvailableVoices => getVoices();
+
+        private IEnumerable<VoicePersona> getVoices() 
+        {
+            foreach(var p in voiceProviders)
+            { 
+                foreach(var v in p.ListVoices)
+                {
+                    yield return v;
+                }
+            }
+        }
 
         public void AddVoiceProvider(IVoiceProvider provider)
         {
