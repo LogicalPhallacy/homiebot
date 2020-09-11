@@ -12,7 +12,7 @@ namespace homiebot.voice
     {
         private readonly ILogger logger;
         private readonly ITextToSpeechHelper textToSpeechHelper;
-        public VoiceCommands(ILogger logger, ITextToSpeechHelper textToSpeechHelper)
+        public VoiceCommands(ILogger<HomieBot> logger, ITextToSpeechHelper textToSpeechHelper)
         {
             this.logger = logger;
             this.textToSpeechHelper = textToSpeechHelper;
@@ -70,10 +70,10 @@ namespace homiebot.voice
                 await context.TriggerTypingAsync();
                 await context.RespondAsync("I'm not connected to a channel right now. Tell me to ::getin one");
             }
-            if(text.ToCharArray().Length > textToSpeechHelper.CurrentVoice.CharLimit)
+            if(text.Length > textToSpeechHelper.CurrentVoice.CharLimit)
             {
                 await context.TriggerTypingAsync();
-                await context.RespondAsync($"Sorry, there's a TTS character limit and you're over it by {textToSpeechHelper.CurrentVoice.CharLimit - text.ToCharArray().Length}");
+                await context.RespondAsync($"Sorry, there's a TTS character limit and you're over it by {textToSpeechHelper.CurrentVoice.CharLimit - text.Length}");
             }
             await connection.SendSpeakingAsync();
             var transit = connection.GetTransmitStream();
@@ -92,6 +92,11 @@ namespace homiebot.voice
             string others = "AVAILABLE VOICES\n";
             foreach(var v in textToSpeechHelper.AvailableVoices)
             {
+                if(others.Length > 1000)
+                {
+                    await context.RespondAsync(others);        
+                    others = "AVAILABLE VOICES CONT.\n";
+                }
                 if(v!=textToSpeechHelper.CurrentVoice)
                 {
                     others+=v.ToString();
@@ -115,6 +120,19 @@ namespace homiebot.voice
                 return;
             }
             textToSpeechHelper.CurrentVoice = newVoice;
+            var voiceNext = context.Client.GetVoiceNext();
+            var connection = voiceNext.GetConnection(context.Guild);
+            if(connection != null)
+            {
+                await Speak(context,"I'll need to cycle my connection to change voices, fingers crossed I'll be right back.");
+                var channel = connection.Channel;
+                connection.Disconnect();
+                connection.Dispose();
+                voiceNext = context.Client.UseVoiceNext(new VoiceNextConfiguration{
+                    AudioFormat = new AudioFormat(newVoice.SampleRate,1,VoiceApplication.Voice)
+                });
+                connection = await channel.ConnectAsync();
+            }
             await context.RespondAsync($"Voice updated to:\n{newVoice.ToString()}");
         }
         [Command("sayhomies")]
