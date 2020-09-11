@@ -63,7 +63,7 @@ namespace homiebot.voice
                         SampleRateHertz = activeVoice.NaturalSampleRateHertz
                     }
                 );
-                synth.AudioContent.WriteTo(outStream);
+                    AudioConversionHelper.ConvertForDiscord(synth.AudioContent.ToArray(),activeVoice.NaturalSampleRateHertz,1,outStream,this.logger);
             }catch(Exception e)
             {
                 logger.LogError(e,"Problem with Google Cloud API");

@@ -120,19 +120,6 @@ namespace homiebot.voice
                 return;
             }
             textToSpeechHelper.CurrentVoice = newVoice;
-            var voiceNext = context.Client.GetVoiceNext();
-            var connection = voiceNext.GetConnection(context.Guild);
-            if(connection != null)
-            {
-                await Speak(context,"I'll need to cycle my connection to change voices, fingers crossed I'll be right back.");
-                var channel = connection.Channel;
-                connection.Disconnect();
-                connection.Dispose();
-                voiceNext = context.Client.UseVoiceNext(new VoiceNextConfiguration{
-                    AudioFormat = new AudioFormat(newVoice.SampleRate,1,VoiceApplication.Voice)
-                });
-                connection = await channel.ConnectAsync();
-            }
             await context.RespondAsync($"Voice updated to:\n{newVoice.ToString()}");
         }
         [Command("sayhomies")]

@@ -90,7 +90,8 @@ namespace homiebot
             logger.LogInformation("Registering Voice Commands");
             voiceNext = discordClient.UseVoiceNext(
                 new VoiceNextConfiguration{
-                    EnableIncoming = false
+                    EnableIncoming = false,
+                    AudioFormat = new AudioFormat(48000,1,VoiceApplication.Voice)
                 }
             );
             commands.RegisterCommands<VoiceCommands>();

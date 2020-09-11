@@ -20,7 +20,7 @@ namespace homiebot.voice
             this.VoiceName = name;
             this.CharLimit = CharLimit;
             this.VoiceSex = sex;
-            this.SampleRate = 16000;
+            this.SampleRate = sampleRate;
         }
         public IVoiceProvider VoiceProvider {get;}
         public string VoiceName {get;}
