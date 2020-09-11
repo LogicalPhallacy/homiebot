@@ -9,8 +9,11 @@
     <PublishSingleFile>false</PublishSingleFile>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="DSharpPlus" Version="4.0.0-nightly-00711" />
-    <PackageReference Include="DSharpPlus.CommandsNext" Version="4.0.0-nightly-00711" />
+    <PackageReference Include="DSharpPlus" Version="4.0.0-nightly-00722" />
+    <PackageReference Include="DSharpPlus.CommandsNext" Version="4.0.0-nightly-00722" />
+    <PackageReference Include="DSharpPlus.VoiceNext" Version="4.0.0-nightly-00722" />
+    <PackageReference Include="DSharpPlus.VoiceNext.Natives" Version="1.0.0" />
+    <PackageReference Include="Google.Cloud.TextToSpeech.V1" Version="1.0.0-beta01" />
     <PackageReference Include="Magick.NET-Q8-AnyCPU" Version="7.21.1" />
     <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.12.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.7" />
@@ -25,6 +28,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="BotConfig.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="googlekey.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="ReactionPack.json">

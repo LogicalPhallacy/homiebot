@@ -6,6 +6,8 @@ using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Entities;
+using DSharpPlus.VoiceNext;
+using homiebot.voice;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Text.RegularExpressions;
@@ -22,6 +24,7 @@ namespace homiebot
         private bool connected;
         private DiscordClient discordClient;
         private CommandsNextExtension commands;
+        private VoiceNextExtension voiceNext;
         public bool Connected {
             get => connected;
         }
@@ -42,13 +45,13 @@ namespace homiebot
                 AutoReconnect = true,
                 Token = token,
                 TokenType = TokenType.Bot,
-                LogLevel = DSharpPlus.LogLevel.Info,
             });
             commands = discordClient.UseCommandsNext(new CommandsNextConfiguration(){
                 CaseSensitive = false,
                 EnableDefaultHelp = true,
                 StringPrefixes = commandMarkers,
-                Services = services
+                Services = services,
+                EnableDms = false
             });
             logger.LogInformation("Registering custom parser");
             //commands.RegisterConverter(new StringArrayParamConverter());
@@ -84,6 +87,14 @@ namespace homiebot
             };
             logger.LogInformation("Registering reactions");
             discordClient.MessageReactionAdded += hc.ProcessReaction;
+            logger.LogInformation("Registering Voice Commands");
+            voiceNext = discordClient.UseVoiceNext(
+                new VoiceNextConfiguration{
+                    EnableIncoming = false
+                }
+            );
+            commands.RegisterCommands<VoiceCommands>();
+            
             logger.LogInformation("Trying Connect");
             try
             {
