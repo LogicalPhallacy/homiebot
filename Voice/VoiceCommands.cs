@@ -68,7 +68,7 @@ namespace homiebot.voice
 
         [Command("showvoice")]
         [Description("Shows the available TTS voices, add a specific voice to see detailed info on it")]
-        public async Task ShowVoice(CommandContext context, string text)
+        public async Task ShowVoice(CommandContext context, [RemainingText] string? text)
         {
             await context.TriggerTypingAsync();
             if(!string.IsNullOrWhiteSpace(text))
