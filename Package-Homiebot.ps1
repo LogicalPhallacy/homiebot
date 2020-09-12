@@ -1,6 +1,8 @@
 [CmdletBinding()]
 param (
     [string] $Path = "homiebot.zip",
+    #[string] $NativesURL = 'https://dsharpplus.github.io/natives/vnext_natives_win32_x64.zip',
+    #[string] $FFMPEGUrl = 'https://dsharpplus.github.io/natives/ffmpeg_win32_x64.zip',
     [switch] $Force
 )
 BEGIN {
@@ -22,6 +24,13 @@ PROCESS {
     Write-Verbose "Publishing dot net application"
     dotnet publish $PSScriptRoot -o $PubDir | Write-Verbose
     $LASTEXITCODE
+    #Write-Verbose "Downloading Native Libs for Voice"
+    #Invoke-WebRequest -Uri $NativesURL -OutFile "$PubDir\natives.zip"
+    #Write-Verbose "Downloading FFMPEG for Voice"
+    #Invoke-WebRequest -Uri $FFMPEGUrl -OutFile "$PubDir\ffmpeg.zip"
+    #Write-Verbose "Extracting natives"
+    #Expand-Archive "$PubDir\natives.zip" -DestinationPath $PubDir
+    #Expand-Archive "$PubDir\ffmpeg.zip" -DestinationPath $PubDir
     Write-Verbose "Creating Zip file"
     Compress-Archive -Path ($PubDir + "\*") -DestinationPath $Path -Force
     rm $PubDir -Force -Recurse

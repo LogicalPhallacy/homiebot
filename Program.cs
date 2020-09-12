@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 using System.Threading;
+using homiebot.voice;
 
 namespace homiebot
 {
@@ -57,6 +58,7 @@ namespace homiebot
             {
 
                 services.AddSingleton(typeof(Random))
+                .AddSingleton(typeof(ITextToSpeechHelper),typeof(MultiCloudTTS))
                 .AddHostedService<HomieBot>();
             })
             // We can use this to do Windows Service Hosting, but since we're moving this to an appservice...

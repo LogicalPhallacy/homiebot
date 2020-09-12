@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
+using homiebot.voice;
 namespace homiebot
 {
     public class Gimmick
@@ -16,16 +17,21 @@ namespace homiebot
         public int ArgCount {get;set;}
         public bool Injected{get; set;}
 
+        public bool CanVoice{get;set;}
+
         private Random random;
         private ILogger logger;
+
+        private ITextToSpeechHelper textToSpeechHelper;
 
         public Gimmick()
         {
             Injected = false;
         }
-        public void Inject(Random random, ILogger logger){
+        public void Inject(Random random, ILogger logger, ITextToSpeechHelper textToSpeechHelper){
             this.random = random;
             this.logger = logger;
+            this.textToSpeechHelper = textToSpeechHelper;
             Injected = true;
         }
         public string Replace(params string[] args)
@@ -62,11 +68,21 @@ namespace homiebot
         public async Task RunGimmick(CommandContext ctx, params string[] args)
         {
             await ctx.TriggerTypingAsync();
-            logger.LogInformation("Got a gimmick command: {gimmick}", this.Command);
-            logger.LogInformation("From Guild: {Guild} Channel:{Channel}", ctx.Guild.Name,ctx.Channel.Name);
-            logger.LogInformation("Params for command are {params}", string.Join(',',args));
+            logger.LogInformation("Got a gimmick command: {gimmick}\nFrom Guild: {Guild} Channel:{Channel}", this.Command,ctx.Guild.Name,ctx.Channel.Name);
+            //logger.LogInformation("Params for command are {params}", string.Join(',',args));
             string returnstring = this.Replace(args);
             await ctx.RespondAsync(returnstring);
+        }
+
+        public async Task SpeakGimmick(CommandContext context, params string[] args)
+        {
+            await context.TriggerTypingAsync();
+            if(CanVoice)
+            {
+                await SpeechHelper.Speak(textToSpeechHelper,context,Replace(args));
+                return;
+            }
+            await context.RespondAsync("Some things don't need saying homie");
         }
     }
 }
