@@ -43,6 +43,16 @@ namespace homiebot.voice
                 }
             }
             voiceConnection = await channel.ConnectAsync();
+            logger.LogInformation("Registering helper events to leave when idle");
+            voiceConnection.UserLeft += (
+                async (vcontext) => {
+                    if(voiceConnection.Channel.Users.Count() == 1){
+                        await context.Channel.SendMessageAsync("I don't like being all alone in VC, so I'm out.");
+                        voiceConnection.Disconnect();
+                        voiceConnection.Dispose();
+                    }
+                }
+            );
         }
 
         [Command("getout")]
