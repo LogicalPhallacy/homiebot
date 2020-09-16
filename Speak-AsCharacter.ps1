@@ -46,7 +46,8 @@ param (
     )]
     [string]$SpeakerName,
     [Parameter(Position = 1, Mandatory = $true)]
-    [string]$Text
+    [string]$Text,
+    [string]$Outfile
 )
 
 begin {
@@ -77,11 +78,17 @@ process {
         return $Response
     }
     $AudioData = $Response | ConvertFrom-Json
+    $AudioData
 }
 
 end {
     Write-Host "Playing Audio"
-    $MemStream = [System.IO.MemoryStream]::new([Convert]::FromBase64String($AudioData.audio_base64))
-    $SoundPlayer.Stream = $MemStream
-    $SoundPlayer.Play()
+    
+    if(-not ([string]::IsNullOrEmpty($OutFile))){
+        [System.IO.File]::WriteAllBytes($OutFile,[Convert]::FromBase64String($AudioData.audio_base64))
+    }else{
+        $MemStream = [System.IO.MemoryStream]::new([Convert]::FromBase64String($AudioData.audio_base64))
+        $SoundPlayer.Stream = $MemStream
+        $SoundPlayer.Play()
+    }
 }

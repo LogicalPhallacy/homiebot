@@ -5,5 +5,10 @@
             "::",
             ";;"
         ]
+    },
+    "AzureVoiceConfig":{
+        "Endpoint": "",
+        "SubscriptionKey": "",
+        "Region":""
     }
 }

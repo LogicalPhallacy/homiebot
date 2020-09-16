@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using System.IO;
 using System.Linq;
+using Microsoft.Extensions.Configuration;
+using DSharpPlus.CommandsNext;
 
 namespace homiebot.voice
 {
@@ -11,17 +13,22 @@ namespace homiebot.voice
     {
         private readonly IServiceProvider services;
         private readonly ILogger logger;
+        private readonly IConfiguration configuration;
 
         private List<IVoiceProvider> voiceProviders;
         private VoicePersona currentVoice;
-        public MultiCloudTTS(IServiceProvider services, ILogger<HomieBot> logger)
+        public MultiCloudTTS(IServiceProvider services, ILogger<HomieBot> logger, IConfiguration configuration)
         {
             this.logger = logger;
+            this.configuration = configuration;
             logger.LogInformation("Initializing multicloud provider");
             voiceProviders = new List<IVoiceProvider>();
             logger.LogInformation("Registering Google Cloud Voice Provider");
             AddVoiceProvider(new GoogleCloudVoiceProvider(logger));
-            
+            logger.LogInformation("Registering Azure Voices");
+            AddVoiceProvider(new AzureVoiceProvider(logger,configuration));            
+            logger.LogInformation("Registering DeepFake Voices");
+            AddVoiceProvider(new DeepFakeVoiceProvider(logger));
             logger.LogInformation("Setting up current voice");
             currentVoice = voiceProviders.FirstOrDefault().ListVoices.FirstOrDefault();
             logger.LogInformation("MultiCloud ready with default voice of {voice}",currentVoice.VoiceName);
@@ -60,9 +67,9 @@ namespace homiebot.voice
             }
         }
 
-        public async Task Speak(string text, Stream outStream)
+        public async Task Speak(string text, Stream outStream, CommandContext context = null)
         {
-            await currentVoice.VoiceProvider.SpeakAsync(new TextToSpeak{Text = text,VoiceSex = currentVoice.VoiceSex},outStream);
+            await currentVoice.VoiceProvider.SpeakAsync(new TextToSpeak{Text = text,VoiceSex = currentVoice.VoiceSex},outStream, context);
         }
     }
 }

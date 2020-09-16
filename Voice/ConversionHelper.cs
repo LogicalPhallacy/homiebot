@@ -8,6 +8,59 @@ using Microsoft.Extensions.Logging;
 
 namespace homiebot.voice
 {
+    public static class SSMLConversionHelper
+    {
+        public const string langstring = "en";
+        public const string langcodestring = "en-US";
+
+        public static string CreateSSMLString(VoicePersona voice, string text)
+        {
+            return WrapWholeElement(voice,WrapMood(voice,WrapProsody(voice,EscapeXML(text))));
+        }
+
+        private static string WrapWholeElement(VoicePersona voice, string text)
+        {
+            string template = $"<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xmlns:mstts=\"https://www.w3.org/2001/mstts\" xml:lang=\"{langcodestring}\">"
+                +$"<voice name=\"{voice.VoiceName}\">";
+            template += text;
+            template += "</voice>"+"</speak>";
+            return template;
+        }
+        private static string WrapMood(VoicePersona voice, string text)
+        {
+            if(voice.Mood != VoiceMood.Unavailable)
+            {
+                string template = $"<mstts:express-as style=\"{voice.Mood}\">";
+                template += text;
+                template +="</mstts:express-as>";
+                return template;
+            }
+            return text;
+        }
+        private static string WrapProsody(VoicePersona voice, string text)
+        {
+            if(voice.SemitoneAdjust == 0 && voice.Speed == VoiceSpeed.Normal){
+                return text;
+            }
+            string template = "<prosody";
+            if(voice.SemitoneAdjust != 0){
+                template +=$" pitch=\"{voice.SemitoneAdjust}st\"";    
+            }
+            if(voice.Speed != VoiceSpeed.Normal)
+            {
+                string voicestring = voice.Speed.ToString();
+                voicestring = voicestring.Replace("x","x-");
+                template += $" rate=\"{voicestring}\"";
+            }
+            template+=">";
+            template += text;
+            template += "</prosody>";
+            return template;
+        }
+        private static string EscapeXML(string text){
+            return System.Security.SecurityElement.Escape(text);
+        }
+    }
     public static class AudioConversionHelper
     {
         public static int OutSampleRate = 48000;

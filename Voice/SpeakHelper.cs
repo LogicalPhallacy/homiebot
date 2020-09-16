@@ -29,7 +29,7 @@ namespace homiebot.voice
             }
             await connection.SendSpeakingAsync();
             var transit = connection.GetTransmitStream();
-            await textToSpeechHelper.Speak(text,transit);
+            await textToSpeechHelper.Speak(text,transit,context);
             await connection.WaitForPlaybackFinishAsync();
             await transit.FlushAsync();
             await transit.DisposeAsync();

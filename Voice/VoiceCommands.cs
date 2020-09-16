@@ -5,6 +5,7 @@ using DSharpPlus;
 using System.Threading.Tasks;
 using System.Linq;
 using Microsoft.Extensions.Logging;
+using System;
 
 namespace homiebot.voice
 {
@@ -44,15 +45,6 @@ namespace homiebot.voice
             }
             voiceConnection = await channel.ConnectAsync();
             logger.LogInformation("Registering helper events to leave when idle");
-            voiceConnection.UserLeft += (
-                async (vcontext) => {
-                    if(voiceConnection.Channel.Users.Count() == 1){
-                        await context.Channel.SendMessageAsync("I don't like being all alone in VC, so I'm out.");
-                        voiceConnection.Disconnect();
-                        voiceConnection.Dispose();
-                    }
-                }
-            );
         }
 
         [Command("getout")]
@@ -70,6 +62,7 @@ namespace homiebot.voice
         }
 
         [Command("speak")]
+        [Aliases("say")]
         [Description("If connected to a voice channel, Homiebot will use TTS to speak what you asked for")]
         public async Task Speak(CommandContext context, [RemainingText]string text)
         {
@@ -114,5 +107,63 @@ namespace homiebot.voice
             textToSpeechHelper.CurrentVoice = newVoice;
             await context.RespondAsync($"Voice updated to:\n{newVoice.ToString()}");
         }
+        [Command("setvoicespeed")]
+        [Description("Sets a speed for current voice to speak at, valid values are: Normal, xslow, slow, fast, xfast")]
+        public async Task SetVoiceSpeed(CommandContext context, string speed)
+        {
+            await context.TriggerTypingAsync();
+            VoiceSpeed v = VoiceSpeed.Normal;
+            try
+            {
+                v = Enum.Parse<VoiceSpeed>(speed);
+                var newVoice = textToSpeechHelper.CurrentVoice;
+                newVoice.Speed = v;
+                textToSpeechHelper.CurrentVoice = newVoice;
+                await context.RespondAsync($"Voice speed changed. CurrentVoice is now {textToSpeechHelper.CurrentVoice.ToString()}");
+            }
+            catch(Exception e)
+            {
+                await context.RespondAsync("Couldn't parse your response into a valid voice speed, sorry. Voice Speed will not be changed");
+            }
+        }
+        [Command("setvoicepitch")]
+        [Description("Adjusts the pitch of the current voice, valid values are: -20 through 20 in whole numbers")]
+        public async Task SetVoicePitch(CommandContext context, int pitch)
+        {
+            await context.TriggerTypingAsync();
+            if(pitch < -20 || pitch > 20)
+            {
+                await context.RespondAsync("Pitch adjustments must be within -20 to 20 semitones, whole numbers only");
+                return;
+            }
+            var newVoice = textToSpeechHelper.CurrentVoice;
+            newVoice.SemitoneAdjust = pitch;
+            textToSpeechHelper.CurrentVoice = newVoice;
+            await context.RespondAsync($"Voice pitch changed. CurrentVoice is now {textToSpeechHelper.CurrentVoice.ToString()}");
+        }
+        [Command("setvoicemood")]
+        [Description("Sets a mood for current voice (if supported), valid values are: newscastformal, newscastcasual, customerservice, chat, cheerful, empathetic")]
+        public async Task SetVoiceMood(CommandContext context, string mood)
+        {
+            await context.TriggerTypingAsync();
+            if(textToSpeechHelper.CurrentVoice.Mood == VoiceMood.Unavailable){
+                await context.RespondAsync("Cannot change the mood on this voice, sorry");
+                return;
+            }
+            VoiceMood v = VoiceMood.Unavailable;
+            try
+            {
+                v = Enum.Parse<VoiceMood>(mood);
+                var newVoice = textToSpeechHelper.CurrentVoice;
+                newVoice.Mood = v;
+                textToSpeechHelper.CurrentVoice = newVoice;
+                await context.RespondAsync($"Voice mood changed. CurrentVoice is now {textToSpeechHelper.CurrentVoice.ToString()}");
+            }
+            catch(Exception e)
+            {
+                await context.RespondAsync("Couldn't parse your response into a valid voice speed, sorry. Voice Speed will not be changed");
+            }
+        }
+        
     }
 }
