@@ -6,7 +6,7 @@ namespace homiebot.voice
 {
     public static class SpeechHelper 
     {
-        public static async Task Speak(ITextToSpeechHelper textToSpeechHelper, CommandContext context, string text)
+        public static async Task Speak(ITextToSpeechHelper textToSpeechHelper, CommandContext context, string text, bool overrideLimit = false)
         {
             var voiceNext = context.Client.GetVoiceNext();
             if(voiceNext == null)
@@ -21,7 +21,7 @@ namespace homiebot.voice
                 await context.RespondAsync("I'm not connected to a channel right now. Tell me to ::getin one");
                 return;
             }
-            if(text.Length > textToSpeechHelper.CurrentVoice.CharLimit)
+            if(text.Length > textToSpeechHelper.CurrentVoice.CharLimit && !overrideLimit)
             {
                 await context.TriggerTypingAsync();
                 await context.RespondAsync($"Sorry, there's a TTS character limit and you're over it by {textToSpeechHelper.CurrentVoice.CharLimit - text.Length}");

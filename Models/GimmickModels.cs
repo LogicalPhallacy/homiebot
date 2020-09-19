@@ -79,7 +79,7 @@ namespace homiebot
             await context.TriggerTypingAsync();
             if(CanVoice)
             {
-                await SpeechHelper.Speak(textToSpeechHelper,context,Replace(args));
+                await SpeechHelper.Speak(textToSpeechHelper,context,Replace(args),overrideLimit: true);
                 return;
             }
             await context.RespondAsync("Some things don't need saying homie");
