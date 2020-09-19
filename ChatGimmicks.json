@@ -588,6 +588,43 @@
             "ReplacementStrings":[
                 "Did you ever hear the tragedy of @REPLACEMENT1@ The Wise? I thought not. It’s not a story the @REPLACEMENT2@ would tell you. It’s a Sith legend. @REPLACEMENT1@ was a Dark Lord of the Sith, so powerful and so wise he could use the Force to influence the midichlorians to create life… He had such a knowledge of the dark side that he could even keep the ones he cared about from dying. The dark side of the Force is a pathway to many abilities some consider to be unnatural. He became so powerful… the only thing he was afraid of was losing his power, which eventually, of course, he did. Unfortunately, he taught his apprentice everything he knew, then his apprentice killed him in his sleep. Ironic. He could save others from death, but not himself."
             ]
+        },
+        {
+            "Command": "blow",
+            "Description":"An open letter, from Johnathon Blow",
+            "ArgCount": 0,
+            "CanVoice": true,
+            "ReplacementStrings":[
+                "Dear Conferences:\nIf you disinvite a speaker due to \"cancel culture\"-style pressure, then, regardless of the political leanings of the cancelers, be they left, right, or something else entirely, I will decline to speak at your conference. It doesn't matter how many years have passed or how much you swear you changed and don't do that any more."
+                ,"You know, in college, I never got either degree, but I was a double-major in Computer Science and English. And English at Berkeley, where I went to school, is very much creatively-driven. Basically, the entire bachelor's degree in English is all about bullshitting. And Computer Science, which was my other major, was exactly the opposite of that. You had to know what you were doing, and you had to know what you were talking about."
+                ,"There are lots of random blog posters on places like Gamespot or NeoGAF or whatever who show a clearer understanding of Braid than people who are all, \"I'm all about games, and narrative and meaning, and I write a blog just to tell you about how I analyze all these things.\" Those people have the same hit rate as your general forum poster. So that's given me a cynical response to that whole community, which is just that, \"Guys, are you sure you're qualified to do this?\" And that sounds asshole-ish, and mean and snarky, but that's just how I'm feeling right now."
+                ,"Advice for playing Starseed Pilgrim: As long as you still have questions, continue."
+                ,"What's interesting to me is that in terms of people who I feel are getting what my game is about - and here I'm not even talking about what the elements of the story mean, like, whatever symbolism and metaphors and things are in there. But even the structure of the game, like, there's a fundamental structure and reasons in the way things are laid out, and parts of the game that are meant to draw people's attention to certain things, regardless of what's contained in that structure. And what's interesting to me is that some people get that, and some people don't."
+                ,"I came up with this thing that I sort of facetiously called the Cry Test, which is just—imagine you're in a very safe place, with somebody you care a lot about—very intimate relationship with this person—you're very comfortable with them. And you start explaining to them what this project is that you wanna do. If you're not in danger of breaking out in tears, not even necessarily in sadness, not even necessarily breaking out in tears, but having some involuntary upwelling of emotion. If that's not going to happen in that kind of situation, this probably isn't a project that you're that committed to."
+                ,"So the problem is that most people don't know how to find something that strong in game development. You certainly don't get taught that in school, so—at least, not any school I've ever seen—so I'd just encourage some deep introspection, just try—ask yourself what you really care about, really, because usually that answer will be very different from—usually, if you ask yourself what I care about, you'll come up with some answer, and then if you ask yourself \"Really? Is that what I really care about?\" Not really, it's usually some kind of politically correct answer that we tell ourselves. If you iterate on that, if you keep asking yourself what you care about, and not accepting the previous answer, you just ask again, ask again, eventually you make it to something you really care about."
+                ,"People have this reaction, ‘Why would I be interested in a game where you just walk around and draw lines on a bunch of panels? Why is there even a world there? Why is this not just a cheap iOS game or something?’ There are very good answers to that, but you don’t want to give people those answers because you then spoil the game for them."
+                ,"So you could say that the people making FarmVille are not only playing a game, but they're playing some kind of like ur-FarmVille that is way more interesting. And so the sad fact of what this all comes to is you've got these people—you know, FarmVille has a wide demographic, it's not just computer nerds who play it apparently, anymore—so you've got all these people who think that they're playing this cool game where they mine their cows and pigs and feeling like the boss and getting all this gold and getting richer and their farm is looking nicer. There's all these ways that they feel like they're progressing. But what's actually happening is that someone is farming them."
+            ],
+            "StringTerminator":"\nSigned, me... Johnathon Blow!"
+        },
+        {
+            "Command": "mcafee",
+            "Description":"Words of Wisdom",
+            "ArgCount": 0,
+            "CanVoice": true,
+            "ReplacementStrings":[
+                "My fragile connection with the world of polite society has, without a doubt, been severed, My attire would rank me among the worst-dressed Tijuana panhandlers. My hygiene is no better. Yesterday, for the first time, I urinated in public, in broad daylight."
+                ,"My dog and I hiding out from the fallout of the Pearl Harbor of  #CybeWarfare  #lovemydog  #fundaysunday"
+                ,"I apologize for my three day absence but I was unconscious for two days at the Vidant Medical Center in North Carolina and just woke up, My enemies maged to spike something that i ingested. However, I am more difficult to kill than anyone can possibly imagine. I am back."
+                ,"And for those who did this - You will soon understand the true meaning of wrath. I know exactly who you  are. Youh had better be gone."
+                ,"I have not filed a tax return for 8 years"
+                ,"I've been with a black woman so long that I've absorbed the Black culture's lingo. Example: Black men who are true to their culture call their wives and girlfriends \"bitches\", without being derogatory. I introduce Janice thusly - \"This is my bitch, Janice\". White women freak out."
+                ,"I am not. I am black. Always have been. I gave a skin disease which has turned my skin virtually white. But, motherfucker, what's it to you. To racist to follow a black man?"
+                ,"Some call me \"Whale Fucker\". Alright. There's a private club of a few dozen Maori men and one butch woman - that meet in Molokai each year to fuck a whale. True. Men on padeleboards herd the whale while one tries to fuck it. Wouldn't let me in the club. Tried it alone. Epic fail."
+                ,"Enough of the \"Whale Fucking is non-consensual\" bullshit. A Humpback Whale weighs 70,000 pounds, is fifty feet long, can dive more than a quarter mile and can crush ships with a single swipe of its tail. If a human manages to fuck one, you damn well better believe it's consensual"
+            ],
+            "StringTerminator":"\n/\n:mcafee:"
         }
+        
     ]
 }
