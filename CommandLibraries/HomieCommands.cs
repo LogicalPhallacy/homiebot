@@ -143,5 +143,17 @@ namespace homiebot
             context.CommandsNext.RegisterCommands(GetDynamicGimmickCommands(Gimmicks));
             await context.RespondAsync("gimmicks reloaded!");
         }
+
+        [Command("clapback")]
+        [Description("you👏know👏what👏this👏does")]
+        public async Task ClapBack(CommandContext context, [RemainingText] string? text)
+        {
+            string clapchar = "👏";
+            await context.TriggerTypingAsync();
+            if(!string.IsNullOrWhiteSpace(text))
+            {
+                await context.RespondAsync(text.Replace(" ",clapchar));
+            }
+        }
     }
 }
