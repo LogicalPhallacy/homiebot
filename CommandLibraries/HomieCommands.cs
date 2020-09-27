@@ -152,7 +152,9 @@ namespace homiebot
             await context.TriggerTypingAsync();
             if(!string.IsNullOrWhiteSpace(text))
             {
-                await context.RespondAsync(text.Replace(" ",clapchar));
+                var resp = text.Replace(" ",clapchar);
+                resp += clapchar;
+                await context.RespondAsync(resp);
             }
         }
     }
