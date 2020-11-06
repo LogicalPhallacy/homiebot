@@ -157,5 +157,20 @@ namespace homiebot
                 await context.RespondAsync(resp);
             }
         }
+
+        [Command("define")]
+        [Description("Fetches a definition from urban dictionary")]
+        public async Task Define(CommandContext context, [RemainingText] string text)
+        {
+            await context.TriggerTypingAsync();
+            DiscordEmbed d = null;
+            try{
+                d = await UrbanDictionaryHelper.GetDefinition(text);
+            }catch(Exception e){
+                await context.RespondAsync($"Sorry homie, error looking up {text}\n{e.Message}");
+                return;
+            }
+            await context.RespondAsync(embed:d);
+        }
     }
 }
