@@ -556,7 +556,7 @@
             "ArgCount":0,
             "CanVoice": false,
             "ReplacementStrings":[
-                "```   No    No   No\n  No No No  No  No\n No  NoNo   No  No\nNo    No      No```"
+                "```   No    No   NoNo\n  No No No  No    No\n No  NoNo   No    No\nNo    No      NoNo```"
             ]
         },
         {
@@ -605,7 +605,7 @@
                 ,"People have this reaction, ‘Why would I be interested in a game where you just walk around and draw lines on a bunch of panels? Why is there even a world there? Why is this not just a cheap iOS game or something?’ There are very good answers to that, but you don’t want to give people those answers because you then spoil the game for them."
                 ,"So you could say that the people making FarmVille are not only playing a game, but they're playing some kind of like ur-FarmVille that is way more interesting. And so the sad fact of what this all comes to is you've got these people—you know, FarmVille has a wide demographic, it's not just computer nerds who play it apparently, anymore—so you've got all these people who think that they're playing this cool game where they mine their cows and pigs and feeling like the boss and getting all this gold and getting richer and their farm is looking nicer. There's all these ways that they feel like they're progressing. But what's actually happening is that someone is farming them."
             ],
-            "StringTerminator":"\nSigned, me... Johnathon Blow!"
+            "StringTerminator":"\nSigned, me... Jonathan Blow!"
         },
         {
             "Command": "mcafee",
@@ -623,7 +623,7 @@
                 ,"Some call me \"Whale Fucker\". Alright. There's a private club of a few dozen Maori men and one butch woman - that meet in Molokai each year to fuck a whale. True. Men on padeleboards herd the whale while one tries to fuck it. Wouldn't let me in the club. Tried it alone. Epic fail."
                 ,"Enough of the \"Whale Fucking is non-consensual\" bullshit. A Humpback Whale weighs 70,000 pounds, is fifty feet long, can dive more than a quarter mile and can crush ships with a single swipe of its tail. If a human manages to fuck one, you damn well better believe it's consensual"
             ],
-            "StringTerminator":"\n/\n:mcafee:"
+            "StringTerminator":"\n/\n :mcafee: "
         }
         
     ]
