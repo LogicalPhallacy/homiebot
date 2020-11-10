@@ -23,4 +23,11 @@ namespace homiebot
         public string TriggerReaction {get;set;}
         public IEnumerable<string> Reactions {get;set;}
     }
+    public class AWSConfig
+    {
+        public string AccessKey{get;set;}
+        public string SecretKey{get;set;}
+        public string Region {get;set;}
+        public string BucketName {get;set;}
+    }
 }

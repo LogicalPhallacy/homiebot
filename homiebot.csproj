@@ -9,6 +9,7 @@
     <PublishSingleFile>false</PublishSingleFile>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="AWSSDK.S3" Version="3.5.4" />
     <PackageReference Include="DSharpPlus" Version="4.0.0-nightly-00722" />
     <PackageReference Include="DSharpPlus.CommandsNext" Version="4.0.0-nightly-00722" />
     <PackageReference Include="DSharpPlus.VoiceNext" Version="4.0.0-nightly-00722" />

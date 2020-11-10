@@ -59,6 +59,7 @@ namespace homiebot
 
                 services.AddSingleton(typeof(Random))
                 .AddSingleton(typeof(ITextToSpeechHelper),typeof(MultiCloudTTS))
+                .AddSingleton(typeof(images.IImageStore), typeof(images.AWSS3BucketImageStore))
                 .AddHostedService<HomieBot>();
             })
             // We can use this to do Windows Service Hosting, but since we're moving this to an appservice...
