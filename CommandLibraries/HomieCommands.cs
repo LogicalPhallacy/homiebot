@@ -172,5 +172,12 @@ namespace homiebot
             }
             await context.RespondAsync(embed:d);
         }
+        [Command("slap")]
+        [Description("Slaps a user with a fish")]
+        public async Task Slap(CommandContext context, [RemainingText] string text)
+        {
+            await context.TriggerTypingAsync();
+            await context.RespondAsync($"*slaps {text} with a wet trout*");
+        }
     }
 }
