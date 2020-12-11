@@ -4,17 +4,25 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using ImageMagick;
-
+using homiebot.images;
 
 namespace homiebot 
 {
+    public enum TextEffects
+    {
+        None = 0,
+        UPPERCASE,
+        lowercase,
+        mOCkIngCaSE,
+        UwuCase
+    }
     public class ImageMeme 
     {
         public MemeTemplate Template {get; set;}
-        public async Task<Byte[]> GetImageAsync(params string[] replacements) 
+        public async Task<Byte[]> GetImageAsync(IImageStore imageStore, params string[] replacements) 
         {
             var factory = new MagickImageFactory();
-            using (var image = factory.Create(await Template.ImageBase.LoadBytesAsync()))
+            using (var image = factory.Create(await(await imageStore.GetImageAsync(this.Template.ImageBaseIdentifier)).GetBytes()))
             {
                 List<MagickImage> MemeTexts = new List<MagickImage>(); 
                 foreach(var m in Template.memeText)
@@ -47,13 +55,15 @@ namespace homiebot
     public class MemeTemplate
     {
         public string Name {get;set;}
-        public IStoredFile ImageBase{get;set;}
+        public string ImageBaseIdentifier{get;set;}
         public IEnumerable<MemeText> memeText {get;set;}
     }
 
     public class MemeText
     {
         public string TemplateText{get;set;}
+        
+        public TextEffects TextEffects{get;set;} 
         // Bottom Left to Top Right
         public int XStartPosition{get;set;}
         public int YStartPosition{get;set;}

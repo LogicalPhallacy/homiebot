@@ -179,5 +179,12 @@ namespace homiebot
             await context.TriggerTypingAsync();
             await context.RespondAsync($"*slaps {text} with a wet trout*");
         }
+        [Command("Mock")]
+        [Description("Gets some mocking text")]
+        public async Task Mock(CommandContext context, [RemainingText]string text)
+        {
+            await context.TriggerTypingAsync();
+            await context.RespondAsync(text.ToMockingCase());
+        }
     }
 }

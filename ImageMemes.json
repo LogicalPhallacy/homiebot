@@ -1,0 +1,27 @@
+{
+    "MemeTemplates":[
+        {
+            "Name": "homies",
+            "ImageBaseIdentifier": "baseimages/homies.jpg",
+            "memeText":[
+                {
+                    "TemplateText":"Fuck @REPLACEMENT1@!",
+                    "XStartPosition":20,
+                    "YStartPosition":20,
+                    "Width":628,
+                    "Height":75
+                },
+                {
+                    "TemplateText":"All my homies hate @REPLACEMENT1@.",
+                    "XStartPosition":20,
+                    "YStartPosition":550,
+                    "Width":700,
+                    "Height":100
+                }
+            ]
+        },
+        {
+
+        }
+    ]
+}
