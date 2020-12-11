@@ -12,6 +12,7 @@ using System.IO;
 using System.IO.MemoryMappedFiles;
 using homiebot.images;
 using System.Collections.Generic;
+using System;
 
 namespace homiebot 
 {
@@ -22,12 +23,13 @@ namespace homiebot
 
         private IEnumerable<MemeTemplate> templates;
         private IImageStore imageStore;
-
-        public ImageMemeCommands(ILogger<HomieBot> logger, IConfiguration configuration,IImageStore imageStore)
+        private Random random;
+        public ImageMemeCommands(ILogger<HomieBot> logger, IConfiguration configuration,IImageStore imageStore, Random random)
         {
             this.logger = logger;
             this.configuration = configuration;
             this.imageStore = imageStore;
+            this.random = random;
             this.templates = configuration.GetSection("MemeTemplates").Get<IEnumerable<MemeTemplate>>();
         }
         [Command("homies")]
@@ -39,7 +41,19 @@ namespace homiebot
             var homiesMeme = new ImageMeme {
                 Template = templates.Where(t => t.Name == "homies").FirstOrDefault()
             };
-            await ctx.RespondWithFileAsync("homies.jpg", new MemoryStream(await homiesMeme.GetImageAsync(imageStore, string.Join(" ",args))));
+            await ctx.RespondWithFileAsync("homies.jpg", new MemoryStream(await homiesMeme.GetImageAsync(imageStore, random, string.Join(" ",args))));
+        }
+
+        [Command("spongebob")]
+        [Description("Have spongebob mock something")]
+        public async Task Spongebob(CommandContext ctx, params string[] args) 
+        {
+            logger.LogInformation("Got a request for a spongebob imagememe");
+            await ctx.TriggerTypingAsync();
+            var bobMeme = new ImageMeme {
+                Template = templates.Where(t => t.Name == "spongebob").FirstOrDefault()
+            };
+            await ctx.RespondWithFileAsync("mocking.jpg", new MemoryStream(await bobMeme.GetImageAsync(imageStore, random, string.Join(" ",args))));
         }
         /*
         [Command("trolly")]

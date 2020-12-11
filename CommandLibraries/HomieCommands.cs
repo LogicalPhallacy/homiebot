@@ -184,7 +184,7 @@ namespace homiebot
         public async Task Mock(CommandContext context, [RemainingText]string text)
         {
             await context.TriggerTypingAsync();
-            await context.RespondAsync(text.ToMockingCase());
+            await context.RespondAsync(text.ToMockingCase(random));
         }
     }
 }

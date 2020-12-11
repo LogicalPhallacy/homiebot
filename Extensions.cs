@@ -11,12 +11,12 @@ namespace homiebot
                         .ToArray();
         }
 
-        public static string ToMockingCase(this string message)
+        public static string ToMockingCase(this string message, Random random)
         {
             StringBuilder s = new StringBuilder();
             foreach (char c in message.ToLowerInvariant())
             {
-                if(System.Environment.TickCount % 2 == 0)
+                if(random.NextBoolean())
                 {
                     s.Append(c);
                 }else
@@ -26,6 +26,12 @@ namespace homiebot
                     
             }
             return s.ToString();
+        }
+
+        public static bool NextBoolean(this Random random)
+        {
+            return random.Next() > (Int32.MaxValue / 2);
+            // Next() returns an int in the range [0..Int32.MaxValue]
         }
     }
 }
