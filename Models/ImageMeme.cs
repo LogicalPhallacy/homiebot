@@ -117,7 +117,7 @@ namespace homiebot
                 case homiebot.TextEffects.mOCkIngCaSE:
                     return retstr.ToMockingCase(random);
                 case homiebot.TextEffects.UwuCase:
-                // TODO: implement uwu
+                    return retstr.ToUwuCase();
                 case homiebot.TextEffects.None:
                 default:
                     return retstr; 

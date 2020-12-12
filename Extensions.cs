@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Text;
 
 namespace homiebot
@@ -24,6 +25,36 @@ namespace homiebot
                     s.Append(Char.ToUpperInvariant(c));
                 }
                     
+            }
+            return s.ToString();
+        }
+
+        public static string ToUwuCase(this string message)
+        {
+            char[] nya = {'M','N','n','m'};
+            StringBuilder s = new StringBuilder();
+            char lastchar = 'a';
+            foreach (char c in message.ToLowerInvariant())
+            {
+                switch(c) 
+                {
+                    case 'L':
+                    case 'R' : 
+                        s.Append('W');
+                        break;
+                    case 'l':
+                    case 'r':
+                        s.Append('w');
+                        break;
+                    case 'o':
+                    case 'a':
+                        if(nya.Contains(lastchar)){s.Append('y');s.Append(c);}
+                        break;
+                    default:
+                        s.Append(c);
+                        break;
+                }
+                lastchar = c;
             }
             return s.ToString();
         }
