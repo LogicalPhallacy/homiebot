@@ -48,7 +48,8 @@ namespace homiebot
                         break;
                     case 'o':
                     case 'a':
-                        if(nya.Contains(lastchar)){s.Append('y');s.Append(c);}
+                        if(nya.Contains(lastchar)){s.Append('y'); s.Append(c);}
+                        else{s.Append(c);}
                         break;
                     default:
                         s.Append(c);
