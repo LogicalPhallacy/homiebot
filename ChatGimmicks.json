@@ -39,7 +39,7 @@
         },
         {
             "Command":"campaign",
-            "Description":"Gets a reason to vote for TypePromiscuous",
+            "Description":"Gets a reason to cast your 2024 ballot for TypePromiscuous",
             "ArgCount": 0,
             "CanVoice": true,
             "ReplacementStrings": [
@@ -54,16 +54,19 @@
                 "Because we all know you're gonna write someone in anyway this time",
                 "Defensive war against the Cephalopods", 
                 "An immediate ban on Suit wearing",
-                "Admission of New States until we have a prime number of them.",
+                "Mandatory work from home, no one wants to see each other",
+                "A Musket to every home, keep the Ruffians away",
+                "Admission of New States until we have a prime number of them",
                 "Mandatory Cyberbullying of all public figures",
                 "Legalize planting the mystery seeds",
                 "Criminalize planting the mystery seeds",
+                "Harvest the Mystery Seeds, feed the world!",
                 "Restore the institution of Trial by Combat",
                 "Traditional Marriages! No alliance? No wedding.",
                 "Workers of the world unite, you havbe nothing to lose but your keycards",
                 "I too would like to get off the Major Historical Event"
             ],
-            "StringTerminator":"\nVote TypePromiscuous 2020!"
+            "StringTerminator":"\nVote TypePomiscuous 2024 ~~2020~~!"
         },
         {
             "Command":"excuse",
@@ -80,8 +83,25 @@
                 ,"static from plastic slide rules"
                 ,"global warming"
                 ,"poor power conditioning"
+                ,"RTX was turned on"
+                ,"RTX was turned off"
+                ,"tried to trace too many rays at once"
+                ,"Restart required for update"
+                ,"Multi-Threading was disabled for non Bulldozer Systems"
+                ,"AWS needed to take a nap"
+                ,"Deepfake Voice admin is coming for us"
+                ,"Netrunners loose in the system"
+                ,"Wetware Firmware mismatch"
+                ,"Corp-net is down"
+                ,"i think our hosting provider went out of business?"
+                ,"that department has been replaced with a DLL"
                 ,"static buildup"
                 ,"doppler effect"
+                ,"Internet furries took the weekend off"
+                ,"Too many Gamers online"
+                ,"Network budget went to CEO Bonus...again.."
+                ,"Datacenter down due to Civil Unrest"
+                ,"New game came out, everyone went home"
                 ,"hardware stress fractures"
                 ,"magnetic interference from money/credit cards"
                 ,"dry joints on cable plug"
