@@ -70,6 +70,18 @@
                 ":regional_indicator_l:",
                 ":yikes:"
             ]
+        },
+        {
+            "ReactionName":"Bonk",
+            "TriggerReaction":":bonk:",
+            "Reactions":
+            [
+                ":b:",
+                ":regional_indicator_o:",
+                ":regional_indicator_n:",
+                ":regional_indicator_k:",
+                ":nohorny:"
+            ]
         }
     ]
 }
