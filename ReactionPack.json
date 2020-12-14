@@ -20,6 +20,12 @@
                 ":leftgun:",
                 ":wtf_gun:",
                 ":smiling_gun:",
+                ":GRR_GUN:",
+                ":WannaDie:",
+                ":uzi:",
+                ":Death_To_U:",
+                ":beatdown:",
+                ":FeelsCopMan:",
                 ":Gundma:",
                 ":dogegun:",
                 ":cat_gun:",
@@ -40,6 +46,41 @@
                 ":regional_indicator_i:",
                 ":regional_indicator_t:",
                 ":regional_indicator_a:"
+            ]
+        },
+        {
+            "ReactionName":"GalaxyBrain",
+            "TriggerReaction":":galaxy:",
+            "Reactions":
+            [
+                ":regional_indicator_w:",
+                ":regional_indicator_h:",
+                ":o2:",
+                ":regional_indicator_a:"
+            ]
+        },
+        {
+            "ReactionName":"KILL",
+            "TriggerReaction":":knife:",
+            "Reactions":
+            [
+                ":regional_indicator_k:",
+                ":regional_indicator_i:",
+                ":regional_indicator_l:",
+                ":regional_indicator_l:",
+                ":yikes:"
+            ]
+        },
+        {
+            "ReactionName":"Bonk",
+            "TriggerReaction":":bonk:",
+            "Reactions":
+            [
+                ":b:",
+                ":regional_indicator_o:",
+                ":regional_indicator_n:",
+                ":regional_indicator_k:",
+                ":nohorny:"
             ]
         }
     ]
