@@ -1,0 +1,41 @@
+{
+    "MemeTemplates":[
+        {
+            "Name": "homies",
+            "ImageBaseIdentifier": "baseimages/homies.jpg",
+            "memeText":[
+                {
+                    "TextEffects": 1,
+                    "TemplateText":"Fuck @REPLACEMENT1@!",
+                    "XStartPosition":20,
+                    "YStartPosition":20,
+                    "Width":628,
+                    "Height":75
+                },
+                {
+                    "TextEffects": 1,
+                    "TemplateText":"All my homies hate @REPLACEMENT1@.",
+                    "XStartPosition":20,
+                    "YStartPosition":550,
+                    "Width":700,
+                    "Height":100
+                }
+            ]
+        },
+        {
+            "Name": "spongebob",
+            "ImageBaseIdentifier": "baseimages/mocking.jpg",
+            
+            "memeText":[
+                {
+                    "TextEffects": 3,
+                    "TemplateText":"@REPLACEMENT1@",
+                    "XStartPosition":15,
+                    "YStartPosition":300,
+                    "Width":470,
+                    "Height":50
+                }
+            ]
+        }
+    ]
+}
