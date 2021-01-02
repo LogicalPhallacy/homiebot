@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace homiebot
+namespace Homiebot.Models
 {
     public class BotConfig
     {

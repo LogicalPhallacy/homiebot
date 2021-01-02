@@ -1,6 +1,6 @@
 using Newtonsoft.Json.Serialization;
 using System.Threading.Tasks;
-namespace homiebot 
+namespace Homiebot.Models
 {
     public interface IStoredFile
     {

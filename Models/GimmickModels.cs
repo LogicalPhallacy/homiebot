@@ -4,8 +4,8 @@ using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
-using homiebot.voice;
-namespace homiebot
+using Homiebot.Discord.Voice;
+namespace Homiebot.Models
 {
     public class Gimmick
     {
