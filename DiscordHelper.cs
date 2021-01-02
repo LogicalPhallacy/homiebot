@@ -11,6 +11,7 @@ using homiebot.voice;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Text.RegularExpressions;
+using homiebot.memory;
 
 namespace homiebot 
 {
@@ -67,20 +68,23 @@ namespace homiebot
             commands.RegisterCommands(hc.GetDynamicGimmickCommands(Gimmicks));
             discordClient.MessageCreated += async (MessageCreateEventArgs message) => 
             {
+                if(await message.HandleMemorableKeywords(logger))
+                {
+                    return;
+                }
                 if(message.MentionedUsers.Contains(discordClient.CurrentUser))
                 {
                     await message.Channel.TriggerTypingAsync();
                     logger.LogInformation("Mentioned by name figuring out what to do with that");
-                    switch (message.Message.Content){
-                        case var m when new Regex(@"\b(why)\b").IsMatch(m):
-                            logger.LogInformation("Matched on why, so making an excuse");
-                            var context = discordClient.GetCommandsNext().CreateContext(message.Message,"::",discordClient.GetCommandsNext().RegisteredCommands["campaign"]);
-                            await discordClient.GetCommandsNext().RegisteredCommands["excuse"].ExecuteAsync(context);
-                            break;
-                        default:
-                            logger.LogInformation("I was pinged but couldn't find a match command, returning help instructions");
-                            await message.Channel.SendMessageAsync($"{message.Author.Mention} I don't know what to do with that, but you can use the command {commandMarkers.FirstOrDefault()}help for some help");
-                            break;
+                    bool handled = false;
+                    handled = await message.HandleHomieMentionCommands(logger);
+                    // subsequent handler extension methods go in if clauses below
+                    if(!handled){handled = await message.HandleMemoryMentionCommands(logger);}
+                    // finally if they're still unhandled do the default
+                    if(!handled)
+                    {
+                        logger.LogInformation("I was pinged but couldn't find a match command, returning help instructions");
+                        await message.Channel.SendMessageAsync($"{message.Author.Mention} I don't know what to do with that, but you can use the command {commandMarkers.FirstOrDefault()}help for some help");
                     }
                 }
                 return;
@@ -95,7 +99,8 @@ namespace homiebot
                 }
             );
             commands.RegisterCommands<VoiceCommands>();
-            
+            logger.LogInformation("Registering memory commands");
+            commands.RegisterCommands<MemoryCommands>();
             logger.LogInformation("Trying Connect");
             try
             {

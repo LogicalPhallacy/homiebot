@@ -8,6 +8,10 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 using System.Threading;
 using homiebot.voice;
+using homiebot.memory;
+using Microsoft.EntityFrameworkCore.Cosmos;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Azure.Cosmos;
 
 namespace homiebot
 {
@@ -41,7 +45,7 @@ namespace homiebot
     }
     class Program
     {
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
+        public static IHostBuilder CreateHostBuilder(string[] args, IConfiguration configuration) =>
         Host.CreateDefaultBuilder(args)
             .ConfigureAppConfiguration(
                 ac=> {
@@ -56,10 +60,21 @@ namespace homiebot
             })
             .ConfigureServices((hostContext, services) =>
             {
-
+                var cosmosconf = configuration.GetSection("CosmosStorageConfig").Get<CosmosStorageConfig>();
                 services.AddSingleton(typeof(Random))
                 .AddSingleton(typeof(ITextToSpeechHelper),typeof(MultiCloudTTS))
                 .AddSingleton(typeof(images.IImageStore), typeof(images.AWSS3BucketImageStore))
+                .AddDbContext<HomiebotContext>(
+                    options => options.UseCosmos(
+                        cosmosconf.EndPoint,
+                        cosmosconf.ConnectionKey,
+                        cosmosconf.DatabaseName,
+                        options=> {
+                            options.ConnectionMode(ConnectionMode.Gateway);
+                        }
+                    )
+                )
+                .AddSingleton(typeof(IMemoryProvider),typeof(EFCoreMemory))
                 .AddHostedService<HomieBot>();
             })
             // We can use this to do Windows Service Hosting, but since we're moving this to an appservice...
@@ -67,7 +82,14 @@ namespace homiebot
 
         static async Task Main(string[] args)
         {
-            await CreateHostBuilder(args).Build().RunAsync();
+            // We need to build the configuration in advance once, there has to be a better way
+            var appconfbuilder = new ConfigurationBuilder();
+            foreach(string jsonfile in Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory,"*.json"))
+            {
+                appconfbuilder.AddJsonFile(jsonfile,false,true);
+            }
+            var config = appconfbuilder.Build();
+            await CreateHostBuilder(args, config).Build().RunAsync();
             /*
             Log("Homiebot starting up");
             config = JsonSerializer.Deserialize<BotConfig>(File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"BotConfig.json")));

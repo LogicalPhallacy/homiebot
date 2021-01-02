@@ -12,6 +12,7 @@ using DSharpPlus.CommandsNext.Converters;
 using homiebot.voice;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using System.Text.RegularExpressions;
 
 namespace homiebot 
 {
@@ -25,6 +26,22 @@ namespace homiebot
                 return Task.FromResult(Optional.FromValue<string[]>(new string[]{}));  
             }
             return Task.FromResult(Optional.FromValue<string[]>(value.Split(" ")));
+        }
+    }
+    public static class HomieMessageExtensions
+    {
+        // Extension to the discord message class to handle "conversational" requests in this commands lib
+        public static async Task<bool> HandleHomieMentionCommands(this MessageCreateEventArgs message, ILogger logger)
+        {
+            switch (message.Message.Content){
+                case var m when new Regex(@"\b(why)\b").IsMatch(m):
+                    logger.LogInformation("Matched on why, so making an excuse");
+                    var context = message.Client.GetCommandsNext().CreateContext(message.Message,"::",message.Client.GetCommandsNext().RegisteredCommands["excuse"]);
+                    await message.Client.GetCommandsNext().RegisteredCommands["excuse"].ExecuteAsync(context);
+                    return true;
+                default:
+                    return false;
+            }
         }
     }
     public class HomieCommands : BaseCommandModule
