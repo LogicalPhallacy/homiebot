@@ -4,6 +4,9 @@
         "CommandPrefixes":[
             "::",
             ";;"
+        ],
+        "Admins":[
+            ""
         ]
     },
     "AzureVoiceConfig":{
@@ -16,5 +19,10 @@
         "SecretKey":"",
         "Region":"",
         "BucketName":""
+    },
+    "CosmosStorageConfig":{
+        "EndPoint": "",
+        "ConnectionKey": "",
+        "DatabaseName": ""
     }
 }

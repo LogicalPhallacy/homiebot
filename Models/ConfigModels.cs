@@ -6,6 +6,7 @@ namespace homiebot
     {
         public string DiscordToken {get; set;}
         public IEnumerable<string> CommandPrefixes{get;set;}
+        public IEnumerable<string> Admins {get;set;}
     }
     public class GimmickFile 
     {

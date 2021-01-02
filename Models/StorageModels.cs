@@ -1,11 +1,17 @@
 using System;
+using System.ComponentModel.DataAnnotations;
+using homiebot.memory;
 namespace homiebot 
 {
     public class MemoryFile : StoredItem
     {
         private const string containerName = "RememberItems";
-        public byte[] File;
+        public byte[] File {get;set;}
         public MemoryFile(string key) : base(key,containerName)
+        {
+
+        }
+        public MemoryFile() 
         {
 
         }
@@ -15,13 +21,20 @@ namespace homiebot
         private const string containerName = "RememberItems";
         public string Message{get;set;}
         public MemoryItem(string key) : base(key,containerName)
+        {   
+        }
+        public MemoryItem()
         {
-            
+
         }
     }
 
     public class ReminderItem : StoredItem
     {
+        public ReminderItem()
+        {
+
+        }
         private const string containerName = "ReminderItems";
         public string User {get; set;}
         public DateTime Time {get; set;}
@@ -31,14 +44,31 @@ namespace homiebot
         }
     }
 
-    public abstract class StoredItem
+    public abstract class StoredItem : IMemorableObject
     {
+        internal StoredItem()
+        {
+
+        }
         private string key;
         private string containerName;
+        
+        [Key]
         public string Key 
         {
             get => key;
+            private set => key = value;
         }
+
+        public string GuildName{get;set;}
+        public string Owner{get;set;}
+        public Type idType => key.GetType();
+
+        object IMemorableObject.Id { 
+            get => key; 
+            set => key=(string)value;
+            }
+
         public StoredItem(string key, string containerName)
         {
             this.key = key;
