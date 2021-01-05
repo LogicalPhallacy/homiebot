@@ -6,6 +6,8 @@ namespace Homiebot.Brain
     {
         private const string containerName = "RememberItems";
         public byte[] File {get;set;}
+
+        public string Extension {get;set;}
         public MemoryFile(string key) : base(key,containerName)
         {
 

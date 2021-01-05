@@ -101,7 +101,7 @@ namespace Homiebot.Discord.Commands
             await context.TriggerTypingAsync();
             if(context.Message.Attachments.Count != 1)
             {
-                await context.RespondAsync("I can only hold one file at a time");
+                await context.RespondAsync("I can only hold one file per key at a time");
                 return;
             }
             using (var http = new HttpClient())
@@ -113,6 +113,13 @@ namespace Homiebot.Discord.Commands
                 if(existing == null)
                 {
                     existing = new MemoryFile(guildedKey);
+                    string filex = context.Message.Attachments.FirstOrDefault().Url.Split(".").Last();
+                    if(string.IsNullOrWhiteSpace(filex))
+                    {
+                        await context.RespondAsync("I can't tell what kind of file that is so its a jpg now");
+                        filex = "jpg";
+                    }
+                    existing.Extension = filex;
                     existing.Owner = context.User.Id.ToString();
                     existing.File = await http.GetByteArrayAsync(context.Message.Attachments.FirstOrDefault().Url);
                     existing.GuildName = context.Guild.Id.ToString();
@@ -218,7 +225,7 @@ namespace Homiebot.Discord.Commands
             MemoryFile existing = await memory.GetItemAsync<MemoryFile>(guildedKey);
             if(existing != null)
             {
-                await context.RespondWithFileAsync(guildedKey, new MemoryStream(existing.File));
+                await context.RespondWithFileAsync($"{guildedKey}.{existing.Extension}", new MemoryStream(existing.File));
             }
             else
             {
