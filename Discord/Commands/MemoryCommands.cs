@@ -2,6 +2,7 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus;
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,7 @@ using System.Text.RegularExpressions;
 using Homiebot.Brain;
 using Homiebot.Models;
 using Microsoft.Extensions.DependencyInjection;
+using System.Net.Http;
 
 namespace Homiebot.Discord.Commands
 {
@@ -20,23 +22,26 @@ namespace Homiebot.Discord.Commands
     {
         public static async Task<bool> HandleMemorableKeywords(this MessageCreateEventArgs message, DiscordClient sender, ILogger logger)
         {
-            switch (message.Message.Content.ToLower())
+            if(message.Author.Id != sender.CurrentUser.Id)
             {
-                case var m when new Regex(@"(acab includes\b)(.+)").IsMatch(m):
-                    var acabcontent = new Regex(@"(acab includes\b)(.+)").Match(m).Groups[2].Value;
-                    var acabcontext = sender.GetCommandsNext().CreateContext(message.Message,"::",sender.GetCommandsNext().RegisteredCommands["acab"],acabcontent);
-                    await sender.GetCommandsNext().RegisteredCommands["acab"].ExecuteAsync(acabcontext);
-                    return true;
-                case var m when new Regex(@"(.+)\b(is a cia psyop\b)").IsMatch(m):
-                    var matchcontent = new Regex(@"(.+)\b(is a cia psyop\b)").Match(m).Groups[1].Value;
-                    var context = sender.GetCommandsNext().CreateContext(message.Message,"::",sender.GetCommandsNext().RegisteredCommands["psyop"],matchcontent);
-                    await sender.GetCommandsNext().RegisteredCommands["psyop"].ExecuteAsync(context);
-                    return true;
-                case var m when new Regex(@"(.+)\b(found on wish.com\b)").IsMatch(m):
-                    var wishcontent = new Regex(@"(.+)\b(found on wish.com\b)").Match(m).Groups[1].Value;
-                    var wishcontext = sender.GetCommandsNext().CreateContext(message.Message,"::",sender.GetCommandsNext().RegisteredCommands["wish"],wishcontent);
-                    await sender.GetCommandsNext().RegisteredCommands["wish"].ExecuteAsync(wishcontext);
-                    return true;
+                switch (message.Message.Content)
+                {
+                    case var m when new Regex(@"(acab includes\b)(.+)").IsMatch(m):
+                        var acabcontent = new Regex(@"(acab includes\b)(.+)").Match(m).Groups[2].Value;
+                        var acabcontext = sender.GetCommandsNext().CreateContext(message.Message,"::",sender.GetCommandsNext().RegisteredCommands["acab"],acabcontent);
+                        await sender.GetCommandsNext().RegisteredCommands["acab"].ExecuteAsync(acabcontext);
+                        return true;
+                    case var m when new Regex(@"(.+)\b(is a cia psyop|are a cia psyop\b)").IsMatch(m):
+                        var matchcontent = new Regex(@"(.+)\b(is a cia psyop\b)").Match(m).Groups[1].Value;
+                        var context = sender.GetCommandsNext().CreateContext(message.Message,"::",sender.GetCommandsNext().RegisteredCommands["psyop"],matchcontent);
+                        await sender.GetCommandsNext().RegisteredCommands["psyop"].ExecuteAsync(context);
+                        return true;
+                    case var m when new Regex(@"(.+)\b(found on wish.com\b)").IsMatch(m):
+                        var wishcontent = new Regex(@"(.+)\b(found on wish.com\b)").Match(m).Groups[1].Value;
+                        var wishcontext = sender.GetCommandsNext().CreateContext(message.Message,"::",sender.GetCommandsNext().RegisteredCommands["wish"],wishcontent);
+                        await sender.GetCommandsNext().RegisteredCommands["wish"].ExecuteAsync(wishcontext);
+                        return true;
+                }
             }
             return false;
         }
@@ -89,6 +94,39 @@ namespace Homiebot.Discord.Commands
                 }
             }
         }
+        [Command("hold")]
+        [Description("holds a file for you")]
+        public async Task Hold(CommandContext context, string key)
+        {
+            await context.TriggerTypingAsync();
+            if(context.Message.Attachments.Count != 1)
+            {
+                await context.RespondAsync("I can only hold one file at a time");
+                return;
+            }
+            using (var http = new HttpClient())
+            {
+                string guildedKey = $"{context.Guild.Id}-{key}";
+                // check if the item exists first
+                using var memory = serviceScope.ServiceProvider.GetRequiredService<IMemoryProvider>();
+                MemoryFile existing = memory.GetItem<MemoryFile>(guildedKey);
+                if(existing == null)
+                {
+                    existing = new MemoryFile(guildedKey);
+                    existing.Owner = context.User.Id.ToString();
+                    existing.File = await http.GetByteArrayAsync(context.Message.Attachments.FirstOrDefault().Url);
+                    existing.GuildName = context.Guild.Id.ToString();
+                    if(await rememberItem<MemoryFile>(existing))
+                    {
+                        await context.RespondAsync("You betcha");
+                    }
+                    else
+                    {
+                        await context.RespondAsync("Don't think I will...");
+                    }
+                }
+            }
+        }
         [Command("forget")]
         [Description("forgets something you wanted homiebot to remember")]
         public async Task Forget(CommandContext context, string key)
@@ -121,6 +159,38 @@ namespace Homiebot.Discord.Commands
                 await context.RespondAsync($"I don't know anything about {key}, sorry");
             }
         }
+        [Command("delete")]
+        [Description("deletes a file homiebot was holding")]
+        public async Task Delete(CommandContext context, string key)
+        {
+            await context.TriggerTypingAsync();
+            string guildedKey = $"{context.Guild.Id}-{key}";
+            using var memory = serviceScope.ServiceProvider.GetRequiredService<IMemoryProvider>();
+            MemoryFile existing = await memory.GetItemAsync<MemoryFile>(guildedKey);
+            if(existing != null)
+            {
+                if(existing.Owner == context.User.Id.ToString() || botConfig.Admins.Contains(context.User.Username))
+                {
+                    if(await forgetItem<MemoryFile>(existing))
+                    {
+                        await context.RespondAsync("I'm not saying another word about it");
+                    }
+                    else
+                    {
+                        await context.RespondAsync("I don't think I can do that...");
+                    }
+                }
+                else
+                {
+                    var owner = await context.Client.GetUserAsync(ulong.Parse(existing.Owner));
+                    await context.RespondAsync($"Sorry homie, only {owner.Username} can delete this");
+                }
+            }
+            else
+            {
+                await context.RespondAsync($"I don't know anything about {key}, sorry");
+            }
+        }
         [Command("recall")]
         [Description("Gets something from memory")]
         public async Task Recall(CommandContext context, string key)
@@ -132,6 +202,23 @@ namespace Homiebot.Discord.Commands
             if(existing != null)
             {
                 await context.RespondAsync(existing.Message);
+            }
+            else
+            {
+                await context.RespondAsync($"I don't know anything about {key}, sorry");
+            }
+        }
+        [Command("fetch")]
+        [Description("Gets a file you had homiebot hold")]
+        public async Task Fetch(CommandContext context, string key)
+        {
+            await context.TriggerTypingAsync();
+            string guildedKey = $"{context.Guild.Id}-{key}";
+            using var memory = serviceScope.ServiceProvider.GetRequiredService<IMemoryProvider>();
+            MemoryFile existing = await memory.GetItemAsync<MemoryFile>(guildedKey);
+            if(existing != null)
+            {
+                await context.RespondWithFileAsync(guildedKey, new MemoryStream(existing.File));
             }
             else
             {
