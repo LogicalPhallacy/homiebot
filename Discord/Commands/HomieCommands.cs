@@ -105,6 +105,10 @@ namespace Homiebot.Discord.Commands
         {
             switch(messageReaction.Emoji.GetDiscordName())
             {
+                case ":rainbow_reverse_card:":
+                case ":uwuno:":
+                    await messageReaction.Message.RespondAsync(messageReaction.Message.Content.ToUwuCase());
+                    break;
                 case var mr when reactionConfigs.Where(rc=>rc.TriggerReaction == mr).FirstOrDefault() != null:
                     await messageReaction.Channel.TriggerTypingAsync();
                     var react = reactionConfigs.Where(rc=>rc.TriggerReaction == mr).FirstOrDefault();
@@ -113,10 +117,6 @@ namespace Homiebot.Discord.Commands
                     {
                         await messageReaction.Message.CreateReactionAsync(DiscordEmoji.FromName(sender,reaction));
                     }
-                    break;
-                case ":rainbow_reverse_card:":
-                case ":uwuno:":
-                    await messageReaction.Message.RespondAsync(messageReaction.Message.Content.ToUwuCase());
                     break;
                 default:
                     break;

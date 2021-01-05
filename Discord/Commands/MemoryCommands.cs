@@ -24,7 +24,7 @@ namespace Homiebot.Discord.Commands
         {
             if(message.Author.Id != sender.CurrentUser.Id)
             {
-                switch (message.Message.Content)
+                switch (message.Message.Content.ToLower())
                 {
                     case var m when new Regex(@"(acab includes\b)(.+)").IsMatch(m):
                         var acabcontent = new Regex(@"(acab includes\b)(.+)").Match(m).Groups[2].Value;
