@@ -114,6 +114,10 @@ namespace Homiebot.Discord.Commands
                         await messageReaction.Message.CreateReactionAsync(DiscordEmoji.FromName(sender,reaction));
                     }
                     break;
+                case ":rainbow_reverse_card:":
+                case ":uwuno:":
+                    await messageReaction.Message.RespondAsync(messageReaction.Message.Content.ToUwuCase());
+                    break;
                 default:
                     break;
             }
