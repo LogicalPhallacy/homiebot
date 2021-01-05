@@ -107,7 +107,16 @@ namespace Homiebot.Discord.Commands
             {
                 case ":rainbow_reverse_card:":
                 case ":uwuno:":
-                    await messageReaction.Message.RespondAsync(messageReaction.Message.Content.ToUwuCase());
+                    // turns out the message we react to doesn't come with a body for some inane reason
+                    // lets look it up I guess
+                    DiscordMessage fullmessage = null;
+                    if(string.IsNullOrWhiteSpace(messageReaction.Message.Content))
+                    {
+                        fullmessage = await messageReaction.Channel.GetMessageAsync(messageReaction.Message.Id);
+                    }else{
+                        fullmessage = messageReaction.Message;
+                    }
+                    await messageReaction.Message.RespondAsync(fullmessage.Content.ToUwuCase());
                     break;
                 case var mr when reactionConfigs.Where(rc=>rc.TriggerReaction == mr).FirstOrDefault() != null:
                     await messageReaction.Channel.TriggerTypingAsync();
