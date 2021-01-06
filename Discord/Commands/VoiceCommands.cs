@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using Homiebot.Discord.Voice;
 using Homiebot.Discord.Voice.Models;
+using DSharpPlus.Entities;
 
 namespace Homiebot.Discord.Commands
 {
@@ -27,7 +28,9 @@ namespace Homiebot.Discord.Commands
         {
             await context.TriggerTypingAsync();
             var voiceConnection = context.Client.GetVoiceNext().GetConnection(context.Guild);
-            var channel = context.Member?.VoiceState?.Channel;
+            //var channel = context.Member?.VoiceState?.Channel;
+            var channel = context.Guild.Channels.Where( kvp => kvp.Value.Type == ChannelType.Voice).Select(kvp => kvp.Value).FirstOrDefault();
+            
             if(channel == null)
             {
                 await context.RespondAsync("Sorry homie, you're either in a channel I can't see, or not in a voice channel");

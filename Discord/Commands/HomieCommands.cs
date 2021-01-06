@@ -103,13 +103,25 @@ namespace Homiebot.Discord.Commands
 
         public async Task ProcessReaction(DiscordClient sender, MessageReactionAddEventArgs messageReaction)
         {
+            DiscordMessage fullmessage = null;
             switch(messageReaction.Emoji.GetDiscordName())
             {
+                case ":reverse_uno_card:":
+                    // turns out the message we react to doesn't come with a body for some inane reason
+                    // lets look it up I guess
+                    if(string.IsNullOrWhiteSpace(messageReaction.Message.Content))
+                    {
+                        fullmessage = await messageReaction.Channel.GetMessageAsync(messageReaction.Message.Id);
+                    }else{
+                        fullmessage = messageReaction.Message;
+                    }
+                    await messageReaction.Message.RespondAsync(fullmessage.Content.ToMockingCase(random));
+                    break;
                 case ":rainbow_reverse_card:":
                 case ":uwuno:":
                     // turns out the message we react to doesn't come with a body for some inane reason
                     // lets look it up I guess
-                    DiscordMessage fullmessage = null;
+                    
                     if(string.IsNullOrWhiteSpace(messageReaction.Message.Content))
                     {
                         fullmessage = await messageReaction.Channel.GetMessageAsync(messageReaction.Message.Id);
