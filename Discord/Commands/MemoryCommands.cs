@@ -96,7 +96,7 @@ namespace Homiebot.Discord.Commands
         }
         [Command("hold")]
         [Description("holds a file for you")]
-        public async Task Hold(CommandContext context, string key)
+        public async Task Hold(CommandContext context, [RemainingText]string key)
         {
             await context.TriggerTypingAsync();
             if(context.Message.Attachments.Count != 1)
@@ -168,7 +168,7 @@ namespace Homiebot.Discord.Commands
         }
         [Command("delete")]
         [Description("deletes a file homiebot was holding")]
-        public async Task Delete(CommandContext context, string key)
+        public async Task Delete(CommandContext context, [RemainingText]string key)
         {
             await context.TriggerTypingAsync();
             string guildedKey = $"{context.Guild.Id}-{key}";
@@ -217,7 +217,7 @@ namespace Homiebot.Discord.Commands
         }
         [Command("fetch")]
         [Description("Gets a file you had homiebot hold")]
-        public async Task Fetch(CommandContext context, string key)
+        public async Task Fetch(CommandContext context, [RemainingText]string key)
         {
             await context.TriggerTypingAsync();
             string guildedKey = $"{context.Guild.Id}-{key}";
