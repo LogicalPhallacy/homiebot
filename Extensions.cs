@@ -14,17 +14,48 @@ namespace Homiebot
 
         public static string ToMockingCase(this string message, Random random)
         {
+            bool lastLetterwasUpper  = false;
+            bool needsreverse = false;
             StringBuilder s = new StringBuilder();
             foreach (char c in message.ToLowerInvariant())
             {
                 if(random.NextBoolean())
                 {
-                    s.Append(c);
+                    if(needsreverse && !lastLetterwasUpper)
+                    {
+                        s.Append(Char.ToUpperInvariant(c));
+                        needsreverse = false;
+                        continue;
+                    }
+                    else
+                    {
+                        s.Append(c);
+                    }
+                    if(!lastLetterwasUpper)
+                    {
+                        needsreverse = true;
+                    }
+                    lastLetterwasUpper = false;
                 }else
                 {
-                    s.Append(Char.ToUpperInvariant(c));
-                }
+                    if(needsreverse && lastLetterwasUpper)
+                    {
+                        s.Append(c);
+                        needsreverse = false;
+                        continue;
+                    }
+                    else
+                    {
+                        s.Append(Char.ToUpperInvariant(c));
+                    }
                     
+                    if(lastLetterwasUpper)
+                    {
+                        needsreverse = true;
+                    }
+                    lastLetterwasUpper = true;
+                }
+                
             }
             return s.ToString();
         }
@@ -34,7 +65,7 @@ namespace Homiebot
             char[] nya = {'M','N','n','m'};
             StringBuilder s = new StringBuilder();
             char lastchar = 'a';
-            foreach (char c in message.ToLowerInvariant())
+            foreach (char c in message)
             {
                 switch(c) 
                 {
