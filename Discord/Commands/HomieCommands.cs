@@ -41,12 +41,11 @@ namespace Homiebot.Discord.Commands
                     var context = sender.GetCommandsNext().CreateContext(message.Message,"::",sender.GetCommandsNext().RegisteredCommands["excuse"]);
                     await sender.GetCommandsNext().RegisteredCommands["excuse"].ExecuteAsync(context);
                     return true;
-                case var m when new Regex(@"\b(thank you\b").IsMatch(m):
+                case var m when new Regex(@"\b(thank you)\b").IsMatch(m):
                     await message.Message.CreateReactionAsync(DiscordEmoji.FromName(sender,":IsForMe:"));
                     return true;
                 case var m when new Regex(@"\b(fuck you)\b").IsMatch(m):
-                    var insultor = await message.Guild.GetMemberAsync(message.Message.Author.Id); 
-                    await message.Message.RespondAsync($"Fuck you too, {insultor.DisplayName}");
+                    await message.Message.RespondAsync($"Fuck you too, {message.Author.Mention}");
                     return true;
                 default:
                     return false;
