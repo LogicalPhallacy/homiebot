@@ -43,9 +43,15 @@ namespace Homiebot.Models
                     }
                     
                     MemeTexts.Add(mti);
-                    image.Composite(mti,m.XStartPosition,m.YStartPosition,CompositeOperator.Over);
+                    // well there's your problem
+                    // image.Composite(mti,m.XStartPosition,m.YStartPosition,CompositeOperator.Over);
+                    await Task.Run( () => {
+                        image.Composite(mti,m.XStartPosition,m.YStartPosition,CompositeOperator.Over);
+                    });
+                    //
+
                 }
-                var bytes = image.ToByteArray();
+                var bytes = await Task.Run<byte[]>(()=>{return image.ToByteArray();});
                 // dispose our dynamic images
                 //image.Write(writeStream);
                 foreach(var meme in MemeTexts){

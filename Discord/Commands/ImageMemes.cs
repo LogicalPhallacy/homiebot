@@ -42,7 +42,15 @@ namespace Homiebot.Discord.Commands
             var homiesMeme = new ImageMeme {
                 Template = templates.Where(t => t.Name == "homies").FirstOrDefault()
             };
-            await ctx.RespondWithFileAsync("homies.jpg", new MemoryStream(await homiesMeme.GetImageAsync(imageStore, random, string.Join(" ",args))));
+            var stream = new MemoryStream(
+                    await homiesMeme.GetImageAsync(
+                        imageStore,random,string.Join(" ",args)
+                    )
+                );
+            await ctx.Message.RespondAsync(bld => {
+                bld.WithFile("homies.jpg", stream);
+            });
+            //await ctx.RespondWithFileAsync("homies.jpg", new MemoryStream(await homiesMeme.GetImageAsync(imageStore, random, string.Join(" ",args))));
         }
 
         [Command("spongebob")]
@@ -54,7 +62,16 @@ namespace Homiebot.Discord.Commands
             var bobMeme = new ImageMeme {
                 Template = templates.Where(t => t.Name == "spongebob").FirstOrDefault()
             };
-            await ctx.RespondWithFileAsync("mocking.jpg", new MemoryStream(await bobMeme.GetImageAsync(imageStore, random, string.Join(" ",args))));
+            var stream = new MemoryStream(
+                    await bobMeme.GetImageAsync(
+                        imageStore,random,string.Join(" ",args)
+                    ));
+            await ctx.Message.RespondAsync( bld => {
+                bld.WithFile("mocking.jpg", 
+                stream
+                );
+            });
+            //await ctx.RespondWithFileAsync("mocking.jpg", new MemoryStream(await bobMeme.GetImageAsync(imageStore, random, string.Join(" ",args))));
         }
         /*
         [Command("trolly")]
@@ -75,7 +92,11 @@ namespace Homiebot.Discord.Commands
             logger.LogInformation("Got a request for a snek flag");
             await context.TriggerTypingAsync();
             var image = await imageStore.GetRandomTaggedImageAsync("snekflags");
-            await context.RespondWithFileAsync(image.ImageIdentifier, new MemoryStream(await image.GetBytes()));
+            var stream = new MemoryStream(await image.GetBytes());
+            await context.Message.RespondAsync(bld => {
+                bld.WithFile(image.ImageIdentifier, stream);
+            });
+            //await context.RespondWithFileAsync(image.ImageIdentifier, new MemoryStream(await image.GetBytes()));
         }
     }
 }
