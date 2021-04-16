@@ -73,14 +73,14 @@
         },
         {
             "ReactionName":"Bonk",
-            "TriggerReaction":":bonk:",
+            "TriggerReaction":":nohorny:",
             "Reactions":
             [
                 ":b:",
                 ":regional_indicator_o:",
                 ":regional_indicator_n:",
                 ":regional_indicator_k:",
-                ":nohorny:"
+                ":bonk:"
             ]
         }
     ]
