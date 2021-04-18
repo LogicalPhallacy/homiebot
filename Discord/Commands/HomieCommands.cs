@@ -243,5 +243,12 @@ namespace Homiebot.Discord.Commands
             await context.TriggerTypingAsync();
             await context.RespondAsync(text.ToUwuCase());
         }
+        [Command("block")]
+        [Description("For when you want to make a point")]
+        public async Task Block(CommandContext context, [RemainingText]string text)
+        {
+            await context.TriggerTypingAsync();
+            await context.RespondAsync("```\n"+text.ToBlockText()+"\n```");
+        }
     }
 }

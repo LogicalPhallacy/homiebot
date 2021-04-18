@@ -91,6 +91,17 @@ namespace Homiebot
             return s.ToString();
         }
 
+        public static string ToBlockText(this string source)
+        {
+            var upper = source.ToUpperInvariant();
+            var retstr = upper;
+            for(int i = 1; i<upper.Length; i++){
+                retstr += "\n";
+                retstr += (upper.Substring(i,upper.Length-i) + upper.Substring(0,i));
+            }
+            return retstr;
+        }
+
         public static bool NextBoolean(this Random random)
         {
             return random.Next() > (Int32.MaxValue / 2);
