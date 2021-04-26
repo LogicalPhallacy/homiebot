@@ -1,5 +1,6 @@
-BotConfig.json
-googlekey.json
+Configs/BotConfig.json
+Configs/googlekey.json
+publish/
 homiebot.zip
 bin/
 obj/

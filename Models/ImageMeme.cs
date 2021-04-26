@@ -4,12 +4,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using ImageMagick;
-using homiebot.images;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Newtonsoft.Json.Converters;
+using Homiebot.Images;
 
-namespace homiebot 
+namespace Homiebot.Models
 {
     // this is too good for this world
     public enum TextEffects
@@ -43,9 +43,15 @@ namespace homiebot
                     }
                     
                     MemeTexts.Add(mti);
-                    image.Composite(mti,m.XStartPosition,m.YStartPosition,CompositeOperator.Over);
+                    // well there's your problem
+                    // image.Composite(mti,m.XStartPosition,m.YStartPosition,CompositeOperator.Over);
+                    await Task.Run( () => {
+                        image.Composite(mti,m.XStartPosition,m.YStartPosition,CompositeOperator.Over);
+                    });
+                    //
+
                 }
-                var bytes = image.ToByteArray();
+                var bytes = await Task.Run<byte[]>(()=>{return image.ToByteArray();});
                 // dispose our dynamic images
                 //image.Write(writeStream);
                 foreach(var meme in MemeTexts){
@@ -110,15 +116,15 @@ namespace homiebot
             }
             switch(Enum.Parse<TextEffects>(TextEffects))
             {
-                case homiebot.TextEffects.lowercase:
+                case Homiebot.Models.TextEffects.lowercase:
                     return retstr.ToLowerInvariant();
-                case homiebot.TextEffects.UPPERCASE:
+                case Homiebot.Models.TextEffects.UPPERCASE:
                     return retstr.ToUpperInvariant();
-                case homiebot.TextEffects.mOCkIngCaSE:
+                case Homiebot.Models.TextEffects.mOCkIngCaSE:
                     return retstr.ToMockingCase(random);
-                case homiebot.TextEffects.UwuCase:
+                case Homiebot.Models.TextEffects.UwuCase:
                     return retstr.ToUwuCase();
-                case homiebot.TextEffects.None:
+                case Homiebot.Models.TextEffects.None:
                 default:
                     return retstr; 
             }

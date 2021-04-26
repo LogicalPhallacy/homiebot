@@ -1,0 +1,28 @@
+{
+    "BotConfig":{
+        "DiscordToken":"REDACTED",
+        "CommandPrefixes":[
+            "::",
+            ";;"
+        ],
+        "Admins":[
+            ""
+        ]
+    },
+    "AzureVoiceConfig":{
+        "Endpoint": "",
+        "SubscriptionKey": "",
+        "Region":""
+    },
+    "AWSConfig":{
+        "AccessKey":"",
+        "SecretKey":"",
+        "Region":"",
+        "BucketName":""
+    },
+    "CosmosStorageConfig":{
+        "EndPoint": "",
+        "ConnectionKey": "",
+        "DatabaseName": ""
+    }
+}

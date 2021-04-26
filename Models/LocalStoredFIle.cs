@@ -1,6 +1,6 @@
 using System.IO;
 using System.Threading.Tasks;
-namespace homiebot 
+namespace Homiebot.Models 
 {
     public class LocallyStoredFile : IStoredFile
     {

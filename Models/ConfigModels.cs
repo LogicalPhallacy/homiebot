@@ -1,11 +1,12 @@
 using System.Collections.Generic;
 
-namespace homiebot
+namespace Homiebot.Models
 {
     public class BotConfig
     {
         public string DiscordToken {get; set;}
         public IEnumerable<string> CommandPrefixes{get;set;}
+        public IEnumerable<string> Admins {get;set;}
     }
     public class GimmickFile 
     {

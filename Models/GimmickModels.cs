@@ -4,9 +4,14 @@ using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
-using homiebot.voice;
-namespace homiebot
+using Homiebot.Discord.Voice;
+namespace Homiebot.Models
 {
+    public struct GimmickRun
+    {
+        public string Name;
+        public string Message;
+    }
     public class Gimmick
     {
         public string Command {get; set;}
@@ -77,7 +82,7 @@ namespace homiebot
         public async Task SpeakGimmick(CommandContext context, params string[] args)
         {
             await context.TriggerTypingAsync();
-            if(CanVoice)
+            if(CanVoice && textToSpeechHelper != null)
             {
                 await SpeechHelper.Speak(textToSpeechHelper,context,Replace(args),overrideLimit: true);
                 return;
