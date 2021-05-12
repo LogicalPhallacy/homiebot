@@ -2,6 +2,7 @@ using System.Linq;
 using System;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
+using DSharpPlus.Entities;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using Homiebot.Discord.Voice;
@@ -75,7 +76,7 @@ namespace Homiebot.Models
             await ctx.TriggerTypingAsync();
             logger.LogInformation("Got a gimmick command: {gimmick}\nFrom Guild: {Guild} Channel:{Channel}", this.Command,ctx.Guild.Name,ctx.Channel.Name);
             //logger.LogInformation("Params for command are {params}", string.Join(',',args));
-            string returnstring = this.Replace(args);
+            string returnstring = ReplaceEmoji(this.Replace(args),ctx);
             await ctx.RespondAsync(returnstring);
         }
 
@@ -88,6 +89,28 @@ namespace Homiebot.Models
                 return;
             }
             await context.RespondAsync("Some things don't need saying homie");
+        }
+
+        private static string ReplaceEmoji(string str, CommandContext ctx)
+        {
+            if(str.Contains(':')){
+                var substr = str.Substring(str.IndexOf(':')+1);
+                if(substr.Contains(':')){
+                    var parsable = substr.Substring(0,substr.IndexOf(':'));
+                    try{
+                        var emoji = DiscordEmoji.FromName(ctx.Client,$":{parsable}:");
+                        if(emoji.IsAvailable){
+                            return ReplaceEmoji(str.Replace($":{parsable}:",$"&PLACEHOLD{parsable}&"),ctx).Replace($"&PLACEHOLD{parsable}&",emoji.ToString());
+                        }
+                        return str;
+                    }catch
+                    {
+                        return str;
+                    }
+                }
+                return str;
+            }
+            return str;
         }
     }
 }

@@ -55,7 +55,7 @@ namespace Homiebot.Discord
                 EnableDefaultHelp = true,
                 StringPrefixes = commandMarkers,
                 Services = services,
-                EnableDms = false
+                EnableDms = false,
             });
             logger.LogInformation("Registering custom parser");
             //commands.RegisterConverter(new StringArrayParamConverter());
