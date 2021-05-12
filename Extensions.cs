@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Collections.Generic;
 using System.Text;
 
 namespace Homiebot
@@ -10,6 +11,19 @@ namespace Homiebot
         {
             return new ArraySegment<T>(array, offset, length)
                         .ToArray();
+        }
+
+        public static IEnumerable<string> SplitForDiscord(this string message)
+        {
+            if(message.Length < Discord.DiscordHelper.CharacterLimit){
+                return new string[] {message};
+            }else{
+                var charCount = 0;
+                return message.Split(' ',StringSplitOptions.RemoveEmptyEntries)
+                .GroupBy(w => (charCount+= w.Length+1) / Discord.DiscordHelper.CharacterLimit)
+                .Select(g => string.Join(' ',g));
+            }
+
         }
 
         public static string ToMockingCase(this string message, Random random)

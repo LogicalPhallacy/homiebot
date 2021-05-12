@@ -77,7 +77,9 @@ namespace Homiebot.Models
             logger.LogInformation("Got a gimmick command: {gimmick}\nFrom Guild: {Guild} Channel:{Channel}", this.Command,ctx.Guild.Name,ctx.Channel.Name);
             //logger.LogInformation("Params for command are {params}", string.Join(',',args));
             string returnstring = ReplaceEmoji(this.Replace(args),ctx);
-            await ctx.RespondAsync(returnstring);
+            foreach(var message in returnstring.SplitForDiscord()){
+                await ctx.RespondAsync(message);
+            }
         }
 
         public async Task SpeakGimmick(CommandContext context, params string[] args)

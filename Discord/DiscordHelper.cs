@@ -20,6 +20,7 @@ namespace Homiebot.Discord
 {
     public class DiscordHelper
     {
+        public const int CharacterLimit = 1900;
         private readonly ILogger<HomieBot> logger;
         private readonly IConfiguration config;
         private readonly IServiceProvider services;
