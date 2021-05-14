@@ -250,5 +250,26 @@ namespace Homiebot.Discord.Commands
             await context.TriggerTypingAsync();
             await context.RespondAsync("```\n"+text.ToBlockText()+"\n```");
         }
+        [Command("cls")]
+        [Description("Make homiebot delete the last thing he said")]
+        public async Task Clear(CommandContext context)
+        {
+            // get the channel 
+            await context.TriggerTypingAsync();
+            var messages = await context.Channel.GetMessagesAsync();
+            var lastmessage = messages.Where(dm => dm.Author.Id == context.Client.CurrentUser.Id).OrderByDescending( dm => dm.CreationTimestamp).First();
+            if(lastmessage != null){
+                try
+                {
+                    await lastmessage.DeleteAsync();
+                    await context.RespondAsync("Its like it never happened...");
+                }
+                catch(Exception e)
+                {
+                    await context.RespondAsync($"The bleach, it does nothing: {e.Message}");
+                }
+
+            }
+        }
     }
 }
