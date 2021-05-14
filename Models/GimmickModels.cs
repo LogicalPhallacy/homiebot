@@ -18,7 +18,7 @@ namespace Homiebot.Models
         public string Command {get; set;}
         public string Description {get; set;}
         public IEnumerable<string> ReplacementStrings {get; set;}
-        private List<int> usedStrings;
+        private HashSet<string> usedStrings;
         public string? StringTerminator {get;set;}
         public string ArgSplitter {get;set;}
         public int ArgCount {get;set;}
@@ -31,12 +31,10 @@ namespace Homiebot.Models
 
         private ITextToSpeechHelper textToSpeechHelper;
 
-        private record GimmickMessage(string message, int index);
-
         public Gimmick()
         {
             Injected = false;
-            usedStrings = new List<int>();
+            usedStrings = new ();
         }
         public void Inject(Random random, ILogger logger, ITextToSpeechHelper textToSpeechHelper){
             this.random = random;
@@ -48,15 +46,13 @@ namespace Homiebot.Models
         {
             var gimmick = this;
             if(usedStrings.Count == ReplacementStrings.Count()){
-                usedStrings = new List<int>();
+                usedStrings = new ();
             }
-            var item = gimmick.ReplacementStrings
-                .Where((str, idx) => !usedStrings.Contains(idx))
+            var retstr = gimmick.ReplacementStrings
+                .Where(str=> !usedStrings.Contains(str))
                 .OrderBy(x => random.Next())
-                .Select((str, idx) => new GimmickMessage(str,idx))
                 .First();
-            var retstr = item.message;
-            usedStrings.Add(item.index);
+            usedStrings.Add(retstr);
             if(args != null && args.Length > 0)
             {
                 string joined = string.Join(' ',args);
