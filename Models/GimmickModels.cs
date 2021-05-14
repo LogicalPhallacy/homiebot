@@ -18,6 +18,7 @@ namespace Homiebot.Models
         public string Command {get; set;}
         public string Description {get; set;}
         public IEnumerable<string> ReplacementStrings {get; set;}
+        private List<int> usedStrings;
         public string? StringTerminator {get;set;}
         public string ArgSplitter {get;set;}
         public int ArgCount {get;set;}
@@ -30,9 +31,12 @@ namespace Homiebot.Models
 
         private ITextToSpeechHelper textToSpeechHelper;
 
+        private record GimmickMessage(string message, int index);
+
         public Gimmick()
         {
             Injected = false;
+            usedStrings = new List<int>();
         }
         public void Inject(Random random, ILogger logger, ITextToSpeechHelper textToSpeechHelper){
             this.random = random;
@@ -43,7 +47,16 @@ namespace Homiebot.Models
         public string Replace(params string[] args)
         {
             var gimmick = this;
-            string retstr = gimmick.ReplacementStrings.OrderBy(x => random.Next()).First();
+            if(usedStrings.Count == ReplacementStrings.Count()){
+                usedStrings = new List<int>();
+            }
+            var item = gimmick.ReplacementStrings
+                .Where((str, idx) => !usedStrings.Contains(idx))
+                .OrderBy(x => random.Next())
+                .Select((str, idx) => new GimmickMessage(str,idx))
+                .First();
+            var retstr = item.message;
+            usedStrings.Add(item.index);
             if(args != null && args.Length > 0)
             {
                 string joined = string.Join(' ',args);
@@ -99,6 +112,9 @@ namespace Homiebot.Models
                 var substr = str.Substring(str.IndexOf(':')+1);
                 if(substr.Contains(':')){
                     var parsable = substr.Substring(0,substr.IndexOf(':'));
+                    if(parsable.Contains(' ')){
+                        return str.Substring(0,str.IndexOf(':'))+(ReplaceEmoji(substr,ctx));
+                    }
                     try{
                         var emoji = DiscordEmoji.FromName(ctx.Client,$":{parsable}:");
                         if(emoji.IsAvailable){
