@@ -36,6 +36,28 @@
                     "Height":50
                 }
             ]
+        },
+        {
+            "Name": "doof",
+            "ImageBaseIdentifier": "baseimages/doof.jpg",
+            "memeText":[
+                {
+                    "TextEffects": 1,
+                    "TemplateText":"Behold",
+                    "XStartPosition":20,
+                    "YStartPosition":20,
+                    "Width":601,
+                    "Height":60
+                },
+                {
+                    "TextEffects": 1,
+                    "TemplateText":"The @REPLACEMENT1@-inator!",
+                    "XStartPosition":20,
+                    "YStartPosition":300,
+                    "Width":601,
+                    "Height":60
+                }
+            ]
         }
     ]
 }
