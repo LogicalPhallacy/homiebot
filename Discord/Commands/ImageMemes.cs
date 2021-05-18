@@ -52,6 +52,25 @@ namespace Homiebot.Discord.Commands
             });
             //await ctx.RespondWithFileAsync("homies.jpg", new MemoryStream(await homiesMeme.GetImageAsync(imageStore, random, string.Join(" ",args))));
         }
+        [Command("doof")]
+        [Description("behold the image-meme-inator")]
+        public async Task DoofMeme(CommandContext ctx, params string[] args) 
+        {
+            logger.LogInformation("Got a request for a inator imagememe");
+            await ctx.TriggerTypingAsync();
+            var doofMeme = new ImageMeme {
+                Template = templates.Where(t => t.Name == "doof").FirstOrDefault()
+            };
+            var stream = new MemoryStream(
+                    await doofMeme.GetImageAsync(
+                        imageStore,random,string.Join(" ",args)
+                    )
+                );
+            await ctx.Message.RespondAsync(bld => {
+                bld.WithFile("doof.jpg", stream);
+            });
+            //await ctx.RespondWithFileAsync("homies.jpg", new MemoryStream(await homiesMeme.GetImageAsync(imageStore, random, string.Join(" ",args))));
+        }
 
         [Command("spongebob")]
         [Description("Have spongebob mock something")]
@@ -62,7 +81,7 @@ namespace Homiebot.Discord.Commands
             var bobMeme = new ImageMeme {
                 Template = templates.Where(t => t.Name == "spongebob").FirstOrDefault()
             };
-            var stream = new MemoryStream(
+            using var stream = new MemoryStream(
                     await bobMeme.GetImageAsync(
                         imageStore,random,string.Join(" ",args)
                     ));
@@ -73,7 +92,6 @@ namespace Homiebot.Discord.Commands
             });
             //await ctx.RespondWithFileAsync("mocking.jpg", new MemoryStream(await bobMeme.GetImageAsync(imageStore, random, string.Join(" ",args))));
         }
-        /*
         [Command("trolly")]
         [Description("Gets you a trolly problem")]
         public async Task TrollyProblem(CommandContext context)
@@ -81,10 +99,12 @@ namespace Homiebot.Discord.Commands
             logger.LogInformation("Got a request for a trolly");
             await context.TriggerTypingAsync();
             var image = await imageStore.GetRandomTaggedImageAsync("trolly");
-            await context.RespondWithFileAsync(image.ImageIdentifier, new MemoryStream(await image.GetBytes()));
+            using var stream = new MemoryStream(await image.GetBytes());
+            await context.Message.RespondAsync(bld => {
+                bld.WithFile(image.ImageIdentifier, stream);
+            });
             await context.RespondAsync("Ding Ding");
         }
-        */
         [Command("snek")]
         [Description("Don't tread on me!")]
         public async Task Snek(CommandContext context)
@@ -92,7 +112,7 @@ namespace Homiebot.Discord.Commands
             logger.LogInformation("Got a request for a snek flag");
             await context.TriggerTypingAsync();
             var image = await imageStore.GetRandomTaggedImageAsync("snekflags");
-            var stream = new MemoryStream(await image.GetBytes());
+            using var stream = new MemoryStream(await image.GetBytes());
             await context.Message.RespondAsync(bld => {
                 bld.WithFile(image.ImageIdentifier, stream);
             });

@@ -45,9 +45,9 @@
                     "TextEffects": 1,
                     "TemplateText":"Behold",
                     "XStartPosition":20,
-                    "YStartPosition":20,
+                    "YStartPosition":10,
                     "Width":601,
-                    "Height":60
+                    "Height":70
                 },
                 {
                     "TextEffects": 1,

@@ -1,0 +1,8 @@
+@{
+    ViewData["Title"] = Model.AltText;
+}
+
+<div class="text-center">
+    <h1 class="Homiebot">Behold</h1>
+    <img src="@Url.Action("ImageFile", "Image", new { name = Model.Name })" alt="@Model.AltText" />
+</div>

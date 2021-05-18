@@ -2,6 +2,7 @@ using Amazon.Runtime.CredentialManagement;
 using Amazon.S3;
 using Amazon.S3.Model;
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Configuration;
@@ -47,6 +48,22 @@ namespace Homiebot.Images
                 return new S3BucketImage(awsobj);
             }
             return null;
+        }
+
+        public async Task<bool> AddImageAsync(string ImageId, Stream file)
+        {
+            var awsobj = await client.PutObjectAsync(
+                new PutObjectRequest{
+                    InputStream = file,
+
+                }
+            );
+            //var awsobj = await client.GetObjectAsync(bucketName,ImageId);
+            if(awsobj.HttpStatusCode == System.Net.HttpStatusCode.OK)
+            {
+                //return new S3BucketImage(awsobj);
+            }
+            return false;
         }
 
         public async Task<IImage> GetRandomTaggedImageAsync(string tag)
