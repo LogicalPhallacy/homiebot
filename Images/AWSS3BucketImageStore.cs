@@ -50,18 +50,26 @@ namespace Homiebot.Images
             return null;
         }
 
-        public async Task<bool> AddImageAsync(string ImageId, Stream file)
+        public async Task<bool> StoreImageAsync(string ImageId, Stream file)
         {
-            var awsobj = await client.PutObjectAsync(
-                new PutObjectRequest{
-                    InputStream = file,
-
+            try{
+                var awsobj = await client.PutObjectAsync(
+                    new PutObjectRequest{
+                        InputStream = file,
+                        AutoCloseStream = true,
+                        BucketName = bucketName,
+                        Key = ImageId
+                    }
+                );
+                //var awsobj = await client.GetObjectAsync(bucketName,ImageId);
+                if(awsobj.HttpStatusCode == System.Net.HttpStatusCode.OK)
+                {
+                    //return new S3BucketImage(awsobj);
+                    return true;
                 }
-            );
-            //var awsobj = await client.GetObjectAsync(bucketName,ImageId);
-            if(awsobj.HttpStatusCode == System.Net.HttpStatusCode.OK)
-            {
-                //return new S3BucketImage(awsobj);
+            }
+            catch(Exception e){
+                logger.LogError(e,e.Message);
             }
             return false;
         }

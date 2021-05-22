@@ -15,6 +15,7 @@ using DSharpPlus.CommandsNext.Entities;
 using Homiebot.Discord.Commands;
 using Homiebot.Discord.Voice;
 using Homiebot.Models;
+using Homiebot.Images;
 
 namespace Homiebot.Discord 
 {
@@ -42,7 +43,9 @@ namespace Homiebot.Discord
             this.services = services;
             connected = false;
         }
-
+        private T getService<T>(){
+            return (T)services.GetService(typeof(T));
+        }
         public async Task Initialize()
         {
             logger.LogInformation("Starting up main discord client");
@@ -65,11 +68,13 @@ namespace Homiebot.Discord
             commands.RegisterCommands<ImageMemeCommands>();
             commands.RegisterCommands<DiceCommands>();
             logger.LogInformation("Parsing gimmicks");
-            HomieCommands hc = new HomieCommands((Random)services.GetService(typeof(Random)),logger,config,(ITextToSpeechHelper)services.GetService(typeof(ITextToSpeechHelper)));
+            HomieCommands hc = new HomieCommands(getService<Random>(),logger,config,getService<ITextToSpeechHelper>());
+            ImageMemeCommands ic = new ImageMemeCommands(logger,config,getService<IImageStore>(),getService<Random>());
             //var childgimmicks = config.GetSection("Gimmicks").GetChildren();
             var Gimmicks = config.GetSection("Gimmicks").Get<IEnumerable<Gimmick>>();
             logger.LogInformation("Registering Gimmicks");
             commands.RegisterCommands(hc.GetDynamicGimmickCommands(Gimmicks));
+            commands.RegisterCommands(ic.GetDynamicImageCommands());
             discordClient.MessageCreated += async (sender,message) => 
             {
                 if(await message.HandleMemorableKeywords(sender, logger))

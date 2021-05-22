@@ -1,8 +1,38 @@
 {
+    "ImageCollections":[
+        {
+            "Name":"snek",
+            "Tag":"snekflags",
+            "Description":"Gets a snek flag for glorious revolution",
+            "CanAdd":true
+        },
+        {
+            "Name":"trolly",
+            "Tag":"trolly",
+            "Description":"Gets an ethical dilemma",
+            "CanAdd":true,
+            "PostText":"ding ding"
+        },
+        {
+            "Name":"spiderman",
+            "Tag":"spiderman",
+            "Description":"Gets a photo of that menace",
+            "CanAdd":true,
+            "PostText":"damnit, get me pictures of spiderman"
+        },
+        {
+            "Name":"baseimage",
+            "Tag":"baseimages",
+            "Description":"Gets a base image meme without custome text, why would you want this",
+            "CanAdd":true
+        }
+    ],
     "MemeTemplates":[
         {
             "Name": "homies",
             "ImageBaseIdentifier": "baseimages/homies.jpg",
+            "Description":"Remind people what the homies hate",
+            "SingleReplacement": true,
             "memeText":[
                 {
                     "TextEffects": 1,
@@ -25,7 +55,8 @@
         {
             "Name": "spongebob",
             "ImageBaseIdentifier": "baseimages/mocking.jpg",
-            
+            "Description":"Express your disdain for an idea",
+            "SingleReplacement": true,
             "memeText":[
                 {
                     "TextEffects": 3,
@@ -40,6 +71,8 @@
         {
             "Name": "doof",
             "ImageBaseIdentifier": "baseimages/doof.jpg",
+            "Description":"share your brilliant invention",
+            "SingleReplacement": true,
             "memeText":[
                 {
                     "TextEffects": 1,

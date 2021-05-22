@@ -11,6 +11,14 @@ using Homiebot.Images;
 
 namespace Homiebot.Models
 {
+    public class ImageCollection
+    {
+        public string Name {get;set;}
+        public string Tag {get;set;}
+        public string Description {get;set;}
+        public bool CanAdd {get;set;}
+        public string? PostText {get;set;}
+    }
     // this is too good for this world
     public enum TextEffects
     {
@@ -66,6 +74,8 @@ namespace Homiebot.Models
     {
         public string Name {get;set;}
         public string ImageBaseIdentifier{get;set;}
+        public string Description {get;set;}
+        public bool SingleReplacement {get;set;}
         public IEnumerable<MemeText> memeText {get;set;}
     }
 
