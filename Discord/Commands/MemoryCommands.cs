@@ -48,7 +48,7 @@ namespace Homiebot.Discord.Commands
         // Extension to the discord message class to handle "conversational" requests in this commands lib
         public static async Task<bool> HandleMemoryMentionCommands(this MessageCreateEventArgs message, ILogger logger)
         {
-            return false;
+            return await Task.FromResult(false);
         }
     }
     public class MemoryCommands : BaseCommandModule
@@ -382,9 +382,9 @@ namespace Homiebot.Discord.Commands
         private async Task<string> getGimmickMessage(string gimmickKey)
         {
             using var memory = serviceScope.ServiceProvider.GetRequiredService<IMemoryProvider>();
-            var Results = memory.FindItems<MemoryItem>(
+            var Results = await Task.Run<IEnumerable<MemoryItem>>( () => memory.FindItems<MemoryItem>(
                 i=> i.Key.StartsWith(gimmickKey)
-            );
+            ));
             var count = Results.Count(); 
             if(count == 0)
             {
@@ -392,6 +392,7 @@ namespace Homiebot.Discord.Commands
             }else{
                 return Results.ElementAt(random.Next(0,count-1)).Message;
             }
+
         }
         // Placeholdering remind and tell until I am good with the dbs workings
         // And have time to setup the local cache and updating it because this featur is expensive without it

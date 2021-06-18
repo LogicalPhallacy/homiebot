@@ -126,7 +126,7 @@ namespace Homiebot.Discord.Commands
                 textToSpeechHelper.CurrentVoice = newVoice;
                 await context.RespondAsync($"Voice speed changed. CurrentVoice is now {textToSpeechHelper.CurrentVoice.ToString()}");
             }
-            catch(Exception e)
+            catch
             {
                 await context.RespondAsync("Couldn't parse your response into a valid voice speed, sorry. Voice Speed will not be changed");
             }
@@ -164,7 +164,7 @@ namespace Homiebot.Discord.Commands
                 textToSpeechHelper.CurrentVoice = newVoice;
                 await context.RespondAsync($"Voice mood changed. CurrentVoice is now {textToSpeechHelper.CurrentVoice.ToString()}");
             }
-            catch(Exception e)
+            catch
             {
                 await context.RespondAsync("Couldn't parse your response into a valid voice speed, sorry. Voice Speed will not be changed");
             }

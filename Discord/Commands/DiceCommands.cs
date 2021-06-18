@@ -93,7 +93,7 @@ namespace Homiebot.Discord.Commands
                     numrolls = 1;
                  }
                  logger.LogInformation("We've made it through the parsing, lets roll the dice");
-                 await foreach(var roll in GetDiceRoll(dicecount,sides,operation,opinteger,numrolls))
+                 foreach(var roll in GetDiceRoll(dicecount,sides,operation,opinteger,numrolls))
                  {
                      await context.RespondAsync(roll);
                  }
@@ -137,7 +137,7 @@ namespace Homiebot.Discord.Commands
             await context.RespondAsync($"{e.GetType().Name}! Homie don't play that! Dice Roll Failed: {e.Message}");
         }
 
-        private async IAsyncEnumerable<string> GetDiceRoll(int numdice, int dicesides, DiceOperations firstOp = DiceOperations.None, int opinteger = 0, int numrolls = 1)
+        private IEnumerable<string> GetDiceRoll(int numdice, int dicesides, DiceOperations firstOp = DiceOperations.None, int opinteger = 0, int numrolls = 1)
         {
             logger.LogInformation("Rolling {numdice}d{dicesides} {numrolls} times. Also doing {diceop} with operatorvalue {opinteger}",numdice,dicesides,numrolls,firstOp,opinteger);
             int grandtotal = 0;
