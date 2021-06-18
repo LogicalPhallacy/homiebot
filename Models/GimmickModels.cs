@@ -45,14 +45,7 @@ namespace Homiebot.Models
         public string Replace(params string[] args)
         {
             var gimmick = this;
-            if(usedStrings.Count == ReplacementStrings.Count()){
-                usedStrings = new ();
-            }
-            var retstr = gimmick.ReplacementStrings
-                .Where(str=> !usedStrings.Contains(str))
-                .OrderBy(x => random.Next())
-                .First();
-            usedStrings.Add(retstr);
+            var retstr = gimmick.ReplacementStrings.GetRandomUnused(random, ref usedStrings);
             if(args != null && args.Length > 0)
             {
                 string joined = string.Join(' ',args);
