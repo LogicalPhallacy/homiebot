@@ -26,6 +26,20 @@ namespace Homiebot
 
         }
 
+        public static T GetRandomUnused<T>(this IEnumerable<T> collection, Random random, ref HashSet<T> used)
+        {
+            if(used.Count == collection.Count()){
+                used = new ();
+            }
+            var localused = used.ToHashSet<T>();
+            var item = collection
+                .Where(item=> !localused.Contains(item))
+                .OrderBy(x => random.Next())
+                .First();
+            used.Add(item);
+            return item;
+        }
+
         public static string ToMockingCase(this string message, Random random)
         {
             bool lastLetterwasUpper  = false;
