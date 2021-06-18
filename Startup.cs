@@ -32,11 +32,35 @@ namespace Homiebot.Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var cosmosconf = Configuration.GetSection("CosmosStorageConfig").Get<CosmosStorageConfig>();
-            services.AddSingleton(typeof(Random))
-                .AddSingleton(typeof(ITextToSpeechHelper),typeof(MultiCloudTTS))
-                .AddSingleton(typeof(IImageStore), typeof(Homiebot.Images.AWSS3BucketImageStore))
-                .AddDbContext<HomiebotContext>(
+            BotConfig b = Configuration.GetSection("BotConfig").Get<BotConfig>();
+            AddImageStore(services,b);
+            AddBrains(services,b);
+            AddVoice(services,b);
+            services.AddSingleton(typeof(Random));
+            services.AddHostedService<HomieBot>()
+                .AddControllersWithViews();
+        }
+
+        private void AddImageStore(IServiceCollection services, BotConfig botConfig)
+        {
+            switch (botConfig.ImageProvider) 
+            {
+                case nameof(AWSS3BucketImageStore):
+                    services.AddSingleton(typeof(IImageStore), typeof(Homiebot.Images.AWSS3BucketImageStore));
+                    break;
+                case nameof(LocalImageStore):
+                    services.AddSingleton(typeof(IImageStore),typeof(Homiebot.Images.LocalImageStore));
+                    break;
+                default:
+                    break;
+            }
+        }
+        private void AddBrains(IServiceCollection services, BotConfig botConfig)
+        {
+            if(botConfig.UseBrain)
+            {
+                var cosmosconf = Configuration.GetSection("CosmosStorageConfig").Get<CosmosStorageConfig>();
+                services.AddDbContext<HomiebotContext>(
                     options => options.UseCosmos(
                         cosmosconf.EndPoint,
                         cosmosconf.ConnectionKey,
@@ -45,10 +69,16 @@ namespace Homiebot.Web
                             options.ConnectionMode(ConnectionMode.Gateway);
                         }
                     )
-                )
-                .AddTransient(typeof(IMemoryProvider),typeof(EFCoreMemory))
-                .AddHostedService<HomieBot>()
-                .AddControllersWithViews();
+                );
+                services.AddTransient(typeof(IMemoryProvider),typeof(EFCoreMemory));
+            }
+        }
+        private void AddVoice(IServiceCollection services, BotConfig botConfig)
+        {
+            if(botConfig.UseVoice)
+            {
+                services.AddSingleton(typeof(ITextToSpeechHelper),typeof(MultiCloudTTS));
+            }
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

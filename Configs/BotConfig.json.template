@@ -3,6 +3,7 @@
         "DiscordToken":"REDACTED",
         "UseVoice":true,
         "UseBrain":true,
+        "ImageProvider":"LocalImageStore",
         "CommandPrefixes":[
             "::",
             ";;"
@@ -10,6 +11,9 @@
         "Admins":[
             ""
         ]
+    },
+    "LocalImageStoreConfig":{
+        "ImageStorePath":"/images"
     },
     "AzureVoiceConfig":{
         "Endpoint": "",
