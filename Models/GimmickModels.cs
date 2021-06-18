@@ -19,7 +19,7 @@ namespace Homiebot.Models
         public string Description {get; set;}
         public IEnumerable<string> ReplacementStrings {get; set;}
         private HashSet<string> usedStrings;
-        public string? StringTerminator {get;set;}
+        public string StringTerminator {get;set;}
         public string ArgSplitter {get;set;}
         public int ArgCount {get;set;}
         public bool Injected{get; set;}

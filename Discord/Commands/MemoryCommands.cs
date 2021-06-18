@@ -262,6 +262,7 @@ namespace Homiebot.Discord.Commands
             }
         }
 
+#nullable enable
         [Command("acab")]
         [Description("Run by itself to learn which cops are bastards, run with a parameter to include that fact")]
         public async Task ACAB(CommandContext context, [RemainingText]string? info)
@@ -358,7 +359,7 @@ namespace Homiebot.Discord.Commands
                 }
             }
         }
-
+#nullable disable
         private async Task<bool> rememberGimmickMessage(string guildId, string owner, string gimmickKey, string info)
         {
             string stampedKey = $"{gimmickKey}-{DateTime.Now.ToString("yyMMddHHmmSS")}";

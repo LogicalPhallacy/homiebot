@@ -193,7 +193,7 @@ namespace Homiebot.Discord.Commands
             context.CommandsNext.RegisterCommands(GetDynamicGimmickCommands(Gimmicks));
             await context.RespondAsync("gimmicks reloaded!");
         }
-
+#nullable enable
         [Command("clapback")]
         [Description("you👏know👏what👏this👏does")]
         public async Task ClapBack(CommandContext context, [RemainingText] string? text)
@@ -207,7 +207,7 @@ namespace Homiebot.Discord.Commands
                 await context.RespondAsync(resp);
             }
         }
-
+#nullable disable
         [Command("define")]
         [Description("Fetches a definition from urban dictionary")]
         public async Task Define(CommandContext context, [RemainingText] string text)

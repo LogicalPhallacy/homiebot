@@ -73,7 +73,7 @@ namespace Homiebot.Discord.Commands
         {
             await SpeechHelper.Speak(textToSpeechHelper,context,text);
         }
-
+#nullable enable
         [Command("showvoice")]
         [Description("Shows the available TTS voices, add a specific voice to see detailed info on it")]
         public async Task ShowVoice(CommandContext context, [RemainingText] string? text)
@@ -95,6 +95,7 @@ namespace Homiebot.Discord.Commands
             others+= string.Join(' ',textToSpeechHelper.AvailableVoices.Select(v => v.VoiceName));
             await context.RespondAsync(others);
         }
+#nullable disable
         [Command("setvoice")]
         [Description("Use with an output selected from ::showvoice to change the TTS voice")]
         public async Task SetVoice(CommandContext context, string text)

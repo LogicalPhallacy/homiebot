@@ -17,7 +17,7 @@ namespace Homiebot.Models
         public string Tag {get;set;}
         public string Description {get;set;}
         public bool CanAdd {get;set;}
-        public string? PostText {get;set;}
+        public string PostText {get;set;}
     }
     // this is too good for this world
     public enum TextEffects
