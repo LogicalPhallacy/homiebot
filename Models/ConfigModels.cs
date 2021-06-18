@@ -7,6 +7,8 @@ namespace Homiebot.Models
         public string DiscordToken {get; set;}
         public IEnumerable<string> CommandPrefixes{get;set;}
         public IEnumerable<string> Admins {get;set;}
+        public bool UseVoice {get;set;}
+        public bool UseBrain{get;set;}
     }
     public class GimmickFile 
     {

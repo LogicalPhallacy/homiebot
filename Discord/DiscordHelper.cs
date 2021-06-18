@@ -48,6 +48,7 @@ namespace Homiebot.Discord
         }
         public async Task Initialize()
         {
+            var homiebotConfig = config.GetSection("BotConfig").Get<BotConfig>();
             logger.LogInformation("Starting up main discord client");
             discordClient = new DiscordClient( new DiscordConfiguration(){
                 AutoReconnect = true,
@@ -100,16 +101,24 @@ namespace Homiebot.Discord
             };
             logger.LogInformation("Registering reactions");
             discordClient.MessageReactionAdded += hc.ProcessReaction;
-            logger.LogInformation("Registering Voice Commands");
-            voiceNext = discordClient.UseVoiceNext(
-                new VoiceNextConfiguration{
-                    EnableIncoming = false,
-                    AudioFormat = new AudioFormat(48000,1,VoiceApplication.Voice)
-                }
-            );
-            commands.RegisterCommands<VoiceCommands>();
-            logger.LogInformation("Registering memory commands");
-            commands.RegisterCommands<MemoryCommands>();
+            
+            if(homiebotConfig.UseVoice)
+            {
+                logger.LogInformation("Registering Voice Commands");
+                voiceNext = discordClient.UseVoiceNext(
+                    new VoiceNextConfiguration{
+                        EnableIncoming = false,
+                        AudioFormat = new AudioFormat(48000,1,VoiceApplication.Voice)
+                    }
+                );
+                commands.RegisterCommands<VoiceCommands>();
+            }
+            if(homiebotConfig.UseBrain)
+            {
+                logger.LogInformation("Registering memory commands");
+                commands.RegisterCommands<MemoryCommands>();
+            }
+            
             logger.LogInformation("Trying Connect");
             try
             {
