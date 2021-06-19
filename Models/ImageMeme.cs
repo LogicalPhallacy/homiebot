@@ -33,7 +33,7 @@ namespace Homiebot.Models
         public async Task<Byte[]> GetImageAsync(IImageProcessor processor, params string[] replacements) 
         {
             
-            return await processor.ProcessImage(this);
+            return await processor.ProcessImage(this, replacements);
         }
     }
 

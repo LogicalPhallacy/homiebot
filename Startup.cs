@@ -36,6 +36,7 @@ namespace Homiebot.Web
             AddImageStore(services,b);
             AddBrains(services,b);
             AddVoice(services,b);
+            AddImageProcessor(services,b);
             services.AddSingleton(typeof(Random));
             services.AddHostedService<HomieBot>()
                 .AddControllersWithViews();
