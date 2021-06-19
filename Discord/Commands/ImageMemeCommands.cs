@@ -26,15 +26,17 @@ namespace Homiebot.Discord.Commands
 
         private IEnumerable<MemeTemplate> templates;
         private IEnumerable<ImageCollection> collections;
-        private IImageStore imageStore;
-        private Random random;
+        private readonly IImageStore imageStore;
+        private readonly Random random;
+        private readonly IImageProcessor imageProcessor;
         public delegate Task RunMemeTemplate(CommandContext ctx, params string[] input);
         public delegate Task RunCollection(CommandContext ctx);
-        public ImageMemeCommands(ILogger<HomieBot> logger, IConfiguration configuration,IImageStore imageStore, Random random)
+        public ImageMemeCommands(ILogger<HomieBot> logger, IConfiguration configuration,IImageStore imageStore, IImageProcessor imageProcessor, Random random)
         {
             this.logger = logger;
             this.configuration = configuration;
             this.imageStore = imageStore;
+            this.imageProcessor = imageProcessor;
             this.random = random;
             this.templates = configuration.GetSection("MemeTemplates").Get<IEnumerable<MemeTemplate>>();
             this.collections = configuration.GetSection("ImageCollections").Get<IEnumerable<ImageCollection>>();
@@ -234,12 +236,8 @@ namespace Homiebot.Discord.Commands
                 Template = memeTemplate
             };
             var stream = memeTemplate.SingleReplacement ?  new MemoryStream(
-                    await meme.GetImageAsync(
-                        imageStore,
-                        random,
-                        string.Join(" ",args)
-                    )
-                ) : new MemoryStream( await meme.GetImageAsync(imageStore,random,args)
+                    await meme.GetImageAsync(imageProcessor, string.Join(" ",args))
+                ) : new MemoryStream( await meme.GetImageAsync(imageProcessor, args)
                 );
 
             await ctx.Message.RespondAsync(bld => {

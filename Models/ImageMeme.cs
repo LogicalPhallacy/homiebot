@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using ImageMagick;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Newtonsoft.Json.Converters;
@@ -31,42 +30,10 @@ namespace Homiebot.Models
     public class ImageMeme 
     {
         public MemeTemplate Template {get; set;}
-        public async Task<Byte[]> GetImageAsync(IImageStore imageStore, Random random =null, params string[] replacements) 
+        public async Task<Byte[]> GetImageAsync(IImageProcessor processor, params string[] replacements) 
         {
-            var factory = new MagickImageFactory();
-            using (var image = factory.Create(await(await imageStore.GetImageAsync(this.Template.ImageBaseIdentifier)).GetBytes()))
-            {
-                List<MagickImage> MemeTexts = new List<MagickImage>(); 
-                foreach(var m in Template.memeText)
-                {
-                    MagickImage mti;
-                    
-                    try
-                    {
-                        mti = new MagickImage($"caption:{m.GetMemeText(random, replacements)}",m.Composition);
-                    }
-                    catch(Exception e)
-                    {
-                        throw e;
-                    }
-                    
-                    MemeTexts.Add(mti);
-                    // well there's your problem
-                    // image.Composite(mti,m.XStartPosition,m.YStartPosition,CompositeOperator.Over);
-                    await Task.Run( () => {
-                        image.Composite(mti,m.XStartPosition,m.YStartPosition,CompositeOperator.Over);
-                    });
-                    //
-
-                }
-                var bytes = await Task.Run<byte[]>(()=>{return image.ToByteArray();});
-                // dispose our dynamic images
-                //image.Write(writeStream);
-                foreach(var meme in MemeTexts){
-                    meme.Dispose();
-                }
-                return bytes;
-            }
+            
+            return await processor.ProcessImage(this);
         }
     }
 
@@ -101,19 +68,6 @@ namespace Homiebot.Models
             set => fillColor = value;
         }
         private string fillColor;
-
-        public MagickReadSettings Composition 
-        {
-            get => new MagickReadSettings(){
-                Font = "Impact",
-                TextGravity = Gravity.Center,
-                BackgroundColor = MagickColors.Transparent,
-                StrokeColor = new MagickColor(OutlineColor),
-                FillColor = new MagickColor(FillColor),
-                Height = this.Height,
-                Width = this.Width
-            };
-        }
 
         public string GetMemeText( Random random=null, params string[] replacements)
         {

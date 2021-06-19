@@ -80,6 +80,16 @@ namespace Homiebot.Web
                 services.AddSingleton(typeof(ITextToSpeechHelper),typeof(MultiCloudTTS));
             }
         }
+        private void AddImageProcessor(IServiceCollection services, BotConfig botConfig)
+        {
+            services.AddSingleton(typeof(IImageProcessor),
+            botConfig.ImageProcessor switch {
+                nameof(ImageSharpImageProcessor) => typeof(ImageSharpImageProcessor),
+                nameof(MagickSharpImageProcessor) => typeof(MagickSharpImageProcessor),
+                nameof(SkiaImageProcessor) => typeof(SkiaImageProcessor),
+                _ => throw new NotImplementedException($"Processor {botConfig.ImageProcessor} is not implemented")
+            });
+        }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

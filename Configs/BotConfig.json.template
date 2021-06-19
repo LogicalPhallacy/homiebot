@@ -4,6 +4,7 @@
         "UseVoice":true,
         "UseBrain":true,
         "ImageProvider":"LocalImageStore",
+        "ImageProcessor":"MagickSharpImageProcessor",
         "CommandPrefixes":[
             "::",
             ";;"

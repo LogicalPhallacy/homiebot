@@ -70,7 +70,7 @@ namespace Homiebot.Discord
             commands.RegisterCommands<DiceCommands>();
             logger.LogInformation("Parsing gimmicks");
             HomieCommands hc = new HomieCommands(getService<Random>(),logger,config,getService<ITextToSpeechHelper>());
-            ImageMemeCommands ic = new ImageMemeCommands(logger,config,getService<IImageStore>(),getService<Random>());
+            ImageMemeCommands ic = new ImageMemeCommands(logger,config,getService<IImageStore>(),getService<IImageProcessor>(), getService<Random>());
             //var childgimmicks = config.GetSection("Gimmicks").GetChildren();
             var Gimmicks = config.GetSection("Gimmicks").Get<IEnumerable<Gimmick>>();
             logger.LogInformation("Registering Gimmicks");

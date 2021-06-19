@@ -12,6 +12,7 @@ namespace Homiebot.Models
 
         public string VoiceProvider {get;set;}
         public string ImageProvider {get;set;}
+        public string ImageProcessor {get;set;}
         public string BrainProvider{get;set;}
     }
     public class GimmickFile 
