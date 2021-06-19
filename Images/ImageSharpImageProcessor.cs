@@ -30,8 +30,17 @@ namespace Homiebot.Images
             var imagebox = await Task.Run(
                 () => TextMeasurer.Measure(text, new RendererOptions(basefont))
                 );
-            var scalefactor = m.Height / imagebox.Height;
-            return new Font(basefont, 12*scalefactor);
+            var yscalefactor = m.Height / imagebox.Height;
+            var xscalefactor = m.Width / imagebox.Width;
+            return new Font(basefont, 12*(xscalefactor < yscalefactor ? xscalefactor : yscalefactor));
+        }
+
+        private PointF findCenter(MemeText m)
+        {
+            return new PointF(
+                (m.Width/2)+m.XStartPosition,
+                (m.Height/2)+m.YStartPosition
+            );
         }
 
         public async Task<byte[]> ProcessImage(ImageMeme meme, params string[] replacements)
@@ -46,8 +55,8 @@ namespace Homiebot.Images
                 {
                     ApplyKerning = true,
                     TabWidth = 8, // a tab renders as 8 spaces wide
-                    WrapTextWidth = 100, // greater than zero so we will word wrap at 100 pixels wide
-                    HorizontalAlignment = HorizontalAlignment.Center // center align
+                    //WrapTextWidth = 100, // greater than zero so we will word wrap at 100 pixels wide
+                    HorizontalAlignment = HorizontalAlignment.Center,
                 };
                 IBrush brush = Brushes.Solid(Color.Parse(text.FillColor));
                 IPen pen = Pens.Solid(Color.Parse(text.OutlineColor),2);
@@ -64,8 +73,7 @@ namespace Homiebot.Images
                             words,
                             f, 
                             brush, 
-                            pen, 
-                            new PointF(text.XStartPosition, text.YStartPosition)
+                            pen, findCenter(text)
                         )
                     )
                 );
