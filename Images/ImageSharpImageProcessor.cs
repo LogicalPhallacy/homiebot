@@ -4,10 +4,8 @@ using System.Threading.Tasks;
 using Homiebot.Models;
 using SixLabors.Fonts;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Drawing;
 using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.Formats.Png;
-using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 
 
@@ -57,6 +55,7 @@ namespace Homiebot.Images
                     TabWidth = 8, // a tab renders as 8 spaces wide
                     //WrapTextWidth = 100, // greater than zero so we will word wrap at 100 pixels wide
                     HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center
                 };
                 IBrush brush = Brushes.Solid(Color.Parse(text.FillColor));
                 IPen pen = Pens.Solid(Color.Parse(text.OutlineColor),2);
