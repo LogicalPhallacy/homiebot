@@ -1,22 +1,16 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Homiebot;
 using Homiebot.Brain;
-using Homiebot.Discord;
 using Homiebot.Discord.Voice;
-using Homiebot.Discord.Commands;
 using Homiebot.Images;
 using Homiebot.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Azure.Cosmos;
+using FileContextCore;
 
 namespace Homiebot.Web
 {
@@ -60,16 +54,28 @@ namespace Homiebot.Web
         {
             if(botConfig.UseBrain)
             {
-                var cosmosconf = Configuration.GetSection("CosmosStorageConfig").Get<CosmosStorageConfig>();
                 services.AddDbContext<HomiebotContext>(
-                    options => options.UseCosmos(
-                        cosmosconf.EndPoint,
-                        cosmosconf.ConnectionKey,
-                        cosmosconf.DatabaseName,
-                        options=> {
-                            options.ConnectionMode(ConnectionMode.Gateway);
+                    (options) => {
+                        switch (botConfig.BrainProvider)
+                        {
+                            case "Cosmos":
+                                var cosmosconf = Configuration.GetSection("CosmosStorageConfig").Get<CosmosStorageConfig>();                   
+                                options.UseCosmos(
+                                    cosmosconf.EndPoint,
+                                    cosmosconf.ConnectionKey,
+                                    cosmosconf.DatabaseName,
+                                    options=> {
+                                        options.ConnectionMode(ConnectionMode.Gateway);
+                                });
+                                break;
+                            case "LocalFileStorage":
+                                var fileConf = Configuration.GetSection("LocalFileStorageConfig").Get<LocalFileStorageConfig>();
+                                options.UseFileContextDatabase(databaseName: "homiebot", location: fileConf.StoragePath);
+                                break;
                         }
-                    )
+                        
+
+                    }
                 );
                 services.AddTransient(typeof(IMemoryProvider),typeof(EFCoreMemory));
             }

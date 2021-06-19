@@ -25,6 +25,11 @@ namespace Homiebot.Models
         public string ConnectionKey {get;set;}
         public string DatabaseName {get;set;}
     }
+    public class LocalFileStorageConfig 
+    {
+        public string FIleFormat {get;set;}
+        public string StoragePath {get;set;}
+    }
     public class ReactionConfig
     {
         public string ReactionName {get;set;}

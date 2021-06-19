@@ -3,8 +3,9 @@
         "DiscordToken":"REDACTED",
         "UseVoice":true,
         "UseBrain":true,
+        "BrainProvider":"LocalFileStorage",
         "ImageProvider":"LocalImageStore",
-        "ImageProcessor":"MagickSharpImageProcessor",
+        "ImageProcessor":"ImageSharpImageProcessor",
         "CommandPrefixes":[
             "::",
             ";;"
@@ -14,7 +15,7 @@
         ]
     },
     "LocalImageStoreConfig":{
-        "ImageStorePath":"/images"
+        "ImageStorePath":"images"
     },
     "AzureVoiceConfig":{
         "Endpoint": "",
@@ -31,5 +32,8 @@
         "EndPoint": "",
         "ConnectionKey": "",
         "DatabaseName": ""
+    },
+    "LocalFileStorageConfig":{
+        "StoragePath":"brain"
     }
 }
