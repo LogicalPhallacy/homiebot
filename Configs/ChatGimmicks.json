@@ -63,8 +63,10 @@
                 "Harvest the Mystery Seeds, feed the world!",
                 "Restore the institution of Trial by Combat",
                 "Traditional Marriages! No alliance? No wedding.",
-                "Workers of the world unite, you havbe nothing to lose but your keycards",
-                "I too would like to get off the Major Historical Event"
+                "Workers of the world unite, you have nothing to lose but your keycards",
+                "I too would like to get off the Major Historical Event",
+                "I WILL MAKE THINGS WORSE",
+                "Annex Antarctica!"
             ],
             "StringTerminator":"\nVote TypePomiscuous 2024 ~~2020~~!"
         },
@@ -581,6 +583,15 @@
             "CanVoice": false,
             "ReplacementStrings":[
                 "```   No    No   NoNo\n  No No No  No    No\n No  NoNo   No    No\nNo    No      NoNo```"
+            ]
+        },
+        {
+            "Command":"nice",
+            "Description":"Nice",
+            "ArgCount":0,
+            "CanVoice": false,
+            "ReplacementStrings":[
+                "```N    N   III    CC  EEEE\nN N  N    I    C    E\nN  N N    I   C     EEEE\nN   NN    I    C    E\nN    N   III    CC  EEEE\n```"
             ]
         },
         {

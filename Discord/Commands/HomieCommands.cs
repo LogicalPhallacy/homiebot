@@ -38,8 +38,7 @@ namespace Homiebot.Discord.Commands
             switch (message.Message.Content){
                 case var m when new Regex(@"\b(why)\b").IsMatch(m):
                     logger.LogInformation("Matched on why, so making an excuse");
-                    var context = sender.GetCommandsNext().CreateContext(message.Message,"::",sender.GetCommandsNext().RegisteredCommands["excuse"]);
-                    await sender.GetCommandsNext().RegisteredCommands["excuse"].ExecuteAsync(context);
+                    await ReactToMessage(message.Message, sender, "excuse");
                     return true;
                 case var m when new Regex(@"\b(thank you)\b").IsMatch(m):
                     await message.Message.CreateReactionAsync(DiscordEmoji.FromName(sender,":IsForMe:"));
@@ -47,9 +46,17 @@ namespace Homiebot.Discord.Commands
                 case var m when new Regex(@"\b(fuck you)\b").IsMatch(m):
                     await message.Message.RespondAsync($"Fuck you too, {message.Author.Mention}");
                     return true;
+                case var m when m.Contains("420") || m.Contains("69"):
+                    await ReactToMessage(message.Message, sender, "nice");
+                    return true;
                 default:
                     return false;
             }
+        }
+        public static async Task<CommandResult> ReactToMessage(DiscordMessage message, DiscordClient sender, string reactWithCommandName)
+        {
+            var context = sender.GetCommandsNext().CreateContext(message,"::",sender.GetCommandsNext().RegisteredCommands[reactWithCommandName]);
+            return await sender.GetCommandsNext().RegisteredCommands[reactWithCommandName].ExecuteAsync(context);
         }
     }
     public class HomieCommands : BaseCommandModule
