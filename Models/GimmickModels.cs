@@ -29,14 +29,14 @@ namespace Homiebot.Models
         private Random random;
         private ILogger logger;
 
-        private ITextToSpeechHelper textToSpeechHelper;
+        private ITextToSpeechHelper? textToSpeechHelper;
 
         public Gimmick()
         {
             Injected = false;
             usedStrings = new ();
         }
-        public void Inject(Random random, ILogger logger, ITextToSpeechHelper textToSpeechHelper){
+        public void Inject(Random random, ILogger logger, ITextToSpeechHelper? textToSpeechHelper = null){
             this.random = random;
             this.logger = logger;
             this.textToSpeechHelper = textToSpeechHelper;
