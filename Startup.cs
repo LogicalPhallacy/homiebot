@@ -86,6 +86,10 @@ namespace Homiebot.Web
             {
                 services.AddSingleton(typeof(ITextToSpeechHelper),typeof(MultiCloudTTS));
             }
+            else
+            {
+                services.AddSingleton(typeof(ITextToSpeechHelper),typeof(DummyTextToSpeechHelper));
+            }
         }
         private void AddImageProcessor(IServiceCollection services, BotConfig botConfig)
         {
