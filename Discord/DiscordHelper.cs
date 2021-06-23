@@ -69,7 +69,9 @@ namespace Homiebot.Discord
             commands.RegisterCommands<ImageMemeCommands>();
             commands.RegisterCommands<DiceCommands>();
             logger.LogInformation("Parsing gimmicks");
-            HomieCommands hc = new HomieCommands(getService<Random>(),logger,config,getService<ITextToSpeechHelper>());
+            HomieCommands hc = homiebotConfig.UseVoice ? 
+            new HomieCommands(getService<Random>(),logger,config,getService<ITextToSpeechHelper>()) :
+            new HomieCommands(getService<Random>(),logger,config);
             ImageMemeCommands ic = new ImageMemeCommands(logger,config,getService<IImageStore>(),getService<IImageProcessor>(), getService<Random>());
             //var childgimmicks = config.GetSection("Gimmicks").GetChildren();
             var Gimmicks = config.GetSection("Gimmicks").Get<IEnumerable<Gimmick>>();

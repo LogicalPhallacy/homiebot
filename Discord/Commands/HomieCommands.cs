@@ -65,15 +65,18 @@ namespace Homiebot.Discord.Commands
         private readonly Random random;
         private readonly ILogger logger;
         private readonly IConfiguration config;
+        private readonly BotConfig botConfig;
         private IEnumerable<Gimmick> Gimmicks;
         private IEnumerable<ReactionConfig> reactionConfigs;
-        private ITextToSpeechHelper textToSpeechHelper;
-        public HomieCommands(Random random, ILogger<HomieBot> logger, IConfiguration config,ITextToSpeechHelper textToSpeechHelper)
+        private ITextToSpeechHelper? textToSpeechHelper;
+        public HomieCommands(Random random, ILogger<HomieBot> logger, IConfiguration config, ITextToSpeechHelper? textToSpeechHelper = null)
         {
             this.random = random;
             this.logger = logger;
             this.config = config;
-            this.textToSpeechHelper = textToSpeechHelper;
+            botConfig = config.GetSection("BotConfig").Get<BotConfig>();
+            
+            this.textToSpeechHelper = botConfig.UseVoice ? textToSpeechHelper : null;
             InitializeGimmicks();
             reactionConfigs = config.GetSection("ReactionPacks").Get<IEnumerable<ReactionConfig>>();
         }
@@ -99,7 +102,7 @@ namespace Homiebot.Discord.Commands
                     new CommandOverloadBuilder(new RunGimmick(gimmick.RunGimmick)).WithPriority(0)
                     )
                 );
-                if(gimmick.CanVoice)
+                if(gimmick.CanVoice && botConfig.UseVoice)
                 {
                     commands.Add(
                         new CommandBuilder()
