@@ -57,11 +57,12 @@ namespace Homiebot.Discord.Commands
 
     public async Task ProcessReaction(DiscordClient sender, MessageReactionAddEventArgs messageReaction)
         {
-            DiscordMessage fullmessage = null;
             switch(messageReaction.Emoji.GetDiscordName())
             {
                 case ":smoking:":
-                    await HomieMessageExtensions.ReactToMessage(messageReaction.Message,sender,"never");
+                    // just fetch the message
+                    var message = await messageReaction.Channel.GetMessageAsync(messageReaction.Message.Id);
+                    await HomieMessageExtensions.ReactToMessage(message,sender,"never");
                     break;
                 default:
                     break;
@@ -185,35 +186,29 @@ namespace Homiebot.Discord.Commands
                     var attachment = message.Attachments.FirstOrDefault();
                     url = attachment.Url;
                 }
+            else
+            {
+                // image wasn't attached, so lets hope its in the args
+                if (args != null && args.Length >0 && !string.IsNullOrWhiteSpace(args[0]) && args[0].ToLowerInvariant().StartsWith("http"))
+                {
+                    if(!checkURLIsImage(args[0])){
+                        return url;
+                    }
+                    System.Uri.TryCreate(args[0], UriKind.Absolute, out Uri attachment);
+                    url = args[0];
+                }
                 else
                 {
-                    // image wasn't attached, so lets hope its in the args
-                    if (args != null && !string.IsNullOrWhiteSpace(args[0]) && args[0].ToLowerInvariant().StartsWith("http"))
+                    // We didn't have args, so lets check the message body just in case
+                    string fullmessage = message.Content;
+                    if(!string.IsNullOrEmpty(fullmessage) && fullmessage.ToLowerInvariant().Contains("http"))
                     {
-                        if(!checkURLIsImage(args[0])){
-                            return url;
-                        }
-                        System.Uri.TryCreate(args[0], UriKind.Absolute, out Uri attachment);
-                        url = args[0];
-                    }
-                    else
-                    {
-                        // We didn't have args, so lets check the message body just in case
-                        string fullmessage = string.Empty;
-                        if(string.IsNullOrWhiteSpace(message.Content))
-                        {
-                            fullmessage = (await message.Channel.GetMessageAsync(message.Id)).Content;
-                        }else{
-                            fullmessage = message.Content;
-                        }
-                        if(!string.IsNullOrEmpty(fullmessage) && fullmessage.ToLowerInvariant().Contains("http"))
-                        {
-                            // I did not know that null was a "any whitespace" split, how cool is that?
-                            string relevant = (fullmessage[fullmessage.ToLowerInvariant().IndexOf("http")..]).Split(null)[0];
-                            url = checkURLIsImage(relevant) ? relevant : string.Empty;
-                        }
+                        // I did not know that null was a "any whitespace" split, how cool is that?
+                        string relevant = (fullmessage[fullmessage.ToLowerInvariant().IndexOf("http")..]).Split(null)[0];
+                        url = checkURLIsImage(relevant) ? relevant : string.Empty;
                     }
                 }
+            }
             return url;
         }
 

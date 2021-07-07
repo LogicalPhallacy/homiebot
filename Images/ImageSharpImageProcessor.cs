@@ -35,8 +35,8 @@ namespace Homiebot.Images
 
         private Size GetSize(int overlayWidth, int overlayHeight, int sourceWidth, int sourceHeight)
         {
-            int yscalefactor = overlayHeight / sourceHeight;
-            int xscalefactor = overlayWidth / sourceWidth;
+            float yscalefactor = (float)sourceHeight/(float)overlayHeight;
+            float xscalefactor = (float)sourceWidth/(float)overlayWidth;
             float resizepercent = xscalefactor < yscalefactor ? xscalefactor : yscalefactor;
             int width = ((int)Math.Round(overlayWidth*resizepercent,0));
             int height = ((int)Math.Round(overlayHeight*resizepercent,0));
@@ -102,6 +102,8 @@ namespace Homiebot.Images
 
         public async Task<byte[]> OverlayImage(Stream baseImage, Stream overlayImage)
         {
+            baseImage.Position = 0;
+            overlayImage.Position = 0;
             using var image = Image.Load(baseImage);
             using var overlay = Image.Load(overlayImage);
             // resize the overlay image

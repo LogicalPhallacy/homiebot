@@ -33,18 +33,21 @@ namespace Homiebot.Images
         public async Task<byte[]> OverlayImage(Stream baseImage, Stream overlayImage)
         {
             var factory = new MagickImageFactory();
+            baseImage.Position = 0;
+            overlayImage.Position = 0;
             using var image = factory.Create(baseImage);
             using var overlay = factory.Create(overlayImage);
-            await Task.Run( () => overlay.Scale(findScalePercentage(overlay.Width, overlay.Height, image.Width, image.Height)));
+            var scale = findScalePercentage(overlay.Width, overlay.Height, image.Width, image.Height);
+            await Task.Run( () => overlay.Scale(scale));
             await Task.Run( () => image.Composite(overlay,findXCenter(overlay.Width, image.Width), 0, CompositeOperator.Over));
             return await Task.Run<byte[]>(()=>{return image.ToByteArray();});
         }
 
-        private Percentage findScalePercentage(int scaleWidth, int scaleHeight, int sourceWidth, int sourceHeight)
+        private Percentage findScalePercentage(int overlayWidth, int overlayHeight, int sourceWidth, int sourceHeight)
         {
-            var yscalefactor = scaleHeight / sourceHeight;
-            var xscalefactor = scaleWidth / sourceWidth;
-            return new Percentage(xscalefactor < yscalefactor ? xscalefactor : yscalefactor);
+            double yscalefactor = (double)sourceHeight / (double)overlayHeight;
+            double xscalefactor =  (double)sourceWidth / (double)overlayWidth;
+            return new Percentage(xscalefactor < yscalefactor ? xscalefactor * 100 : yscalefactor * 100);
         }
 
         private int findXCenter(int overlayWidth, int sourceWidth)
