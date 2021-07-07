@@ -39,7 +39,7 @@ namespace Homiebot.Images
             using var overlay = factory.Create(overlayImage);
             var scale = findScalePercentage(overlay.Width, overlay.Height, image.Width, image.Height);
             await Task.Run( () => overlay.Scale(scale));
-            await Task.Run( () => image.Composite(overlay,findXCenter(overlay.Width, image.Width), 0, CompositeOperator.Over));
+            await Task.Run( () => image.Composite(overlay,findXOffCenter(overlay.Width, image.Width), findYBottom(overlay.Height, image.Height), CompositeOperator.Over));
             return await Task.Run<byte[]>(()=>{return image.ToByteArray();});
         }
 
@@ -47,13 +47,19 @@ namespace Homiebot.Images
         {
             double yscalefactor = (double)sourceHeight / (double)overlayHeight;
             double xscalefactor =  (double)sourceWidth / (double)overlayWidth;
-            return new Percentage(xscalefactor < yscalefactor ? xscalefactor * 100 : yscalefactor * 100);
+            return new Percentage(xscalefactor < yscalefactor ? xscalefactor * 50 : yscalefactor * 50);
         }
 
         private int findXCenter(int overlayWidth, int sourceWidth)
         {
             return (sourceWidth-overlayWidth)/2;
         }
+        private int findXOffCenter(int overlayWidth, int sourceWidth)
+        {
+            int xpos = ((sourceWidth-overlayWidth)/2);
+            return (xpos - ((xpos*2)/3));
+        }
+        private int findYBottom(int overlayHeight, int sourceHeight) => sourceHeight-overlayHeight;
 
         public async Task<byte[]> ProcessImage(ImageMeme meme, params string[] replacements)
         {

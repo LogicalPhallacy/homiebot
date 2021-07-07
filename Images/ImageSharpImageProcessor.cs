@@ -37,7 +37,7 @@ namespace Homiebot.Images
         {
             float yscalefactor = (float)sourceHeight/(float)overlayHeight;
             float xscalefactor = (float)sourceWidth/(float)overlayWidth;
-            float resizepercent = xscalefactor < yscalefactor ? xscalefactor : yscalefactor;
+            float resizepercent = xscalefactor < yscalefactor ? xscalefactor/2 : yscalefactor/2;
             int width = ((int)Math.Round(overlayWidth*resizepercent,0));
             int height = ((int)Math.Round(overlayHeight*resizepercent,0));
             return new Size(width, height);
@@ -51,10 +51,15 @@ namespace Homiebot.Images
             );
         }
 
-        private Point findXCenter(int sourceWidth, int overlayWidth)
+        private Point findXCenter(int sourceWidth, int overlayWidth, int sourceHeight)
         {
             int xpos = (sourceWidth-overlayWidth)/2;
-            return new Point(xpos,0);
+            return new Point(xpos,sourceHeight);
+        }
+        private Point findXOffCenter(int sourceWidth, int overlayWidth, int sourceHeight)
+        {
+            int xpos = (sourceWidth-overlayWidth)/2;
+            return new Point(xpos-((xpos*2)/3),sourceHeight);
         }
 
         public async Task<byte[]> ProcessImage(ImageMeme meme, params string[] replacements)
@@ -117,7 +122,7 @@ namespace Homiebot.Images
                 image.Mutate(
                 i => i.DrawImage(
                     overlay,
-                    findXCenter(image.Width, overlay.Width),
+                    findXOffCenter(image.Width, overlay.Width, image.Height-overlay.Height),
                     1f
                 )
                 ));
