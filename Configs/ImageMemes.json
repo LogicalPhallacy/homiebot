@@ -53,6 +53,38 @@
             ]
         },
         {
+            "Name": "brr",
+            "ImageBaseIdentifier": "baseimages/brr.png",
+            "Description":"Remind people what the homies hate",
+            "SingleReplacement": false,
+            "memeText":[
+                {
+                    "TextEffects": 1,
+                    "TemplateText":"@REPLACEMENT1@",
+                    "XStartPosition":15,
+                    "YStartPosition":210,
+                    "Width":190,
+                    "Height":75
+                },
+                {
+                    "TextEffects": 1,
+                    "TemplateText":"@REPLACEMENT2@.",
+                    "XStartPosition":350,
+                    "YStartPosition":220,
+                    "Width":100,
+                    "Height":20
+                },
+                {
+                    "TextEffects": 1,
+                    "TemplateText":"@REPLACEMENT3@.",
+                    "XStartPosition":485,
+                    "YStartPosition":220,
+                    "Width":100,
+                    "Height":20
+                }
+            ]
+        },
+        {
             "Name": "spongebob",
             "ImageBaseIdentifier": "baseimages/mocking.jpg",
             "Description":"Express your disdain for an idea",

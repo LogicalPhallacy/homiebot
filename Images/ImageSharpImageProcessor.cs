@@ -33,12 +33,33 @@ namespace Homiebot.Images
             return new Font(basefont, 12*(xscalefactor < yscalefactor ? xscalefactor : yscalefactor));
         }
 
+        private Size GetSize(int overlayWidth, int overlayHeight, int sourceWidth, int sourceHeight)
+        {
+            float yscalefactor = (float)sourceHeight/(float)overlayHeight;
+            float xscalefactor = (float)sourceWidth/(float)overlayWidth;
+            float resizepercent = xscalefactor < yscalefactor ? xscalefactor/2 : yscalefactor/2;
+            int width = ((int)Math.Round(overlayWidth*resizepercent,0));
+            int height = ((int)Math.Round(overlayHeight*resizepercent,0));
+            return new Size(width, height);
+        }
+
         private PointF findCenter(MemeText m)
         {
             return new PointF(
                 (m.Width/2)+m.XStartPosition,
                 (m.Height/2)+m.YStartPosition
             );
+        }
+
+        private Point findXCenter(int sourceWidth, int overlayWidth, int sourceHeight)
+        {
+            int xpos = (sourceWidth-overlayWidth)/2;
+            return new Point(xpos,sourceHeight);
+        }
+        private Point findXOffCenter(int sourceWidth, int overlayWidth, int sourceHeight)
+        {
+            int xpos = (sourceWidth-overlayWidth)/2;
+            return new Point(xpos-((xpos*2)/3),sourceHeight);
         }
 
         public async Task<byte[]> ProcessImage(ImageMeme meme, params string[] replacements)
@@ -77,6 +98,34 @@ namespace Homiebot.Images
                     )
                 );
             }
+            using (var ms = new MemoryStream())
+            {
+                image.Save(ms,new PngEncoder());
+                return ms.ToArray();
+            }
+        }
+
+        public async Task<byte[]> OverlayImage(Stream baseImage, Stream overlayImage)
+        {
+            baseImage.Position = 0;
+            overlayImage.Position = 0;
+            using var image = Image.Load(baseImage);
+            using var overlay = Image.Load(overlayImage);
+            // resize the overlay image
+            await Task.Run(() =>overlay.Mutate(
+                i => i.Resize(
+                    GetSize(overlay.Width, overlay.Height, image.Width, image.Height)
+                )
+            ));
+            // overlay the resized image
+            await Task.Run( () => 
+                image.Mutate(
+                i => i.DrawImage(
+                    overlay,
+                    findXOffCenter(image.Width, overlay.Width, image.Height-overlay.Height),
+                    1f
+                )
+                ));
             using (var ms = new MemoryStream())
             {
                 image.Save(ms,new PngEncoder());

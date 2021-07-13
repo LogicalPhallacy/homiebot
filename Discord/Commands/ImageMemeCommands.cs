@@ -16,6 +16,7 @@ using System.Reflection;
 using Homiebot.Models;
 using Homiebot.Images;
 using System.Net.Http;
+using DSharpPlus;
 
 namespace Homiebot.Discord.Commands
 {
@@ -29,6 +30,18 @@ namespace Homiebot.Discord.Commands
         private readonly IImageStore imageStore;
         private readonly Random random;
         private readonly IImageProcessor imageProcessor;
+        private readonly IEnumerable<string> knownImageEndings = new string[] {
+            ".jpg",
+            ".jpeg",
+            ".gif",
+            ".png",
+            ".apng",
+            ".webm",
+            ".mp4",
+            ".bmp",
+            ".jfif",
+            ".jpg_large",
+        };
         public delegate Task RunMemeTemplate(CommandContext ctx, params string[] input);
         public delegate Task RunCollection(CommandContext ctx);
         public ImageMemeCommands(ILogger<HomieBot> logger, IConfiguration configuration,IImageStore imageStore, IImageProcessor imageProcessor, Random random)
@@ -39,8 +52,21 @@ namespace Homiebot.Discord.Commands
             this.imageProcessor = imageProcessor;
             this.random = random;
             this.templates = configuration.GetSection("MemeTemplates").Get<IEnumerable<MemeTemplate>>();
-            this.collections = configuration.GetSection("ImageCollections").Get<IEnumerable<ImageCollection>>();
-            
+            this.collections = configuration.GetSection("ImageCollections").Get<IEnumerable<ImageCollection>>();   
+        }
+
+    public async Task ProcessReaction(DiscordClient sender, MessageReactionAddEventArgs messageReaction)
+        {
+            switch(messageReaction.Emoji.GetDiscordName())
+            {
+                case ":smoking:":
+                    // just fetch the message
+                    var message = await messageReaction.Channel.GetMessageAsync(messageReaction.Message.Id);
+                    await HomieMessageExtensions.ReactToMessage(message,sender,"never");
+                    break;
+                default:
+                    break;
+            }
         }
 
         public CommandBuilder[] GetDynamicImageCommands()
@@ -72,91 +98,6 @@ namespace Homiebot.Discord.Commands
             }
             return commands.ToArray();
         }
-
-        // [Command("homies")]
-        // [Description("Image version of the homies meme")]
-        // public async Task HomiesMeme(CommandContext ctx, params string[] args) 
-        // {
-        //     logger.LogInformation("Got a request for a homies imagememe");
-        //     await ctx.TriggerTypingAsync();
-        //     var homiesMeme = new ImageMeme {
-        //         Template = templates.Where(t => t.Name == "homies").FirstOrDefault()
-        //     };
-        //     var stream = new MemoryStream(
-        //             await homiesMeme.GetImageAsync(
-        //                 imageStore,random,string.Join(" ",args)
-        //             )
-        //         );
-        //     await ctx.Message.RespondAsync(bld => {
-        //         bld.WithFile("homies.jpg", stream);
-        //     });
-        //     //await ctx.RespondWithFileAsync("homies.jpg", new MemoryStream(await homiesMeme.GetImageAsync(imageStore, random, string.Join(" ",args))));
-        // }
-        // [Command("doof")]
-        // [Description("behold the image-meme-inator")]
-        // public async Task DoofMeme(CommandContext ctx, params string[] args) 
-        // {
-        //     logger.LogInformation("Got a request for a inator imagememe");
-        //     await ctx.TriggerTypingAsync();
-        //     var doofMeme = new ImageMeme {
-        //         Template = templates.Where(t => t.Name == "doof").FirstOrDefault()
-        //     };
-        //     var stream = new MemoryStream(
-        //             await doofMeme.GetImageAsync(
-        //                 imageStore,random,string.Join(" ",args)
-        //             )
-        //         );
-        //     await ctx.Message.RespondAsync(bld => {
-        //         bld.WithFile("doof.jpg", stream);
-        //     });
-        //     //await ctx.RespondWithFileAsync("homies.jpg", new MemoryStream(await homiesMeme.GetImageAsync(imageStore, random, string.Join(" ",args))));
-        // } 
-        // [Command("spongebob")]
-        // [Description("Have spongebob mock something")]
-        // public async Task Spongebob(CommandContext ctx, params string[] args) 
-        // {
-        //     logger.LogInformation("Got a request for a spongebob imagememe");
-        //     await ctx.TriggerTypingAsync();
-        //     var bobMeme = new ImageMeme {
-        //         Template = templates.Where(t => t.Name == "spongebob").FirstOrDefault()
-        //     };
-        //     using var stream = new MemoryStream(
-        //             await bobMeme.GetImageAsync(
-        //                 imageStore,random,string.Join(" ",args)
-        //             ));
-        //     await ctx.Message.RespondAsync( bld => {
-        //         bld.WithFile("mocking.jpg", 
-        //         stream
-        //         );
-        //     });
-        //     //await ctx.RespondWithFileAsync("mocking.jpg", new MemoryStream(await bobMeme.GetImageAsync(imageStore, random, string.Join(" ",args))));
-        // }
-        // [Command("trolly")]
-        // [Description("Gets you a trolly problem")]
-        // public async Task TrollyProblem(CommandContext context)
-        // {
-        //     logger.LogInformation("Got a request for a trolly");
-        //     await context.TriggerTypingAsync();
-        //     var image = await imageStore.GetRandomTaggedImageAsync("trolly");
-        //     using var stream = new MemoryStream(await image.GetBytes());
-        //     await context.Message.RespondAsync(bld => {
-        //         bld.WithFile(image.ImageIdentifier, stream);
-        //     });
-        //     await context.RespondAsync("Ding Ding");
-        // }
-        // [Command("snek")]
-        // [Description("Don't tread on me!")]
-        // public async Task Snek(CommandContext context)
-        // {
-        //     logger.LogInformation("Got a request for a snek flag");
-        //     await context.TriggerTypingAsync();
-        //     var image = await imageStore.GetRandomTaggedImageAsync("snekflags");
-        //     using var stream = new MemoryStream(await image.GetBytes());
-        //     await context.Message.RespondAsync(bld => {
-        //         bld.WithFile(image.ImageIdentifier, stream);
-        //     });
-        //     //await context.RespondWithFileAsync(image.ImageIdentifier, new MemoryStream(await image.GetBytes()));
-        // }
 
         [Command("addimage")]
         [Description("Adds an image to the list for a given command. Valid options are snek and trolly. Should be used like ;;addimage snek <link to image or image attached>")]
@@ -211,6 +152,68 @@ namespace Homiebot.Discord.Commands
                 _ = context.RespondAsync(response);
             }
         }
+        [Command("never")]
+        public async Task GenerateNeverImage(CommandContext context, params string[] args)
+        {
+            await context.TriggerTypingAsync();
+            var sourceUrl = await getAttachedImageUrl(context.Message, args);
+            if(string.IsNullOrWhiteSpace(sourceUrl)){
+                await context.RespondAsync("Couldn't get an image to wander into.");
+            }
+            var overlay = await GetOverlaidNeverImage(await getStreamFromUrl(sourceUrl));
+            await context.RespondAsync(
+                bld => bld.WithContent(
+                    "Never shoulda smoked that shit homie, now look where I am"
+                    ).WithFile(
+                    "nevershoulda.png",
+                    new MemoryStream(overlay)
+                )
+            );
+        }
+
+        private async Task<byte[]> GetOverlaidNeverImage(Stream sourceImage)
+        {
+            var neverImage = await imageStore.GetImageAsync("baseimages/never.png");
+            using var ms = new MemoryStream(await neverImage.GetBytes());
+            return await imageProcessor.OverlayImage(sourceImage, ms);
+        }
+
+        private async Task<string> getAttachedImageUrl(DiscordMessage message, params string[] args)
+        {
+            string url = string.Empty;
+            if(message.Attachments.Any())
+                {
+                    var attachment = message.Attachments.FirstOrDefault();
+                    url = attachment.Url;
+                }
+            else
+            {
+                // image wasn't attached, so lets hope its in the args
+                if (args != null && args.Length >0 && !string.IsNullOrWhiteSpace(args[0]) && args[0].ToLowerInvariant().StartsWith("http"))
+                {
+                    if(!checkURLIsImage(args[0])){
+                        return url;
+                    }
+                    System.Uri.TryCreate(args[0], UriKind.Absolute, out Uri attachment);
+                    url = args[0];
+                }
+                else
+                {
+                    // We didn't have args, so lets check the message body just in case
+                    string fullmessage = message.Content;
+                    if(!string.IsNullOrEmpty(fullmessage) && fullmessage.ToLowerInvariant().Contains("http"))
+                    {
+                        // I did not know that null was a "any whitespace" split, how cool is that?
+                        string relevant = (fullmessage[fullmessage.ToLowerInvariant().IndexOf("http")..]).Split(null)[0];
+                        url = checkURLIsImage(relevant) ? relevant : string.Empty;
+                    }
+                }
+            }
+            return url;
+        }
+
+        private bool checkURLIsImage(string url) => knownImageEndings.Any( e => url.EndsWith(e));
+
         private async Task handleImageCollectionRequest(CommandContext context)
         {
             ImageCollection collection = collections.Where(c=>c.Name.Equals(context.Command.Name,StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
