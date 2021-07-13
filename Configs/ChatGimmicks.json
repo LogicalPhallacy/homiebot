@@ -2,7 +2,7 @@
     "Gimmicks" : [
         {
             "Command":"8ball",
-            "Description":"Ask the Magic 8 Ball",
+            "Description":"Ask the Magic 8 Ball your fate",
             "ArgCount": 0,
             "CanVoice": true,
             "ReplacementStrings": [
@@ -95,6 +95,7 @@
                 ,"static from plastic slide rules"
                 ,"global warming"
                 ,"poor power conditioning"
+                ,"RTX GPU not detected"
                 ,"RTX was turned on"
                 ,"RTX was turned off"
                 ,"tried to trace too many rays at once"
@@ -755,7 +756,7 @@
                 ,"You are a slab of meat inside a wet skeleton that is wrapped in other meat"
                 ,"Corn, over thousands of years genetically engineered humans to help it reproduce to levels unheard of by other grasses"
                 ,"the same people who tell you you're overmedicated and just not applying yourself used to be able to buy Dexadrine and Valium over the counter"
-                ,"there will be a whole generation of highschool seniors mad that coronavirus ruined their graduation"
+                ,"there will be a whole generation of highschool schoolers mad that coronavirus ruined their graduation/summer"
                 ,"things will most likely get worse in some aspects"
                 ,"Skyrim came out a decade agao, Pokemon is a quarter century old"
                 ,"Linux was a usenet joke that got out of hand in the late 1900s"
