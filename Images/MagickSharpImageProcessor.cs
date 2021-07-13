@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using Homiebot.Models;
 using ImageMagick;
@@ -28,6 +29,38 @@ namespace Homiebot.Images
                 Width = m.Width
             };
         }
+
+        public async Task<byte[]> OverlayImage(Stream baseImage, Stream overlayImage)
+        {
+            var factory = new MagickImageFactory();
+            baseImage.Position = 0;
+            overlayImage.Position = 0;
+            using var image = factory.Create(baseImage);
+            using var overlay = factory.Create(overlayImage);
+            var scale = findScalePercentage(overlay.Width, overlay.Height, image.Width, image.Height);
+            await Task.Run( () => overlay.Scale(scale));
+            await Task.Run( () => image.Composite(overlay,findXOffCenter(overlay.Width, image.Width), findYBottom(overlay.Height, image.Height), CompositeOperator.Over));
+            return await Task.Run<byte[]>(()=>{return image.ToByteArray();});
+        }
+
+        private Percentage findScalePercentage(int overlayWidth, int overlayHeight, int sourceWidth, int sourceHeight)
+        {
+            double yscalefactor = (double)sourceHeight / (double)overlayHeight;
+            double xscalefactor =  (double)sourceWidth / (double)overlayWidth;
+            return new Percentage(xscalefactor < yscalefactor ? xscalefactor * 50 : yscalefactor * 50);
+        }
+
+        private int findXCenter(int overlayWidth, int sourceWidth)
+        {
+            return (sourceWidth-overlayWidth)/2;
+        }
+        private int findXOffCenter(int overlayWidth, int sourceWidth)
+        {
+            int xpos = ((sourceWidth-overlayWidth)/2);
+            return (xpos - ((xpos*2)/3));
+        }
+        private int findYBottom(int overlayHeight, int sourceHeight) => sourceHeight-overlayHeight;
+
         public async Task<byte[]> ProcessImage(ImageMeme meme, params string[] replacements)
         {
             var factory = new MagickImageFactory();

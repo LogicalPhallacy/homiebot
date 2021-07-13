@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using Homiebot.Models;
 
@@ -12,6 +13,11 @@ namespace Homiebot.Images
         {
             this.imageStore = imageStore;
             this.random = random;
+        }
+
+        public Task<byte[]> OverlayImage(Stream baseImage, Stream overlayImage)
+        {
+            throw new NotImplementedException();
         }
 
         public Task<byte[]> ProcessImage(ImageMeme meme, params string[] replacements)

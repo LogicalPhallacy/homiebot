@@ -105,6 +105,7 @@ namespace Homiebot.Discord
             };
             logger.LogInformation("Registering reactions");
             discordClient.MessageReactionAdded += hc.ProcessReaction;
+            discordClient.MessageReactionAdded += ic.ProcessReaction;
             
             if(homiebotConfig.UseVoice)
             {

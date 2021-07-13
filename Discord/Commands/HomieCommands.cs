@@ -133,8 +133,7 @@ namespace Homiebot.Discord.Commands
                     }
                     await messageReaction.Message.RespondAsync(fullmessage.Content.ToMockingCase(random));
                     break;
-                case ":rainbow_reverse_card:":
-                case ":uwuno:":
+                case ":rainbow_reverse_card:" or ":uwuno:":
                     // turns out the message we react to doesn't come with a body for some inane reason
                     // lets look it up I guess
                     
