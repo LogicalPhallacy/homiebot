@@ -91,9 +91,14 @@ namespace Homiebot.Discord.Commands
                 return;
             }
             await context.RespondAsync($"CURRENT VOICE\n{textToSpeechHelper.CurrentVoice.VoiceName}");
-            string others = "AVAILABLE VOICES:\n";
-            others+= string.Join(' ',textToSpeechHelper.AvailableVoices.Select(v => v.VoiceName));
-            await context.RespondAsync(others);
+            
+            foreach(var provider in  textToSpeechHelper.AvailableVoices.Select(v => v.VoiceProvider.Name).Distinct())
+            {
+                string others = $"AVAILABLE VOICES in {provider}:\n";
+                others+= string.Join('\n',textToSpeechHelper.AvailableVoices.Where(v => v.VoiceProvider.Name == provider).Select(v => v.VoiceName));
+                await context.RespondAsync(others);
+            }
+            
         }
 #nullable disable
         [Command("setvoice")]
