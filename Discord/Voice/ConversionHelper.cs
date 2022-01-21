@@ -24,9 +24,9 @@ namespace Homiebot.Discord.Voice
         private static string WrapWholeElement(VoicePersona voice, string text)
         {
             string template = $"<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xmlns:mstts=\"https://www.w3.org/2001/mstts\" xml:lang=\"{langcodestring}\">"
-                +$"<voice name=\"{voice.VoiceName}\">";
+                +$"\n<voice name=\"{voice.VoiceName}\">\n";
             template += text;
-            template += "</voice>"+"</speak>";
+            template += "\n</voice>"+"\n</speak>";
             return template;
         }
         private static string WrapMood(VoicePersona voice, string text)

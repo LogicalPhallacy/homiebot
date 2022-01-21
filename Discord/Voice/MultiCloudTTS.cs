@@ -9,6 +9,7 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.VoiceNext;
 using Homiebot.Discord.Voice.Providers;
 using Homiebot.Discord.Voice.Models;
+using System.Threading;
 
 namespace Homiebot.Discord.Voice
 {
@@ -20,6 +21,12 @@ namespace Homiebot.Discord.Voice
 
         private List<IVoiceProvider> voiceProviders;
         private VoicePersona currentVoice;
+        private long speaking = 0;
+        private bool speakingIsHappening
+        {
+            get => Interlocked.Read(ref speaking) == 1;
+            set => Interlocked.Exchange(ref speaking, Convert.ToInt64(value));
+        }
         public MultiCloudTTS(IServiceProvider services, ILogger<HomieBot> logger, IConfiguration configuration)
         {
             this.logger = logger;
@@ -72,7 +79,23 @@ namespace Homiebot.Discord.Voice
 
         public async Task Speak(string text, VoiceTransmitSink outStream, CommandContext context = null)
         {
-            await currentVoice.VoiceProvider.SpeakAsync(new TextToSpeak{Text = text,VoiceSex = currentVoice.VoiceSex},outStream, context);
+            await currentVoice.VoiceProvider.SpeakAsync(new TextToSpeak{Text = text,VoiceSex = currentVoice.VoiceSex}, outStream, Speaking, StartSpeaking, StopSpeaking, context);
+        }
+
+        public async Task Speaking()
+        {
+            while(speakingIsHappening)
+            {
+                await Task.Delay(100);
+            }
+        }
+        public void StartSpeaking()
+        {
+            speakingIsHappening = true;
+        }
+        public void StopSpeaking()
+        {
+            speakingIsHappening = false;
         }
     }
 }

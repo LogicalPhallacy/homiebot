@@ -97,7 +97,7 @@ namespace Homiebot.Discord.Voice.Providers
 
         public string Name => "DeepFake Voice Provider";
 
-        public async Task SpeakAsync(TextToSpeak text, VoiceTransmitSink outStream, CommandContext context)
+        public async Task SpeakAsync(TextToSpeak text, VoiceTransmitSink outStream, Func<Task> speaking, Action startSpeaking, Action stopSpeaking, CommandContext context)
         {
             var reqdata =new DeepFakeVoiceRequest{
                 speaker = currentVoice.VoiceName,
@@ -118,7 +118,10 @@ namespace Homiebot.Discord.Voice.Providers
                 var resp = await client.PostAsync(endpoint,JsonContent.Create<DeepFakeVoiceRequest>(reqdata));
                 if(resp.IsSuccessStatusCode){
                     var response = JsonSerializer.Deserialize<DeepFakeVoiceResponse>(await resp.Content.ReadAsStringAsync());
+                    await speaking();
+                    startSpeaking();
                     await AudioConversionHelper.ConvertForDiscord(System.Convert.FromBase64String(response.audio_base64),currentVoice.SampleRate,1,outStream,logger);
+                    stopSpeaking();
                 }else{
                     await context.RespondAsync($"Bad response from endpoint: {resp.StatusCode}");
                     return;
