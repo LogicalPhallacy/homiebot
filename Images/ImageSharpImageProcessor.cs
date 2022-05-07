@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Numerics;
 using System.Threading.Tasks;
 using Homiebot.Models;
 using SixLabors.Fonts;
@@ -23,10 +24,10 @@ namespace Homiebot.Images
 
         private async Task<Font> getFont(MemeText m, string text)
         {
-            var fam = SystemFonts.Find("Impact");
+            var fam = SystemFonts.Get("Impact");
             var basefont = new Font(fam,12, FontStyle.Bold);
             var imagebox = await Task.Run(
-                () => TextMeasurer.Measure(text, new RendererOptions(basefont))
+                () => TextMeasurer.Measure(text, new TextOptions(basefont))
                 );
             var yscalefactor = m.Height / imagebox.Height;
             var xscalefactor = m.Width / imagebox.Width;
@@ -62,6 +63,8 @@ namespace Homiebot.Images
             return new Point(xpos-((xpos*2)/3),sourceHeight);
         }
 
+        private Vector2 pointToVector2(PointF point) => new(point.X, point.Y);
+
         public async Task<byte[]> ProcessImage(ImageMeme meme, params string[] replacements)
         {
             var imagebytes = await(await imageStore.GetImageAsync(meme.Template.ImageBaseIdentifier)).GetBytes();
@@ -69,31 +72,28 @@ namespace Homiebot.Images
             foreach(var text in meme.Template.memeText)
             {
                 // The options are optional
-                
-                TextOptions options = new TextOptions()
-                {
-                    ApplyKerning = true,
-                    TabWidth = 8, // a tab renders as 8 spaces wide
-                    //WrapTextWidth = 100, // greater than zero so we will word wrap at 100 pixels wide
-                    HorizontalAlignment = HorizontalAlignment.Center,
-                    VerticalAlignment = VerticalAlignment.Center
-                };
                 IBrush brush = Brushes.Solid(Color.Parse(text.FillColor));
                 IPen pen = Pens.Solid(Color.Parse(text.OutlineColor),2);
                 //string text = "sample text";
                 string words = text.GetMemeText(random, replacements);
                 // draws a star with Horizontal red and blue hatching with a dash dot pattern outline.
                 Font f = await getFont(text, words);
+                TextOptions options = new TextOptions(f)
+                {
+                    KerningMode = KerningMode.Auto,
+                    TabWidth = 8, // a tab renders as 8 spaces wide
+                    //WrapTextWidth = 100, // greater than zero so we will word wrap at 100 pixels wide
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Origin = findCenter(text)
+                };
                 await Task.Run(
                     () => image.Mutate( 
                         x=> x.DrawText(
-                            new DrawingOptions(){
-                                TextOptions = options
-                            }, 
+                            options,
                             words,
-                            f, 
                             brush, 
-                            pen, findCenter(text)
+                            pen
                         )
                     )
                 );

@@ -38,7 +38,7 @@ namespace Homiebot.Discord.Voice
             logger.LogInformation("Registering Azure Voices");
             AddVoiceProvider(new AzureVoiceProvider(logger,configuration));            
             logger.LogInformation("Registering DeepFake Voices");
-            AddVoiceProvider(new DeepFakeVoiceProvider(logger));
+            AddVoiceProvider(new DeepFakeVoiceProvider(logger, configuration));
             logger.LogInformation("Setting up current voice");
             currentVoice = voiceProviders.FirstOrDefault().ListVoices.FirstOrDefault();
             logger.LogInformation("MultiCloud ready with default voice of {voice}",currentVoice.VoiceName);
