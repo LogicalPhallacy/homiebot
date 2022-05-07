@@ -13,8 +13,14 @@ namespace Homiebot.Discord.Voice.Providers
     {
         Task SpeakAsync(TextToSpeak text, VoiceTransmitSink outStream, Func<Task> speaking, Action startSpeaking, Action stopSpeaking, CommandContext context = null);
         IEnumerable<VoicePersona> ListVoices {get;}
-        IEnumerable<VoicePersona> SearchVoices(string searchString) => ListVoices.Where(v => v.VoiceName.Contains(searchString));
+        IEnumerable<VoicePersona> SearchVoices(string searchString) => ListVoices.Where(v => v.SearchName.ToLowerInvariant().Contains(searchString.ToLowerInvariant()));
         VoicePersona ActiveVoice {get;set;}
         string Name{get;}
+        string GetAvailableVoiceText()
+        {
+            string others = $"AVAILABLE VOICES in {Name}:\n";
+            others+= string.Join('\n', ListVoices.Select(v => v.DisplayName));
+            return others;
+        }
     }
 }

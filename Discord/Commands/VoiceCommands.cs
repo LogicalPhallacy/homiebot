@@ -29,7 +29,8 @@ namespace Homiebot.Discord.Commands
             await context.TriggerTypingAsync();
             var voiceConnection = context.Client.GetVoiceNext().GetConnection(context.Guild);
             //var channel = context.Member?.VoiceState?.Channel;
-            var channel = context.Guild.Channels.Where( kvp => kvp.Value.Type == ChannelType.Voice).Select(kvp => kvp.Value).FirstOrDefault();
+            var channel = context.Guild.Channels.Where( kvp => kvp.Value.Type == ChannelType.Voice).Select(kvp => kvp.Value)
+                .Where(channel => channel.Users.Contains(context.Member)).First();
             
             if(channel == null)
             {
@@ -73,9 +74,24 @@ namespace Homiebot.Discord.Commands
         {
             await SpeechHelper.Speak(textToSpeechHelper,context,text);
         }
+        [Command("searchvoice")]
+        [Description("Searches available TTS voices for your text, will display up to 12 matches")]
+        public async Task SearchVoice(CommandContext context, [RemainingText] string text)
+        {
+            await context.TriggerTypingAsync();
+            var voiceResults = textToSpeechHelper.SearchVoices(text);
+            if(voiceResults.Count() < 12)
+            {
+                await context.RespondAsync("Here are your matches:\n" + string.Join('\n', voiceResults.Select(v => v.SearchDisplayName)));
+            }
+            else
+            {
+                await context.RespondAsync($"Found {voiceResults.Count()} matches, be more specific");    
+            }
+        }
 #nullable enable
         [Command("showvoice")]
-        [Description("Shows the available TTS voices, add a specific voice to see detailed info on it")]
+        [Description("Shows the available TTS voices, specify a specific voice to see detailed info on it")]
         public async Task ShowVoice(CommandContext context, [RemainingText] string? text)
         {
             await context.TriggerTypingAsync();
@@ -92,11 +108,9 @@ namespace Homiebot.Discord.Commands
             }
             await context.RespondAsync($"CURRENT VOICE\n{textToSpeechHelper.CurrentVoice.VoiceName}");
             
-            foreach(var provider in  textToSpeechHelper.AvailableVoices.Select(v => v.VoiceProvider.Name).Distinct())
+            foreach(var provider in textToSpeechHelper.AvailableVoices.Select(v => v.VoiceProvider).Distinct())
             {
-                string others = $"AVAILABLE VOICES in {provider}:\n";
-                others+= string.Join('\n',textToSpeechHelper.AvailableVoices.Where(v => v.VoiceProvider.Name == provider).Select(v => v.VoiceName));
-                await context.RespondAsync(others);
+                await context.RespondAsync(provider.GetAvailableVoiceText());
             }
             
         }

@@ -47,4 +47,18 @@ namespace Homiebot.Models
     {
         public string ImageStorePath {get;set;}
     }
+    public class DeepFakeVoiceConfig
+    {
+        public string ProviderHomePage {get;set;}
+        public string ProviderApiRoot {get;set;}
+        public string ProviderStorageRoot {get;set;}
+        public int RecheckAttempts {get;set;}
+        public int RecheckDelay {get;set;}
+        public Dictionary<string,string> Voices{get;set;}
+    }
+    public class OpenAIConfig
+    {
+        public bool UseOpenAI {get;set;}
+        public string OpenAIKey{get;set;}
+    }
 }

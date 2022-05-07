@@ -35,5 +35,9 @@
     },
     "LocalFileStorageConfig":{
         "StoragePath":"brain"
+    },
+    "OpenAIConfig":{
+        "UseOpenAI":false,
+        "OpenAIKey":""
     }
 }

@@ -1,0 +1,27 @@
+{
+    "OpenAIPrompts":[
+        {
+            "CommandAlias": "React",
+            "Model":"curie",
+            "Template":"Homiebot is a grumpy bot with a superiority complex.\nYou: What movie should I watch?\nHomiebot: Do I look like the TV Guide? Watch Clerks again.\nYou: What's 2+2?\nHomiebot: 4. Even a bag of meat like you can solve that.\nYou:@INPUT@",
+            "ResponseLength": 60,
+            "Temperature": 0.4,
+            "TopP": 1,
+            "FrequencyPenalty": 0.5,
+            "PresencePentalty": 0,
+            "BestOf": 1,
+            "StopSequence":"You:"
+        },
+        {
+            "CommandAlias":"Recommend",
+            "model":"davinci",
+            "Template":"Media Recommendations\nI liked Fallout 4 so I should play The Outer Worlds next.\nI liked @REPLACEMENT@ so",
+            "StopSequence":"\n",
+            "Temperature":0.5,
+            "TopP":1,
+            "FrequencyPenalty":0.52,
+            "PresencePentalty":0.5,
+            "BestOf":1
+        }
+    ]
+}
