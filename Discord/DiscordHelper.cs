@@ -27,6 +27,7 @@ namespace Homiebot.Discord
         private readonly IServiceProvider services;
         private string token;
         private IEnumerable<string> commandMarkers;
+        private IEnumerable<RESTGimmick> restGimmicks;
         private bool connected;
         private DiscordClient discordClient;
         private CommandsNextExtension commands;
@@ -75,9 +76,13 @@ namespace Homiebot.Discord
             ImageMemeCommands ic = new ImageMemeCommands(logger,config,getService<IImageStore>(),getService<IImageProcessor>(), getService<Random>());
             //var childgimmicks = config.GetSection("Gimmicks").GetChildren();
             var Gimmicks = config.GetSection("Gimmicks").Get<IEnumerable<Gimmick>>();
+            restGimmicks = config.GetSection("RestGimmicks").Get<IEnumerable<RESTGimmick>>();
             logger.LogInformation("Registering Gimmicks");
             commands.RegisterCommands(hc.GetDynamicGimmickCommands(Gimmicks));
             commands.RegisterCommands(ic.GetDynamicImageCommands());
+            foreach(var restGimmick in restGimmicks){
+                restGimmick.Initialize();
+            }
             discordClient.MessageCreated += async (sender,message) => 
             {
                 if(await message.HandleMemorableKeywords(sender, logger))
@@ -91,6 +96,7 @@ namespace Homiebot.Discord
                     bool handled = false;
                     handled = await message.HandleHomieMentionCommands(sender,logger);
                     // subsequent handler extension methods go in if clauses below
+                    handled = await handleRestGimmicks(message);
                     if(!handled){handled = await message.HandleMemoryMentionCommands(logger);}
                     // finally if they're still unhandled do the default
                     if(!handled)
@@ -132,6 +138,18 @@ namespace Homiebot.Discord
             {
                 logger.LogError(e,"Exception trying to connect: {errorMessage}",e.Message);
             }
+        }
+
+        private async Task<bool> handleRestGimmicks(MessageCreateEventArgs message)
+        {
+            foreach(var gim in restGimmicks){
+                if(gim.ShouldTriggerGimmick(message.Message.Content))
+                {
+                    await gim.RunRESTGimmick(message.Message);
+                    return true;
+                }
+            }
+            return false;
         }
 
         public async Task Disconnect()

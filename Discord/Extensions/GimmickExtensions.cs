@@ -1,21 +1,23 @@
 using System.Threading.Tasks;
-using DSharpPlus.CommandsNext;
+using DSharpPlus.Entities;
 using Homiebot.Models;
 
 namespace Homiebot.Discord;
 public static class GimmickExtensions
 {
-    public static async Task RunRESTGimmick (this RESTGimmick rest, CommandContext ctx)
+    public static async Task RunRESTGimmick (this RESTGimmick rest, DiscordMessage discordMessage)
     {
         if(rest.IsBusy){
-            await ctx.RespondAsync("I'm already trying to do that homie");
+            await discordMessage.RespondAsync("I'm already trying to do that homie");
+            return;
         }
-        await ctx.TriggerTypingAsync();
-        await ctx.RespondAsync(rest.FormatPreMessage);
+        await discordMessage.Channel.TriggerTypingAsync();
+        await discordMessage.RespondAsync(rest.FormatPreMessage);
         if (await rest.RunRequest()){
-            await ctx.RespondAsync(rest.GetPostMessage);
+            await discordMessage.RespondAsync(rest.GetPostMessage);
         }else{
-            await ctx.RespondAsync(rest.GetFailMessage);
+            await discordMessage.RespondAsync(rest.GetFailMessage);
         }
+        rest.FinishGimmick();
     }
 }
