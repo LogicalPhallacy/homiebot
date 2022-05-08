@@ -145,7 +145,7 @@ namespace Homiebot.Discord
             foreach(var gim in restGimmicks){
                 if(gim.ShouldTriggerGimmick(message.Message.Content))
                 {
-                    await gim.RunRESTGimmick(message.Message);
+                    gim.RunRESTGimmick(message.Message);
                     return true;
                 }
             }

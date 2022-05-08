@@ -114,7 +114,7 @@ namespace Homiebot.Models
             return input;
         }
         public string GetPostMessage
-            => JsonResponse? 
+            => !JsonResponse? 
                 PostMessage.Replace(responseValueToken, responseString) :
                 // Implement the dynamic parse and run the method
                 PostMessage;
