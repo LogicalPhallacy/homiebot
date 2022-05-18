@@ -85,6 +85,7 @@ namespace Homiebot.Discord
             }
             discordClient.MessageCreated += async (sender,message) => 
             {
+                message.HandleSongLinks(sender, logger);
                 if(await message.HandleMemorableKeywords(sender, logger))
                 {
                     return;
