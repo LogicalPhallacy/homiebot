@@ -7,10 +7,31 @@ using Homiebot.Models;
 using System;
 using DSharpPlus.Entities;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace Homiebot.Discord.Commands;
 public static class SongLinkCommandHandler
 {
+    private static Dictionary<string,bool> fieldassignments = new(){
+        {"spotify",true},
+        {"itunes",true},
+        {"appleMusic",true},
+        {"youtube",true},
+        {"youtubeMusic",true},
+        {"pandora",true},
+        {"deezer",true},
+        {"tidal",true},
+        {"soundcloud",true},
+        {"google",false},
+        {"googleStore",false},
+        {"napster",false},
+        {"yandex",false},
+        {"spinrilla",false},
+        {"audius",false},
+        {"audiomack",false},
+        {"amazonStore",false},
+        {"amazonMusic",false},
+    };
     public static async Task HandleSongLinks(this MessageCreateEventArgs message, DiscordClient sender, ILogger logger)
     {
         if(SongLinkHelper.TestMessageContainsKnownProviderLink(message.Message.Content))
@@ -45,9 +66,13 @@ public static class SongLinkCommandHandler
         return builder.WithUrl(songLink.pageUrl)
             .WithTitle(songLink.FirstTitleEntry)
             .WithDescription(songLink.Description)
-            .AddField("Links",
-            string.Join(' ', songLink.linksByPlatform.Select(
+            .AddField("Links 1",
+            string.Join(' ', songLink.linksByPlatform.Where(l => fieldassignments[l.Key]).Select(
                 link => link.Value.GetEmbedLink(link.Key)
-            )));
+            )?? new string[0]))
+            .AddField("Links 2",
+            string.Join(' ', songLink.linksByPlatform.Where(l => !fieldassignments[l.Key]).Select(
+                link => link.Value.GetEmbedLink(link.Key)
+            ) ?? new string[0]));
     }
 }

@@ -24,6 +24,7 @@ public class SongLinkHelper
         "https://play.google.com/music/",
         "https://www.pandora.com/",
         "https://www.deezer.com/",
+        "https://deezer.page.link/",
         "https://music.amazon.com/",
         "https://listen.tidal.com/",
         "http://napster.com/",

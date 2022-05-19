@@ -24,9 +24,9 @@ public class SongLink
         entitiesByUniqueId.Values.First(e => !string.IsNullOrWhiteSpace(e.title)).title;
     public string FirstArtistEntry =>
         entitiesByUniqueId.Values.First(e => !string.IsNullOrWhiteSpace(e.artistName)).artistName;
-    public string FirstTypeEntry => 
-        entitiesByUniqueId.Values.First().type.ToString();
-    public string Description => $"A {FirstTypeEntry} by {FirstArtistEntry}";
+    public ItemType FirstTypeEntry => 
+        entitiesByUniqueId.Values.First().type;
+    public string Description => $"{(FirstTypeEntry == ItemType.song ? "A Song":"An Album")} by {FirstArtistEntry}";
 }
 
 public class PlatformObject
