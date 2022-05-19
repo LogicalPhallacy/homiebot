@@ -67,11 +67,15 @@ public static class SongLinkCommandHandler
             .WithTitle(songLink.FirstTitleEntry)
             .WithDescription(songLink.Description)
             .AddField("Links 1",
-            string.Join(' ', songLink.linksByPlatform.Where(l => fieldassignments[l.Key]).Select(
+            string.Join(' ', songLink.linksByPlatform.Where(l => fieldassignments.ContainsKey(l.Key) && fieldassignments[l.Key]).Select(
                 link => link.Value.GetEmbedLink(link.Key)
             )?? new string[0]))
             .AddField("Links 2",
-            string.Join(' ', songLink.linksByPlatform.Where(l => !fieldassignments[l.Key]).Select(
+            string.Join(' ', songLink.linksByPlatform.Where(l => fieldassignments.ContainsKey(l.Key) && !fieldassignments[l.Key]).Select(
+                link => link.Value.GetEmbedLink(link.Key)
+            ) ?? new string[0]))
+            .AddField("Links 3",
+            string.Join(' ', songLink.linksByPlatform.Where(l => !fieldassignments.ContainsKey(l.Key)).Select(
                 link => link.Value.GetEmbedLink(link.Key)
             ) ?? new string[0]));
     }
