@@ -43,7 +43,7 @@ namespace Homiebot.Discord.Commands
             ".jpg_large",
         };
         public delegate Task RunMemeTemplate(CommandContext ctx, params string[] input);
-        public delegate Task RunCollection(CommandContext ctx);
+        public delegate Task RunCollection(CommandContext ctx, params string[] input);
         public ImageMemeCommands(ILogger<HomieBot> logger, IConfiguration configuration,IImageStore imageStore, IImageProcessor imageProcessor, Random random)
         {
             this.logger = logger;
@@ -171,6 +171,34 @@ namespace Homiebot.Discord.Commands
             );
         }
 
+        [Command("count")]
+        [Description("Counts how many images are in an image tag")]
+        public async Task CountImages(CommandContext context, string category)
+            {
+                ImageCollection collection = collections.Where(c=>c.Name.Equals(category,StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+                await context.RespondAsync($"There are {await imageStore.GetTaggedImageCountAsync(collection.Tag)} images in the {category} collection");
+            }
+        
+        [Command("list")]
+        [Description("Lists (as a file attachement) all the images in an image tag")]
+        public async Task ListImages(CommandContext context, string category)
+        {
+            await context.TriggerTypingAsync();
+            ImageCollection collection = collections.Where(c=>c.Name.Equals(category,StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+            var fileName = Path.GetTempFileName();
+            await File.WriteAllLinesAsync(fileName, imageStore.GetTaggedImageIds(collection.Tag), System.Text.Encoding.UTF8);
+            var respFile = File.OpenRead(fileName);
+            await context.RespondAsync(
+                bld => bld.WithContent(
+                    $"Here's everything in the {category} collection"
+                    ).WithFile($"{category}.list.txt", respFile)
+            );
+            respFile.Close();
+            await respFile.DisposeAsync();
+            File.Delete(fileName);
+        }
+        
+
         private async Task<byte[]> GetOverlaidNeverImage(Stream sourceImage)
         {
             var neverImage = await imageStore.GetImageAsync("baseimages/never.png");
@@ -214,15 +242,36 @@ namespace Homiebot.Discord.Commands
 
         private bool checkURLIsImage(string url) => knownImageEndings.Any( e => url.EndsWith(e));
 
-        private async Task handleImageCollectionRequest(CommandContext context)
+        private async Task handleImageCollectionRequest(CommandContext context, params string[] input)
         {
             ImageCollection collection = collections.Where(c=>c.Name.Equals(context.Command.Name,StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
             logger.LogInformation("Got a request for an image collection item: {collectionName}",collection.Name);
             await context.TriggerTypingAsync();
+            if(input.Length > 0){
+                var imageTag = string.Join(' ', input);
+                try
+                {
+                    var selectimage = await imageStore.GetImageAsync(imageTag);
+                    if(selectimage != null)
+                    {
+                        await sendImage(selectimage, context, collection);
+                        return;
+                    }
+                }
+                catch(Exception e)
+                {
+                    await context.RespondAsync($"Sorry homie, couldn't find an image by id: {imageTag}, have this one instead");
+                }
+            }
             var image = await imageStore.GetRandomTaggedImageAsync(collection.Tag);
+            await sendImage(image, context, collection);
+        }
+
+        private async Task sendImage(IImage image, CommandContext context, ImageCollection collection)
+        {
             using var stream = new MemoryStream(await image.GetBytes());
             _ = await context.Message.RespondAsync(bld => {
-                bld.WithFile(image.ImageIdentifier, stream);
+                bld.WithContent(image.ImageIdentifier).WithFile(image.ImageIdentifier, stream);
             });
             if(!string.IsNullOrWhiteSpace(collection.PostText))
             {

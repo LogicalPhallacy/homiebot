@@ -35,6 +35,19 @@ namespace Homiebot.Images
             return null;
         }
 
+        public async Task<Stream> GetListFileForTagAsync(string tag)
+        {
+            if(Directory.Exists(Path.Join(basePath,tag)))
+            {
+                var list = GetDirectoryImages(tag);
+                var tempfile = Path.GetTempFileName();
+                await File.WriteAllLinesAsync(tempfile, list, System.Text.Encoding.UTF8);
+                return File.OpenRead(tempfile);
+            }
+            else
+                return Stream.Null;
+        }
+
         public Task<IImage> GetRandomTaggedImageAsync(string tag)
         {
             HashSet<string> used;
@@ -52,6 +65,20 @@ namespace Homiebot.Images
             }
             return null;
         }
+
+        public async Task<int> GetTaggedImageCountAsync(string tag)
+        {
+            if(Directory.Exists(Path.Join(basePath,tag)))
+            {
+                return GetDirectoryImages(tag).Count();
+            }
+            return 0;
+        }
+
+        public IEnumerable<string> GetTaggedImageIds(string tag)
+            => Directory.Exists(Path.Join(basePath,tag)) ?
+                GetDirectoryImages(tag) :
+                new string[0];
 
         public async IAsyncEnumerable<IImage> GetTaggedImagesAsync(string tag)
         {
