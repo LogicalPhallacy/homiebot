@@ -22,9 +22,9 @@ namespace Homiebot.Images
             this.random = random;
         }
 
-        private async Task<Font> getFont(MemeText m, string text)
+        private async Task<Font> getFont(MemeText m, string text, string font)
         {
-            var fam = SystemFonts.Get("Impact");
+            var fam = SystemFonts.Get(font);
             var basefont = new Font(fam,12, FontStyle.Bold);
             var imagebox = await Task.Run(
                 () => TextMeasurer.Measure(text, new TextOptions(basefont))
@@ -77,7 +77,7 @@ namespace Homiebot.Images
                 //string text = "sample text";
                 string words = text.GetMemeText(random, replacements);
                 // draws a star with Horizontal red and blue hatching with a dash dot pattern outline.
-                Font f = await getFont(text, words);
+                Font f = await getFont(text, words, "Impact");
                 TextOptions options = new TextOptions(f)
                 {
                     KerningMode = KerningMode.Auto,

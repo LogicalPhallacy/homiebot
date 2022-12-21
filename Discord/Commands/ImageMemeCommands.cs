@@ -164,7 +164,7 @@ namespace Homiebot.Discord.Commands
             await context.RespondAsync(
                 bld => bld.WithContent(
                     "Never shoulda smoked that shit homie, now look where I am"
-                    ).WithFile(
+                    ).AddFile(
                     "nevershoulda.png",
                     new MemoryStream(overlay)
                 )
@@ -191,7 +191,7 @@ namespace Homiebot.Discord.Commands
             await context.RespondAsync(
                 bld => bld.WithContent(
                     $"Here's everything in the {category} collection"
-                    ).WithFile($"{category}.list.txt", respFile)
+                    ).AddFile($"{category}.list.txt", respFile)
             );
             respFile.Close();
             await respFile.DisposeAsync();
@@ -271,7 +271,7 @@ namespace Homiebot.Discord.Commands
         {
             using var stream = new MemoryStream(await image.GetBytes());
             _ = await context.Message.RespondAsync(bld => {
-                bld.WithContent(image.ImageIdentifier).WithFile(image.ImageIdentifier, stream);
+                bld.WithContent(image.ImageIdentifier).AddFile(image.ImageIdentifier, stream);
             });
             if(!string.IsNullOrWhiteSpace(collection.PostText))
             {
@@ -293,7 +293,7 @@ namespace Homiebot.Discord.Commands
                 );
 
             await ctx.Message.RespondAsync(bld => {
-                bld.WithFile($"{memeTemplate.Name}.jpg", stream);
+                bld.AddFile($"{memeTemplate.Name}.jpg", stream);
             });
         }
 
