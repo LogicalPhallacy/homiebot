@@ -14,6 +14,7 @@ namespace Homiebot.Models
         public string ImageProvider {get;set;}
         public string ImageProcessor {get;set;}
         public string BrainProvider{get;set;}
+        public string TextAnalysisProvider {get;set;}
     }
     public class GimmickFile 
     {
@@ -42,6 +43,11 @@ namespace Homiebot.Models
         public string SecretKey{get;set;}
         public string Region {get;set;}
         public string BucketName {get;set;}
+    }
+    public class AzureTextAnalyzerConfig
+    {
+        public string Endpoint {get;set;}
+        public string ApiKey {get; set;}
     }
     public class LocalImageStoreConfig
     {

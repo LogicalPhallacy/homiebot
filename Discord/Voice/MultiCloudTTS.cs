@@ -18,6 +18,7 @@ namespace Homiebot.Discord.Voice
         private readonly IServiceProvider services;
         private readonly ILogger logger;
         private readonly IConfiguration configuration;
+        private bool useGoogleTTS = false;
 
         private List<IVoiceProvider> voiceProviders;
         private VoicePersona currentVoice;
@@ -33,8 +34,11 @@ namespace Homiebot.Discord.Voice
             this.configuration = configuration;
             logger.LogInformation("Initializing multicloud provider");
             voiceProviders = new List<IVoiceProvider>();
-            logger.LogInformation("Registering Google Cloud Voice Provider");
-            AddVoiceProvider(new GoogleCloudVoiceProvider(logger));
+            if(useGoogleTTS){
+                logger.LogInformation("Registering Google Cloud Voice Provider");
+                AddVoiceProvider(new GoogleCloudVoiceProvider(logger));
+            }
+            // TODO: Make the rest of these bool gated
             logger.LogInformation("Registering Azure Voices");
             AddVoiceProvider(new AzureVoiceProvider(logger,configuration));            
             logger.LogInformation("Registering DeepFake Voices");

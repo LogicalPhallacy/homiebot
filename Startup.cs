@@ -31,6 +31,7 @@ namespace Homiebot.Web
             AddBrains(services,b);
             AddVoice(services,b);
             AddImageProcessor(services,b);
+            AddTextAnalyzer(services, b);
             services.AddSingleton(typeof(Random));
             services.AddHostedService<HomieBot>()
                 .AddControllersWithViews();
@@ -101,7 +102,15 @@ namespace Homiebot.Web
                 _ => throw new NotImplementedException($"Processor {botConfig.ImageProcessor} is not implemented")
             });
         }
-
+        private void AddTextAnalyzer(IServiceCollection services, BotConfig botConfig)
+        {
+            services.AddSingleton(typeof(ITextAnalyzer),
+            botConfig.TextAnalysisProvider switch {
+                nameof(AzureTextAnalyzer) => typeof(AzureTextAnalyzer),
+                _ => typeof(NoTextAnalyzer)
+            }           
+            );
+        }
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {

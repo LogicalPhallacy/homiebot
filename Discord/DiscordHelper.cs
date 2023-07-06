@@ -16,6 +16,7 @@ using Homiebot.Discord.Commands;
 using Homiebot.Discord.Voice;
 using Homiebot.Models;
 using Homiebot.Images;
+using Homiebot.Brain;
 
 namespace Homiebot.Discord 
 {
@@ -55,25 +56,32 @@ namespace Homiebot.Discord
                 AutoReconnect = true,
                 Token = token,
                 TokenType = TokenType.Bot,
+                Intents =
+                    DiscordIntents.AllUnprivileged |
+                    DiscordIntents.MessageContents
             });
             commands = discordClient.UseCommandsNext(new CommandsNextConfiguration(){
                 CaseSensitive = false,
                 EnableDefaultHelp = true,
                 StringPrefixes = commandMarkers,
+                UseDefaultCommandHandler = true,
                 Services = services,
-                EnableDms = false,
+                //EnableDms = false,
+                //EnableMentionPrefix = true,
             });
             logger.LogInformation("Registering custom parser");
             //commands.RegisterConverter(new StringArrayParamConverter());
             logger.LogInformation("Registering Baseline Commands");
             commands.RegisterCommands<HomieCommands>();
             commands.RegisterCommands<ImageMemeCommands>();
+            commands.RegisterCommands<ChatCommands>();
             commands.RegisterCommands<DiceCommands>();
             logger.LogInformation("Parsing gimmicks");
             HomieCommands hc = homiebotConfig.UseVoice ? 
             new HomieCommands(getService<Random>(),logger,config,getService<ITextToSpeechHelper>()) :
             new HomieCommands(getService<Random>(),logger,config);
             ImageMemeCommands ic = new ImageMemeCommands(logger,config,getService<IImageStore>(),getService<IImageProcessor>(), getService<Random>());
+            //ChatCommands cc = new ChatCommands(logger, getService<ITextAnalyzer>());
             //var childgimmicks = config.GetSection("Gimmicks").GetChildren();
             var Gimmicks = config.GetSection("Gimmicks").Get<IEnumerable<Gimmick>>();
             restGimmicks = config.GetSection("RestGimmicks").Get<IEnumerable<RESTGimmick>>();
@@ -83,35 +91,9 @@ namespace Homiebot.Discord
             foreach(var restGimmick in restGimmicks){
                 restGimmick.Initialize();
             }
-            discordClient.MessageCreated += async (sender,message) => 
-            {
-                message.HandleSongLinks(sender, logger);
-                if(await message.HandleMemorableKeywords(sender, logger))
-                {
-                    return;
-                }
-                if(message.MentionedUsers.Contains(discordClient.CurrentUser))
-                {
-                    await message.Channel.TriggerTypingAsync();
-                    logger.LogInformation("Mentioned by name figuring out what to do with that");
-                    bool handled = false;
-                    handled = await message.HandleHomieMentionCommands(sender,logger);
-                    // subsequent handler extension methods go in if clauses below
-                    handled = await handleRestGimmicks(message);
-                    if(!handled){handled = await message.HandleMemoryMentionCommands(logger);}
-                    // finally if they're still unhandled do the default
-                    if(!handled)
-                    {
-                        logger.LogInformation("I was pinged but couldn't find a match command, returning help instructions");
-                        await message.Channel.SendMessageAsync($"{message.Author.Mention} I don't know what to do with that, but you can use the command {commandMarkers.FirstOrDefault()}help for some help");
-                    }
-                }
-                return;
-            };
             logger.LogInformation("Registering reactions");
             discordClient.MessageReactionAdded += hc.ProcessReaction;
             discordClient.MessageReactionAdded += ic.ProcessReaction;
-            
             if(homiebotConfig.UseVoice)
             {
                 logger.LogInformation("Registering Voice Commands");
@@ -128,7 +110,36 @@ namespace Homiebot.Discord
                 logger.LogInformation("Registering memory commands");
                 commands.RegisterCommands<MemoryCommands>();
             }
-            
+            discordClient.MessageCreated += async (sender,message) => 
+            {
+                foreach(var marker in commandMarkers){
+                    if(message.Message.Content.StartsWith(marker)){
+                        return;
+                    }
+                }
+                var songlinkHandle = message.HandleSongLinks(sender, logger);
+                await message.HandleMemorableKeywords(sender, logger);
+                if(message.MentionedUsers.Contains(discordClient.CurrentUser))
+                {
+                    await message.Channel.TriggerTypingAsync();
+                    logger.LogInformation("Mentioned by name figuring out what to do with that");
+                    bool handled = false;
+                    handled = await message.HandleHomieMentionCommands(sender,logger);
+                    if (!handled){
+                        handled = await handleRestGimmicks(message);
+                    }
+                    // subsequent handler extension methods go in if clauses below
+                    if(!handled){handled = await message.HandleMemoryMentionCommands(logger);}
+                    // finally if they're still unhandled do the default
+                    if(!handled)
+                    {
+                        logger.LogInformation("I was pinged but couldn't find a match command, returning help instructions");
+                        //await message.Channel.SendMessageAsync($"{message.Author.Mention} I don't know what to do with that, but you can use the command {commandMarkers.FirstOrDefault()}help for some help");
+                    }
+                }
+                await songlinkHandle.WaitAsync(TimeSpan.FromSeconds(5));
+                return;
+            };
             logger.LogInformation("Trying Connect");
             try
             {
@@ -146,7 +157,7 @@ namespace Homiebot.Discord
             foreach(var gim in restGimmicks){
                 if(gim.ShouldTriggerGimmick(message.Message.Content))
                 {
-                    gim.RunRESTGimmick(message.Message);
+                    await gim.RunRESTGimmick(message.Message);
                     return true;
                 }
             }
