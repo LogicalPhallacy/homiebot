@@ -27,7 +27,7 @@ namespace Homiebot.Images
             var fam = SystemFonts.Get(font);
             var basefont = new Font(fam,12, FontStyle.Bold);
             var imagebox = await Task.Run(
-                () => TextMeasurer.Measure(text, new TextOptions(basefont))
+                () => TextMeasurer.MeasureSize(text, new TextOptions(basefont))
                 );
             var yscalefactor = m.Height / imagebox.Height;
             var xscalefactor = m.Width / imagebox.Width;
@@ -72,13 +72,13 @@ namespace Homiebot.Images
             foreach(var text in meme.Template.memeText)
             {
                 // The options are optional
-                IBrush brush = Brushes.Solid(Color.Parse(text.FillColor));
-                IPen pen = Pens.Solid(Color.Parse(text.OutlineColor),2);
+                Brush brush = Brushes.Solid(Color.Parse(text.FillColor));
+                Pen pen = Pens.Solid(Color.Parse(text.OutlineColor),2);
                 //string text = "sample text";
                 string words = text.GetMemeText(random, replacements);
                 // draws a star with Horizontal red and blue hatching with a dash dot pattern outline.
                 Font f = await getFont(text, words, "Impact");
-                TextOptions options = new TextOptions(f)
+                RichTextOptions options = new RichTextOptions(f)
                 {
                     KerningMode = KerningMode.Auto,
                     TabWidth = 8, // a tab renders as 8 spaces wide
