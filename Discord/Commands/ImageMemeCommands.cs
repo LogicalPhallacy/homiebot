@@ -17,6 +17,8 @@ using Homiebot.Models;
 using Homiebot.Images;
 using System.Net.Http;
 using DSharpPlus;
+using Google.Api;
+using System.IO.Compression;
 
 namespace Homiebot.Discord.Commands
 {
@@ -99,19 +101,33 @@ namespace Homiebot.Discord.Commands
             return commands.ToArray();
         }
 
+        private async Task<bool> CheckCategory(CommandContext context, string category, bool addable)
+        {
+            var filtered = addable ? collections.Where(c => c.CanAdd) : collections;
+            if(filtered.Any(c=>c.Name.Equals(category,StringComparison.InvariantCultureIgnoreCase))){
+                return true;
+            }
+            else{
+                var response = "Couldn't find that image category. Approved image categories for your command are:";
+                foreach(var cat in filtered){
+                    response += $"\n{cat.Name}";
+                }
+                _ = await context.RespondAsync(response);
+            }
+            return false;
+        }
+
         [Command("addimage")]
         [Description("Adds an image to the list for a given command. Valid options are snek and trolly. Should be used like ;;addimage snek <link to image or image attached>")]
         public async Task AddImage(CommandContext context, string category, params string[] args)
         {
             logger.LogInformation("Got an add image command");
             await context.TriggerTypingAsync();
-            var canAdd = collections.Where(c => c.CanAdd);
-            var requested = canAdd.Where(c=>c.Name.Equals(category,StringComparison.InvariantCultureIgnoreCase));
-            if(requested.Any())
+            if(await CheckCategory(context, category, true))
             {
                 string imageId;
                 string url;
-                var coll = requested.FirstOrDefault();
+                var coll = collections.FirstOrDefault(c => c.Name.Equals(category,StringComparison.InvariantCultureIgnoreCase));
                 // This is valid, lets check if there's an attached image
                 if(context.Message.Attachments.Any())
                 {
@@ -143,14 +159,6 @@ namespace Homiebot.Discord.Commands
                     _ = await context.RespondAsync($"Image didn't add successfully");
                 }
             }
-            else
-            {
-                var response = "Couldn't find that command on the approved to add list. Approved Image Categories Are:";
-                foreach(var cat in canAdd){
-                    response += $"\n{cat.Name}";
-                }
-                _ = context.RespondAsync(response);
-            }
         }
         [Command("never")]
         public async Task GenerateNeverImage(CommandContext context, params string[] args)
@@ -174,16 +182,23 @@ namespace Homiebot.Discord.Commands
         [Command("count")]
         [Description("Counts how many images are in an image tag")]
         public async Task CountImages(CommandContext context, string category)
-            {
-                ImageCollection collection = collections.Where(c=>c.Name.Equals(category,StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
-                await context.RespondAsync($"There are {await imageStore.GetTaggedImageCountAsync(collection.Tag)} images in the {category} collection");
+        {
+            await context.TriggerTypingAsync();
+            if(! await CheckCategory(context, category, false)){
+                return;
             }
+            ImageCollection collection = collections.Where(c=>c.Name.Equals(category,StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+            await context.RespondAsync($"There are {await imageStore.GetTaggedImageCountAsync(collection.Tag)} images in the {category} collection");
+        }
         
         [Command("list")]
         [Description("Lists (as a file attachement) all the images in an image tag")]
         public async Task ListImages(CommandContext context, string category)
         {
             await context.TriggerTypingAsync();
+            if(! await CheckCategory(context, category, false)){
+                return;
+            }
             ImageCollection collection = collections.Where(c=>c.Name.Equals(category,StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
             var fileName = Path.GetTempFileName();
             await File.WriteAllLinesAsync(fileName, imageStore.GetTaggedImageIds(collection.Tag), System.Text.Encoding.UTF8);
@@ -198,6 +213,27 @@ namespace Homiebot.Discord.Commands
             File.Delete(fileName);
         }
         
+        [Command("collect")]
+        [Description("Collects alll of the images in an image tag into a zip file")]
+        public async Task CollectImages(CommandContext context, string category)
+        {
+            await context.TriggerTypingAsync();
+            if(! await CheckCategory(context, category, false)){
+                return;
+            }
+            ImageCollection collection = collections.Where(c=>c.Name.Equals(category,StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+            using var memStream = new MemoryStream();
+            using var zipFile = new ZipArchive(memStream, ZipArchiveMode.Create, true);
+            await foreach(var image in imageStore.GetTaggedImagesAsync(collection.Tag)){
+                var entry = zipFile.CreateEntry(image.ImageIdentifier, CompressionLevel.Fastest);
+                using var entryStream = entry.Open();
+                await entryStream.WriteAsync(await image.GetBytes());
+                entryStream.Close();
+            }
+            zipFile.Dispose();
+            memStream.Position = 0;
+            await context.RespondAsync(bld => bld.WithContent($"Here's everything in the {category} collection").AddFile($"{category}.zip", memStream, true));
+        }
 
         private async Task<byte[]> GetOverlaidNeverImage(Stream sourceImage)
         {
