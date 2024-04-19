@@ -3,6 +3,7 @@ using System.IO;
 using System.Numerics;
 using System.Threading.Tasks;
 using Homiebot.Models;
+using Homiebot.Web;
 using SixLabors.Fonts;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing.Processing;
@@ -107,28 +108,36 @@ namespace Homiebot.Images
 
         public async Task<byte[]> OverlayImage(Stream baseImage, Stream overlayImage)
         {
+            using var overlayActivity = TelemetryHelpers.StartActivity("GenerateImageOverlay", System.Diagnostics.ActivityKind.Internal);
             baseImage.Position = 0;
             overlayImage.Position = 0;
             using var image = Image.Load(baseImage);
             using var overlay = Image.Load(overlayImage);
             // resize the overlay image
-            await Task.Run(() =>overlay.Mutate(
-                i => i.Resize(
-                    GetSize(overlay.Width, overlay.Height, image.Width, image.Height)
-                )
-            ));
-            // overlay the resized image
-            await Task.Run( () => 
-                image.Mutate(
-                i => i.DrawImage(
-                    overlay,
-                    findXOffCenter(image.Width, overlay.Width, image.Height-overlay.Height),
-                    1f
-                )
+            using (var scalingImage = TelemetryHelpers.StartActivity("ScaleImage", System.Diagnostics.ActivityKind.Internal)){
+                await Task.Run(() =>overlay.Mutate(
+                    i => i.Resize(
+                        GetSize(overlay.Width, overlay.Height, image.Width, image.Height)
+                    )
                 ));
+                scalingImage?.SetStatus(System.Diagnostics.ActivityStatusCode.Ok)?.Stop();
+            }
+            // overlay the resized image
+            using (var compositing = TelemetryHelpers.StartActivity("CompositeOverlay", System.Diagnostics.ActivityKind.Internal)){
+                await Task.Run( () => 
+                    image.Mutate(
+                    i => i.DrawImage(
+                        overlay,
+                        findXOffCenter(image.Width, overlay.Width, image.Height-overlay.Height),
+                        1f
+                    )
+                    ));
+                compositing?.SetStatus(System.Diagnostics.ActivityStatusCode.Ok)?.Stop();
+            }
             using (var ms = new MemoryStream())
             {
                 image.Save(ms,new PngEncoder());
+                overlayActivity?.SetStatus(System.Diagnostics.ActivityStatusCode.Ok)?.Stop();
                 return ms.ToArray();
             }
         }

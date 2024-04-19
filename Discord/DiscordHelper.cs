@@ -17,6 +17,7 @@ using Homiebot.Discord.Voice;
 using Homiebot.Models;
 using Homiebot.Images;
 using Homiebot.Brain;
+using System.Diagnostics;
 
 namespace Homiebot.Discord 
 {

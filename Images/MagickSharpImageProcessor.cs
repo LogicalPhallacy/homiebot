@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Homiebot.Models;
+using Homiebot.Web;
 using ImageMagick;
 
 namespace Homiebot.Images
@@ -32,15 +33,26 @@ namespace Homiebot.Images
 
         public async Task<byte[]> OverlayImage(Stream baseImage, Stream overlayImage)
         {
+            using var overlayActivity = TelemetryHelpers.StartActivity("GenerateImageOverlay", System.Diagnostics.ActivityKind.Internal);
             var factory = new MagickImageFactory();
             baseImage.Position = 0;
             overlayImage.Position = 0;
             using var image = factory.Create(baseImage);
             using var overlay = factory.Create(overlayImage);
             var scale = findScalePercentage(overlay.Width, overlay.Height, image.Width, image.Height);
-            await Task.Run( () => overlay.Scale(scale));
-            await Task.Run( () => image.Composite(overlay,findXOffCenter(overlay.Width, image.Width), findYBottom(overlay.Height, image.Height), CompositeOperator.Over));
-            return await Task.Run<byte[]>(()=>{return image.ToByteArray();});
+            using (var scalingImage = TelemetryHelpers.StartActivity("ScaleImage", System.Diagnostics.ActivityKind.Internal)){
+                await Task.Run( () => overlay.Scale(scale));
+                scalingImage?.SetStatus(System.Diagnostics.ActivityStatusCode.Ok)?.Stop();
+            }
+            
+            using (var compositing = TelemetryHelpers.StartActivity("CompositeOverlay", System.Diagnostics.ActivityKind.Internal)){
+                await Task.Run( () => image.Composite(overlay,findXOffCenter(overlay.Width, image.Width), findYBottom(overlay.Height, image.Height), CompositeOperator.Over));
+                compositing?.SetStatus(System.Diagnostics.ActivityStatusCode.Ok)?.Stop();
+            }
+            
+            var ret = await Task.Run<byte[]>(()=>{return image.ToByteArray();});
+            overlayActivity?.SetStatus(System.Diagnostics.ActivityStatusCode.Ok)?.Stop();
+            return ret;
         }
 
         private Percentage findScalePercentage(int overlayWidth, int overlayHeight, int sourceWidth, int sourceHeight)

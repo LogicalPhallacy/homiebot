@@ -1,15 +1,24 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace Homiebot.Web
 {
+    public static class TelemetryHelpers
+    {
+        public static string ActivityString = "Homiebot";
+        public static readonly ActivitySource ActivitySource = new ActivitySource(ActivityString);
+        public static Activity? StartActivity(string name, ActivityKind activityKind) => Activity.Current is null ? ActivitySource.StartActivity(name, activityKind) : ActivitySource.StartActivity(name, activityKind, Activity.Current?.Id);
+    }
     public class Program
     {
         public static void Main(string[] args)
@@ -31,6 +40,12 @@ namespace Homiebot.Web
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
+                })
+                .ConfigureServices(s=> {
+                    s.AddOpenTelemetry()
+                        .UseAzureMonitor()
+                        .WithTracing( t => t.AddSource(TelemetryHelpers.ActivityString));
+                    
                 });
     }
 }
