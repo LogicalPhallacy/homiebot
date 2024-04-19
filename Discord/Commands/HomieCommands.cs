@@ -15,6 +15,7 @@ using Homiebot.Models;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using System.Text.RegularExpressions;
+using Homiebot.Web;
 
 namespace Homiebot.Discord.Commands
 {
@@ -70,6 +71,7 @@ namespace Homiebot.Discord.Commands
         private IEnumerable<Gimmick> Gimmicks;
         private IEnumerable<ReactionConfig> reactionConfigs;
         private ITextToSpeechHelper? textToSpeechHelper;
+        private const string clapchar = "👏";
         public HomieCommands(Random random, ILogger<HomieBot> logger, IConfiguration config, ITextToSpeechHelper? textToSpeechHelper = null)
         {
             this.random = random;
@@ -165,6 +167,7 @@ namespace Homiebot.Discord.Commands
             "List the emoji groupings that will be triggered by one emoji when you react to a message with it")]
         public async Task GetReactionTriggers(CommandContext context)
         {
+            using var commandRun = TelemetryHelpers.StartActivity(context.Command.Name);
             await context.TriggerTypingAsync();
             string outmessage = string.Empty;
             foreach(ReactionConfig react in reactionConfigs)
@@ -172,11 +175,13 @@ namespace Homiebot.Discord.Commands
                 outmessage+= $"{react.ReactionName} - Trigger with: {react.TriggerReaction}, homiebot will add {string.Join(',',react.Reactions)}\n";
             }
             await context.RespondAsync(outmessage);
+            commandRun?.SetStatus(System.Diagnostics.ActivityStatusCode.Ok)?.Stop();
         }
 
         [Command("reload")]
         public async Task ReloadGimmicks(CommandContext context)
         {
+            using var commandRun = TelemetryHelpers.StartActivity(context.Command.Name);
             await context.RespondAsync("Reloading gimmicks, please wait");
             // Get the gimmick list and try and unregister them
             Gimmicks = config.GetSection("Gimmicks").Get<IEnumerable<Gimmick>>();
@@ -202,13 +207,14 @@ namespace Homiebot.Discord.Commands
             // Reload our gimmicks
             context.CommandsNext.RegisterCommands(GetDynamicGimmickCommands(Gimmicks));
             await context.RespondAsync("gimmicks reloaded!");
+            commandRun?.SetStatus(System.Diagnostics.ActivityStatusCode.Ok)?.Stop();
         }
 #nullable enable
         [Command("clapback")]
         [Description("you👏know👏what👏this👏does")]
         public async Task ClapBack(CommandContext context, [RemainingText] string? text)
         {
-            string clapchar = "👏";
+            using var commandRun = TelemetryHelpers.StartActivity(context.Command.Name);
             await context.TriggerTypingAsync();
             if(!string.IsNullOrWhiteSpace(text))
             {
@@ -216,54 +222,67 @@ namespace Homiebot.Discord.Commands
                 resp += clapchar;
                 await context.RespondAsync(resp);
             }
+            commandRun?.SetStatus(System.Diagnostics.ActivityStatusCode.Ok)?.Stop();
         }
 #nullable disable
         [Command("define")]
         [Description("Fetches a definition from urban dictionary")]
         public async Task Define(CommandContext context, [RemainingText] string text)
         {
+            using var commandRun = TelemetryHelpers.StartActivity(context.Command.Name);
             await context.TriggerTypingAsync();
             DiscordEmbed d = null;
             try{
                 d = await UrbanDictionaryHelper.GetDefinition(text);
             }catch(Exception e){
                 await context.RespondAsync($"Sorry homie, error looking up {text}\n{e.Message}");
+                commandRun?.SetStatus(System.Diagnostics.ActivityStatusCode.Error, e.Message)?.Stop();
                 return;
             }
             await context.RespondAsync(embed:d);
+            commandRun?.SetStatus(System.Diagnostics.ActivityStatusCode.Ok)?.Stop();
         }
         [Command("slap")]
         [Description("Slaps a user with a fish")]
         public async Task Slap(CommandContext context, [RemainingText] string text)
         {
+            using var commandRun = TelemetryHelpers.StartActivity(context.Command.Name);
             await context.TriggerTypingAsync();
             await context.RespondAsync($"*slaps {text} with a wet trout*");
+            commandRun?.SetStatus(System.Diagnostics.ActivityStatusCode.Ok)?.Stop();
         }
         [Command("mock")]
         [Description("Gets some mocking text")]
         public async Task Mock(CommandContext context, [RemainingText]string text)
         {
+            using var commandRun = TelemetryHelpers.StartActivity(context.Command.Name);
             await context.TriggerTypingAsync();
             await context.RespondAsync(text.ToMockingCase(random));
+            commandRun?.SetStatus(System.Diagnostics.ActivityStatusCode.Ok)?.Stop();
         }
         [Command("uwu")]
         [Description("makes youw text go uwu")]
         public async Task Uwu(CommandContext context, [RemainingText]string text)
         {
+            using var commandRun = TelemetryHelpers.StartActivity(context.Command.Name);
             await context.TriggerTypingAsync();
             await context.RespondAsync(text.ToUwuCase());
+            commandRun?.SetStatus(System.Diagnostics.ActivityStatusCode.Ok)?.Stop();
         }
         [Command("block")]
         [Description("For when you want to make a point")]
         public async Task Block(CommandContext context, [RemainingText]string text)
         {
+            using var commandRun = TelemetryHelpers.StartActivity(context.Command.Name);
             await context.TriggerTypingAsync();
             await context.RespondAsync("```\n"+text.ToBlockText()+"\n```");
+            commandRun?.SetStatus(System.Diagnostics.ActivityStatusCode.Ok)?.Stop();
         }
         [Command("cls")]
         [Description("Make homiebot delete the last thing he said")]
         public async Task Clear(CommandContext context)
         {
+            using var commandRun = TelemetryHelpers.StartActivity(context.Command.Name);
             // get the channel 
             await context.TriggerTypingAsync();
             var messages = await context.Channel.GetMessagesAsync();
@@ -273,12 +292,13 @@ namespace Homiebot.Discord.Commands
                 {
                     await lastmessage.DeleteAsync();
                     await context.RespondAsync("Its like it never happened...");
+                    commandRun?.SetStatus(System.Diagnostics.ActivityStatusCode.Ok)?.Stop();
                 }
                 catch(Exception e)
                 {
+                    commandRun?.SetStatus(System.Diagnostics.ActivityStatusCode.Error, e.Message)?.Stop();
                     await context.RespondAsync($"The bleach, it does nothing: {e.Message}");
                 }
-
             }
         }
     }

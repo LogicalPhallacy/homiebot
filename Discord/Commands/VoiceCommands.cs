@@ -9,13 +9,35 @@ using System;
 using Homiebot.Discord.Voice;
 using Homiebot.Discord.Voice.Models;
 using DSharpPlus.Entities;
+using Homiebot.Web;
+using System.Diagnostics;
 
 namespace Homiebot.Discord.Commands
 {
+    [ModuleLifespan(ModuleLifespan.Transient)]
     public class VoiceCommands : BaseCommandModule
     {
         private readonly ILogger logger;
         private readonly ITextToSpeechHelper textToSpeechHelper;
+        private Activity? activity = null;
+        public override Task BeforeExecutionAsync(CommandContext ctx)
+        {
+            activity = TelemetryHelpers.StartActivity(ctx.Command.Name);
+            return base.BeforeExecutionAsync(ctx);
+        }
+        public override Task AfterExecutionAsync(CommandContext ctx)
+        {
+            if(!(activity?.IsStopped ?? true))
+            {
+                if(activity.Status == ActivityStatusCode.Unset)
+                {
+                    activity?.SetStatus(ActivityStatusCode.Ok);
+                }
+                activity?.Stop();
+            }
+            activity?.Dispose();
+            return base.AfterExecutionAsync(ctx);
+        }
         public VoiceCommands(ILogger<HomieBot> logger, ITextToSpeechHelper textToSpeechHelper)
         {
             this.logger = logger;
