@@ -11,6 +11,9 @@ using Homiebot.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Azure.Cosmos;
 using FileContextCore;
+using Microsoft.ApplicationInsights.AspNetCore;
+using Azure.Monitor.OpenTelemetry.AspNetCore;
+using Microsoft.Extensions.Logging;
 
 namespace Homiebot.Web
 {
@@ -32,7 +35,13 @@ namespace Homiebot.Web
             AddVoice(services,b);
             AddImageProcessor(services,b);
             AddTextAnalyzer(services, b);
+            services.AddOpenTelemetry()
+                .UseAzureMonitor()
+                .WithTracing( t => t.AddSource(TelemetryHelpers.ActivityString));
+            services.AddLogging(l => l.AddOpenTelemetry());
+            //services.AddApplicationInsightsTelemetry();
             services.AddSingleton(typeof(Random));
+            //services.AddSingleton<IJavaScriptSnippet, JavaScriptSnippet>();
             services.AddHostedService<HomieBot>()
                 .AddControllersWithViews();
         }

@@ -15,6 +15,8 @@ using Homiebot.Brain;
 using Homiebot.Models;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net.Http;
+using Homiebot.Web;
+using System.Diagnostics;
 
 namespace Homiebot.Discord.Commands
 {
@@ -22,6 +24,7 @@ namespace Homiebot.Discord.Commands
     {
         public static async Task<bool> HandleMemorableKeywords(this MessageCreateEventArgs message, DiscordClient sender, ILogger logger)
         {
+            //using var activity = TelemetryHelpers.StartActivity("RememberAThing");
             if(message.Author.Id != sender.CurrentUser.Id)
             {
                 switch (message.Message.Content.ToLower())
@@ -30,16 +33,19 @@ namespace Homiebot.Discord.Commands
                         var acabcontent = new Regex(@"(acab includes\b)(.+)").Match(m).Groups[2].Value;
                         var acabcontext = sender.GetCommandsNext().CreateContext(message.Message,"::",sender.GetCommandsNext().RegisteredCommands["acab"],acabcontent);
                         await sender.GetCommandsNext().RegisteredCommands["acab"].ExecuteAsync(acabcontext);
+                        //activity?.AddBaggage("MemoryThing", acabcontent).SetStatus(System.Diagnostics.ActivityStatusCode.Ok)?.Stop();
                         return true;
                     case var m when new Regex(@"(.+)\b(is a cia psyop|are a cia psyop\b)").IsMatch(m):
                         var matchcontent = new Regex(@"(.+)\b(is a cia psyop\b)").Match(m).Groups[1].Value;
                         var context = sender.GetCommandsNext().CreateContext(message.Message,"::",sender.GetCommandsNext().RegisteredCommands["psyop"],matchcontent);
                         await sender.GetCommandsNext().RegisteredCommands["psyop"].ExecuteAsync(context);
+                        //activity?.AddBaggage("MemoryThing", matchcontent).SetStatus(System.Diagnostics.ActivityStatusCode.Ok)?.Stop();
                         return true;
                     case var m when new Regex(@"(.+)\b(found on wish.com\b)").IsMatch(m):
                         var wishcontent = new Regex(@"(.+)\b(found on wish.com\b)").Match(m).Groups[1].Value;
                         var wishcontext = sender.GetCommandsNext().CreateContext(message.Message,"::",sender.GetCommandsNext().RegisteredCommands["wish"],wishcontent);
                         await sender.GetCommandsNext().RegisteredCommands["wish"].ExecuteAsync(wishcontext);
+                        //activity?.AddBaggage("MemoryThing", wishcontent).SetStatus(System.Diagnostics.ActivityStatusCode.Ok)?.Stop();
                         return true;
                 }
             }
@@ -51,6 +57,7 @@ namespace Homiebot.Discord.Commands
             return await Task.FromResult(false);
         }
     }
+    [ModuleLifespan(ModuleLifespan.Transient)]
     public class MemoryCommands : BaseCommandModule
     {
         //private readonly IMemoryProvider memory;
@@ -59,6 +66,25 @@ namespace Homiebot.Discord.Commands
         private readonly ILogger logger;
         private readonly IConfiguration configuration;
         private BotConfig botConfig;
+        private Activity? activity = null;
+        public override Task BeforeExecutionAsync(CommandContext ctx)
+        {
+            activity = TelemetryHelpers.StartActivity(ctx.Command.Name);
+            return base.BeforeExecutionAsync(ctx);
+        }
+        public override Task AfterExecutionAsync(CommandContext ctx)
+        {
+            if(!(activity?.IsStopped ?? true))
+            {
+                if(activity.Status == ActivityStatusCode.Unset)
+                {
+                    activity?.SetStatus(ActivityStatusCode.Ok);
+                }
+                activity?.Stop();
+            }
+            activity?.Dispose();
+            return base.AfterExecutionAsync(ctx);
+        }
         public MemoryCommands(IServiceProvider services, Random random, ILogger<HomieBot> logger, IConfiguration config)
         {
             //this.memory = memoryProvider;

@@ -22,6 +22,7 @@ using System.IO.Compression;
 
 namespace Homiebot.Discord.Commands
 {
+    [ModuleLifespan(ModuleLifespan.Singleton)]
     class ImageMemeCommands : BaseCommandModule
     {
         private readonly ILogger logger;

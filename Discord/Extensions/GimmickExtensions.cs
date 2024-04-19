@@ -7,8 +7,11 @@ public static class GimmickExtensions
 {
     public static async Task RunRESTGimmick (this RESTGimmick rest, DiscordMessage discordMessage)
     {
+        using var runActivity = Homiebot.Web.TelemetryHelpers.StartActivity("RunRESTGimmick");
+        runActivity?.AddBaggage("GimmickTrigger", rest.TriggerString);
         if(rest.IsBusy){
             await discordMessage.RespondAsync("I'm already trying to do that homie");
+            runActivity?.SetStatus(System.Diagnostics.ActivityStatusCode.Error, "AlreadyBusy")?.Stop();
             return;
         }
         await discordMessage.Channel.TriggerTypingAsync();
@@ -19,5 +22,6 @@ public static class GimmickExtensions
             await discordMessage.RespondAsync(rest.GetFailMessage);
         }
         rest.FinishGimmick();
+        runActivity?.SetStatus(System.Diagnostics.ActivityStatusCode.Ok)?.Stop();
     }
 }

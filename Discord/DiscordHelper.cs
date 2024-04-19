@@ -122,6 +122,7 @@ namespace Homiebot.Discord
                 await message.HandleMemorableKeywords(sender, logger);
                 if(message.MentionedUsers.Contains(discordClient.CurrentUser))
                 {
+                    using var mentionActivity = Homiebot.Web.TelemetryHelpers.StartActivity("HomiebotMention");
                     await message.Channel.TriggerTypingAsync();
                     logger.LogInformation("Mentioned by name figuring out what to do with that");
                     bool handled = false;
@@ -134,12 +135,20 @@ namespace Homiebot.Discord
                     // finally if they're still unhandled do the default
                     if(!handled)
                     {
+                        mentionActivity?.SetStatus(ActivityStatusCode.Error, "NoSuccessfulHandlers")?.Stop();
                         logger.LogInformation("I was pinged but couldn't find a match command, returning help instructions");
                         //await message.Channel.SendMessageAsync($"{message.Author.Mention} I don't know what to do with that, but you can use the command {commandMarkers.FirstOrDefault()}help for some help");
+                    }else{
+                        mentionActivity?.SetStatus(ActivityStatusCode.Ok)?.Stop();
                     }
                 }
                 await songlinkHandle.WaitAsync(TimeSpan.FromSeconds(5));
                 return;
+            };
+            // TODO: Set up event emission for successful command runs
+            // commands.CommandExecuted += (ext, args) => {}
+            commands.CommandErrored += async (ext, args) => {
+                logger.LogError(args.Exception, "Failed to execute command {commandName}", args.Command.Name);
             };
             logger.LogInformation("Trying Connect");
             try

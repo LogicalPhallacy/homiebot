@@ -59,6 +59,7 @@ namespace Homiebot.Discord.Commands
             return await sender.GetCommandsNext().RegisteredCommands[reactWithCommandName].ExecuteAsync(context);
         }
     }
+    [ModuleLifespan(ModuleLifespan.Singleton)]
     public class HomieCommands : BaseCommandModule
     {
         public delegate Task RunGimmick(CommandContext ctx, params string[] input);

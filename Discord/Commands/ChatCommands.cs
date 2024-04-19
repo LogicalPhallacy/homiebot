@@ -8,13 +8,34 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 using System.Net.Http;
+using Homiebot.Web;
+using System.Diagnostics;
 
 namespace Homiebot.Discord.Commands;
 
+[ModuleLifespan(ModuleLifespan.Transient)]
 public class ChatCommands : BaseCommandModule {
     private readonly ILogger<HomieBot> logger;
     private readonly ITextAnalyzer textAnalyzer;
-
+    private Activity? activity = null;
+    public override Task BeforeExecutionAsync(CommandContext ctx)
+    {
+        activity = TelemetryHelpers.StartActivity(ctx.Command.Name);
+        return base.BeforeExecutionAsync(ctx);
+    }
+    public override Task AfterExecutionAsync(CommandContext ctx)
+    {
+        if(!(activity?.IsStopped ?? true))
+        {
+            if(activity.Status == ActivityStatusCode.Unset)
+            {
+                activity?.SetStatus(ActivityStatusCode.Ok);
+            }
+            activity?.Stop();
+        }
+        activity?.Dispose();
+        return base.AfterExecutionAsync(ctx);
+    }
     public ChatCommands(ILogger<HomieBot> logger, ITextAnalyzer textAnalyzer)
     {
         this.logger = logger;
@@ -42,6 +63,7 @@ public class ChatCommands : BaseCommandModule {
             }
             else
             {
+                activity?.SetStatus(ActivityStatusCode.Error,"404")?.Stop();
                 _ = context.RespondAsync("I couldn't find anything to summarize, sorry");
                 return;
             }

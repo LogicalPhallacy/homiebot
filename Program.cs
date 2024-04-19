@@ -17,7 +17,7 @@ namespace Homiebot.Web
     {
         public static string ActivityString = "Homiebot";
         public static readonly ActivitySource ActivitySource = new ActivitySource(ActivityString);
-        public static Activity? StartActivity(string name, ActivityKind activityKind) => Activity.Current is null ? ActivitySource.StartActivity(name, activityKind) : ActivitySource.StartActivity(name, activityKind, Activity.Current?.Id);
+        public static Activity? StartActivity(string name, ActivityKind activityKind = ActivityKind.Internal) => Activity.Current is null ? ActivitySource.StartActivity(name, activityKind) : ActivitySource.StartActivity(name, activityKind, Activity.Current?.Id);
     }
     public class Program
     {
@@ -40,12 +40,6 @@ namespace Homiebot.Web
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                })
-                .ConfigureServices(s=> {
-                    s.AddOpenTelemetry()
-                        .UseAzureMonitor()
-                        .WithTracing( t => t.AddSource(TelemetryHelpers.ActivityString));
-                    
                 });
     }
 }
