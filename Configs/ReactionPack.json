@@ -89,10 +89,10 @@
             "Reactions":
             [
                 ":a:",
-                ":regional_indicator_n",
-                ":regional_indicator_c",
-                ":regional_indicator_a",
-                ":regional_indicator_r"
+                ":regional_indicator_n:",
+                ":regional_indicator_c:",
+                ":regional_indicator_a:",
+                ":regional_indicator_r:"
             ]
         }
     ]
