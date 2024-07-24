@@ -21,6 +21,13 @@
             "PostText":"damnit, get me pictures of spiderman"
         },
         {
+            "Name":"wojak",
+            "Tag":"wojak",
+            "Description":"that feel when you need a wojak photo",
+            "CanAdd":true,
+            "PostText":">tfw"
+        },
+        {
             "Name":"baseimage",
             "Tag":"baseimages",
             "Description":"Gets a base image meme without custome text, why would you want this",

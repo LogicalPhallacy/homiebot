@@ -120,7 +120,7 @@ namespace Homiebot.Discord.Commands
         }
 
         [Command("addimage")]
-        [Description("Adds an image to the list for a given command. Valid options are snek and trolly. Should be used like ;;addimage snek <link to image or image attached>")]
+        [Description("Adds an image to the list for a given command. Valid options are snek, trolly, spiderman, and wojak. Should be used like ;;addimage snek <link to image or image attached>")]
         public async Task AddImage(CommandContext context, string category, params string[] args)
         {
             using var commandRun = TelemetryHelpers.StartActivity(context.Command.Name);
