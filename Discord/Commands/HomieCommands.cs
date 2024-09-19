@@ -37,14 +37,14 @@ namespace Homiebot.Discord.Commands
         public static async Task<bool> HandleHomieMentionCommands(this MessageCreateEventArgs message, DiscordClient sender, ILogger logger)
         {
             switch (message.Message.Content){
-                case var m when new Regex(@"\b(why)\b").IsMatch(m):
+                case var m when RegexHelper.ExcuseRegex().IsMatch(m):
                     logger.LogInformation("Matched on why, so making an excuse");
                     await ReactToMessage(message.Message, sender, "excuse");
                     return true;
-                case var m when new Regex(@"\b(thank you)\b").IsMatch(m):
+                case var m when RegexHelper.ThanksRegex().IsMatch(m):
                     await message.Message.CreateReactionAsync(DiscordEmoji.FromName(sender,":IsForMe:"));
                     return true;
-                case var m when new Regex(@"\b(fuck you)\b").IsMatch(m):
+                case var m when RegexHelper.RudeRegex().IsMatch(m):
                     await message.Message.RespondAsync($"Fuck you too, {message.Author.Mention}");
                     return true;
                 case var m when m.Contains("420") || m.Contains("69"):

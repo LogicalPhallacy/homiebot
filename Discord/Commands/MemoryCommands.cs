@@ -17,6 +17,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Net.Http;
 using Homiebot.Web;
 using System.Diagnostics;
+using Homiebot.Helpers;
 
 namespace Homiebot.Discord.Commands
 {
@@ -29,20 +30,20 @@ namespace Homiebot.Discord.Commands
             {
                 switch (message.Message.Content.ToLower())
                 {
-                    case var m when new Regex(@"(acab includes\b)(.+)").IsMatch(m):
-                        var acabcontent = new Regex(@"(acab includes\b)(.+)").Match(m).Groups[2].Value;
+                    case var m when RegexHelper.ACABRegex().IsMatch(m):
+                        var acabcontent = RegexHelper.ACABRegex().Match(m).Groups[2].Value;
                         var acabcontext = sender.GetCommandsNext().CreateContext(message.Message,"::",sender.GetCommandsNext().RegisteredCommands["acab"],acabcontent);
                         await sender.GetCommandsNext().RegisteredCommands["acab"].ExecuteAsync(acabcontext);
                         //activity?.AddBaggage("MemoryThing", acabcontent).SetStatus(System.Diagnostics.ActivityStatusCode.Ok)?.Stop();
                         return true;
-                    case var m when new Regex(@"(.+)\b(is a cia psyop|are a cia psyop\b)").IsMatch(m):
-                        var matchcontent = new Regex(@"(.+)\b(is a cia psyop\b)").Match(m).Groups[1].Value;
+                    case var m when RegexHelper.PsyopRegex().IsMatch(m):
+                        var matchcontent = RegexHelper.PsyopRegex().Match(m).Groups[1].Value;
                         var context = sender.GetCommandsNext().CreateContext(message.Message,"::",sender.GetCommandsNext().RegisteredCommands["psyop"],matchcontent);
                         await sender.GetCommandsNext().RegisteredCommands["psyop"].ExecuteAsync(context);
                         //activity?.AddBaggage("MemoryThing", matchcontent).SetStatus(System.Diagnostics.ActivityStatusCode.Ok)?.Stop();
                         return true;
-                    case var m when new Regex(@"(.+)\b(found on wish.com\b)").IsMatch(m):
-                        var wishcontent = new Regex(@"(.+)\b(found on wish.com\b)").Match(m).Groups[1].Value;
+                    case var m when RegexHelper.WishRegex().IsMatch(m):
+                        var wishcontent = RegexHelper.WishRegex().Match(m).Groups[1].Value;
                         var wishcontext = sender.GetCommandsNext().CreateContext(message.Message,"::",sender.GetCommandsNext().RegisteredCommands["wish"],wishcontent);
                         await sender.GetCommandsNext().RegisteredCommands["wish"].ExecuteAsync(wishcontext);
                         //activity?.AddBaggage("MemoryThing", wishcontent).SetStatus(System.Diagnostics.ActivityStatusCode.Ok)?.Stop();

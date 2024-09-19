@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Homiebot.Helpers;
 
 namespace Homiebot.Models
 {
@@ -31,7 +32,6 @@ namespace Homiebot.Models
         private int? lastResponseStatus;
         private string? responseString;
         private dynamic? jsonResponseObject;
-        private Regex jsonDynamicRegex;
         private IEnumerable<string> parameterList;
         private bool busy;
 
@@ -50,8 +50,6 @@ namespace Homiebot.Models
                 ) :
                 null;
             busy = false;
-            if(JsonResponse)
-                jsonDynamicRegex = new Regex(@"(@\([a-z,\.]+\))+", (RegexOptions.CultureInvariant | RegexOptions.IgnoreCase));
         }
         public bool ShouldTriggerGimmick(string message) 
         {
@@ -125,7 +123,7 @@ namespace Homiebot.Models
         
         private string PopulateJsonResponse() {
             string ret = PostMessage;
-            var match = jsonDynamicRegex.Match(PostMessage);
+            var match = RegexHelper.JsonRegex().Match(PostMessage);
             if(match.Success){
                 var dict = jsonResponseObject as Dictionary<string,object>;
                 foreach(var g in match.Groups.Values)
