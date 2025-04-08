@@ -9,14 +9,12 @@ using DSharpPlus.Entities;
 using DSharpPlus.VoiceNext;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using System.Text.RegularExpressions;
 using DSharpPlus.CommandsNext.Converters;
 using DSharpPlus.CommandsNext.Entities;
 using Homiebot.Discord.Commands;
 using Homiebot.Discord.Voice;
 using Homiebot.Models;
 using Homiebot.Images;
-using Homiebot.Brain;
 using System.Diagnostics;
 
 namespace Homiebot.Discord 
@@ -34,6 +32,7 @@ namespace Homiebot.Discord
         private DiscordClient discordClient;
         private CommandsNextExtension commands;
         private VoiceNextExtension voiceNext;
+        private BotConfig homiebotConfig;
         public bool Connected {
             get => connected;
         }
@@ -51,7 +50,7 @@ namespace Homiebot.Discord
         }
         public async Task Initialize()
         {
-            var homiebotConfig = config.GetSection("BotConfig").Get<BotConfig>();
+            homiebotConfig = config.GetSection("BotConfig").Get<BotConfig>();
             logger.LogInformation("Starting up main discord client");
             discordClient = new DiscordClient( new DiscordConfiguration(){
                 AutoReconnect = true,
@@ -111,46 +110,7 @@ namespace Homiebot.Discord
                 logger.LogInformation("Registering memory commands");
                 commands.RegisterCommands<MemoryCommands>();
             }
-            discordClient.MessageCreated += async (sender,message) => 
-            {
-                // We don't want to process our own messages
-                // or messages from other bots
-                if(message.Message.Author.IsBot || message.Message.Author.IsCurrent)
-                {
-                    return;
-                }
-                foreach(var marker in commandMarkers){
-                    if(message.Message.Content.StartsWith(marker)){
-                        return;
-                    }
-                }
-                var songlinkHandle = message.HandleSongLinks(sender, logger);
-                await message.HandleMemorableKeywords(sender, logger);
-                if(message.MentionedUsers.Contains(discordClient.CurrentUser))
-                {
-                    using var mentionActivity = Homiebot.Web.TelemetryHelpers.StartActivity("HomiebotMention");
-                    await message.Channel.TriggerTypingAsync();
-                    logger.LogInformation("Mentioned by name figuring out what to do with that");
-                    bool handled = false;
-                    handled = await message.HandleHomieMentionCommands(sender,logger);
-                    if (!handled){
-                        handled = await handleRestGimmicks(message);
-                    }
-                    // subsequent handler extension methods go in if clauses below
-                    if(!handled){handled = await message.HandleMemoryMentionCommands(logger);}
-                    // finally if they're still unhandled do the default
-                    if(!handled)
-                    {
-                        mentionActivity?.SetStatus(ActivityStatusCode.Error, "NoSuccessfulHandlers")?.Stop();
-                        logger.LogInformation("I was pinged but couldn't find a match command, returning help instructions");
-                        //await message.Channel.SendMessageAsync($"{message.Author.Mention} I don't know what to do with that, but you can use the command {commandMarkers.FirstOrDefault()}help for some help");
-                    }else{
-                        mentionActivity?.SetStatus(ActivityStatusCode.Ok)?.Stop();
-                    }
-                }
-                await songlinkHandle.WaitAsync(TimeSpan.FromSeconds(5));
-                return;
-            };
+            discordClient.MessageCreated += HandleMessage;
             // TODO: Set up event emission for successful command runs
             // commands.CommandExecuted += (ext, args) => {}
             commands.CommandErrored += async (ext, args) => {
@@ -166,6 +126,55 @@ namespace Homiebot.Discord
             {
                 logger.LogError(e,"Exception trying to connect: {errorMessage}",e.Message);
             }
+        }
+
+        private async Task HandleMessage(DiscordClient sender, MessageCreateEventArgs message)
+        {
+            // We don't want to process our own messages
+            // or messages from other bots
+            if(message.Message.Author.IsBot || message.Message.Author.IsCurrent)
+            {
+                return;
+            }
+            foreach(var command in homiebotConfig.IgnoredCommands)
+            {
+                if(message.Message.Content.StartsWith(command, StringComparison.OrdinalIgnoreCase))
+                {
+                    logger.LogInformation("Ignoring command {commandName}", command);
+                    return;
+                }
+            }
+            foreach(var marker in commandMarkers){
+                if(message.Message.Content.StartsWith(marker)){
+                    return;
+                }
+            }
+            var songlinkHandle = message.HandleSongLinks(sender, logger);
+            await message.HandleMemorableKeywords(sender, logger);
+            if(message.MentionedUsers.Contains(discordClient.CurrentUser))
+            {
+                using var mentionActivity = Homiebot.Web.TelemetryHelpers.StartActivity("HomiebotMention");
+                await message.Channel.TriggerTypingAsync();
+                logger.LogInformation("Mentioned by name figuring out what to do with that");
+                bool handled = false;
+                handled = await message.HandleHomieMentionCommands(sender,logger);
+                if (!handled){
+                    handled = await handleRestGimmicks(message);
+                }
+                // subsequent handler extension methods go in if clauses below
+                if(!handled){handled = await message.HandleMemoryMentionCommands(logger);}
+                // finally if they're still unhandled do the default
+                if(!handled)
+                {
+                    mentionActivity?.SetStatus(ActivityStatusCode.Error, "NoSuccessfulHandlers")?.Stop();
+                    logger.LogInformation("I was pinged but couldn't find a match command, returning help instructions");
+                    //await message.Channel.SendMessageAsync($"{message.Author.Mention} I don't know what to do with that, but you can use the command {commandMarkers.FirstOrDefault()}help for some help");
+                }else{
+                    mentionActivity?.SetStatus(ActivityStatusCode.Ok)?.Stop();
+                }
+            }
+            await songlinkHandle.WaitAsync(TimeSpan.FromSeconds(5));
+            return;
         }
 
         private async Task<bool> handleRestGimmicks(MessageCreateEventArgs message)

@@ -12,7 +12,8 @@
         ],
         "Admins":[
             ""
-        ]
+        ],
+        "IgnoredCommands":[]
     },
     "LocalImageStoreConfig":{
         "ImageStorePath":"images"
