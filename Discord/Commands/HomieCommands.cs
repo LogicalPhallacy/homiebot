@@ -14,7 +14,6 @@ using Homiebot.Helpers;
 using Homiebot.Models;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
-using System.Text.RegularExpressions;
 using Homiebot.Web;
 
 namespace Homiebot.Discord.Commands
@@ -26,9 +25,9 @@ namespace Homiebot.Discord.Commands
             string val = value;
             if(string.IsNullOrWhiteSpace(value))
             {
-                return Task.FromResult(Optional.FromValue<string[]>(new string[]{}));  
+                return Task.FromResult(Optional.FromValue<string[]>([]));  
             }
-            return Task.FromResult(Optional.FromValue<string[]>(value.Split(" ")));
+            return Task.FromResult(Optional.FromValue(value.Split(" ")));
         }
     }
     public static class HomieMessageExtensions
@@ -163,8 +162,7 @@ namespace Homiebot.Discord.Commands
         }
 
         [Command("reactions")]
-        [DSharpPlus.CommandsNext.Attributes.Description(
-            "List the emoji groupings that will be triggered by one emoji when you react to a message with it")]
+        [Description("List the emoji groupings that will be triggered by one emoji when you react to a message with it")]
         public async Task GetReactionTriggers(CommandContext context)
         {
             using var commandRun = TelemetryHelpers.StartActivity(context.Command.Name);
