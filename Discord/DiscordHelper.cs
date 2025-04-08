@@ -113,6 +113,12 @@ namespace Homiebot.Discord
             }
             discordClient.MessageCreated += async (sender,message) => 
             {
+                // We don't want to process our own messages
+                // or messages from other bots
+                if(message.Message.Author.IsBot || message.Message.Author.IsCurrent)
+                {
+                    return;
+                }
                 foreach(var marker in commandMarkers){
                     if(message.Message.Content.StartsWith(marker)){
                         return;
