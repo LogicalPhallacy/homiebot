@@ -24,7 +24,7 @@ public class AzureTextAnalyzer : ITextAnalyzer
     public async IAsyncEnumerable<string> TLDR(string input)
     {
         logger.LogInformation("Beginning summary operation");
-        var summaryOp = await client.StartExtractSummaryAsync(new string[] {input});
+        var summaryOp = await client.ExtractiveSummarizeAsync(WaitUntil.Completed, new string[] {input});
         await summaryOp.WaitForCompletionAsync();
         if(summaryOp.Status != TextAnalyticsOperationStatus.Succeeded){
             logger.LogError("Failed to summarize text: {}", summaryOp.Status);

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Homiebot.Models;
 using Homiebot.Web;
 using ImageMagick;
+using ImageMagick.Factories;
 
 namespace Homiebot.Images
 {
@@ -26,8 +27,8 @@ namespace Homiebot.Images
                 BackgroundColor = MagickColors.Transparent,
                 StrokeColor = new MagickColor(m.OutlineColor),
                 FillColor = new MagickColor(m.FillColor),
-                Height = m.Height,
-                Width = m.Width
+                Height = (uint)m.Height,
+                Width = (uint)m.Width
             };
         }
 
@@ -46,7 +47,10 @@ namespace Homiebot.Images
             }
             
             using (var compositing = TelemetryHelpers.StartActivity("CompositeOverlay", System.Diagnostics.ActivityKind.Internal)){
-                await Task.Run( () => image.Composite(overlay,findXOffCenter(overlay.Width, image.Width), findYBottom(overlay.Height, image.Height), CompositeOperator.Over));
+                await Task.Run( () => image.Composite(overlay,
+                findXOffCenter(overlay.Width, image.Width),
+                findYBottom(overlay.Height, image.Height),
+                CompositeOperator.Over));
                 compositing?.SetStatus(System.Diagnostics.ActivityStatusCode.Ok)?.Stop();
             }
             
@@ -56,6 +60,12 @@ namespace Homiebot.Images
         }
 
         private Percentage findScalePercentage(int overlayWidth, int overlayHeight, int sourceWidth, int sourceHeight)
+        {
+            double yscalefactor = (double)sourceHeight / (double)overlayHeight;
+            double xscalefactor =  (double)sourceWidth / (double)overlayWidth;
+            return new Percentage(xscalefactor < yscalefactor ? xscalefactor * 50 : yscalefactor * 50);
+        }
+        private Percentage findScalePercentage(uint overlayWidth, uint overlayHeight, uint sourceWidth, uint sourceHeight)
         {
             double yscalefactor = (double)sourceHeight / (double)overlayHeight;
             double xscalefactor =  (double)sourceWidth / (double)overlayWidth;
@@ -72,6 +82,16 @@ namespace Homiebot.Images
             return (xpos - ((xpos*2)/3));
         }
         private int findYBottom(int overlayHeight, int sourceHeight) => sourceHeight-overlayHeight;
+        private uint findXCenter(uint overlayWidth, uint sourceWidth)
+        {
+            return (sourceWidth-overlayWidth)/2;
+        }
+        private int findXOffCenter(uint overlayWidth, uint sourceWidth)
+        {
+            uint xpos = ((sourceWidth-overlayWidth)/2);
+            return (int)(xpos - ((xpos*2)/3));
+        }
+        private int findYBottom(uint overlayHeight, uint sourceHeight) => (int)(sourceHeight-overlayHeight);
 
         public async Task<byte[]> ProcessImage(ImageMeme meme, params string[] replacements)
         {
