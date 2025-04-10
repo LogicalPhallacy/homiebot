@@ -15,6 +15,9 @@ using Homiebot.Brain;
 using Homiebot.Models;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net.Http;
+using Homiebot.Web;
+using System.Diagnostics;
+using Homiebot.Helpers;
 
 namespace Homiebot.Discord.Commands
 {
@@ -22,24 +25,28 @@ namespace Homiebot.Discord.Commands
     {
         public static async Task<bool> HandleMemorableKeywords(this MessageCreateEventArgs message, DiscordClient sender, ILogger logger)
         {
+            //using var activity = TelemetryHelpers.StartActivity("RememberAThing");
             if(message.Author.Id != sender.CurrentUser.Id)
             {
                 switch (message.Message.Content.ToLower())
                 {
-                    case var m when new Regex(@"(acab includes\b)(.+)").IsMatch(m):
-                        var acabcontent = new Regex(@"(acab includes\b)(.+)").Match(m).Groups[2].Value;
+                    case var m when RegexHelper.ACABRegex().IsMatch(m):
+                        var acabcontent = RegexHelper.ACABRegex().Match(m).Groups[2].Value;
                         var acabcontext = sender.GetCommandsNext().CreateContext(message.Message,"::",sender.GetCommandsNext().RegisteredCommands["acab"],acabcontent);
                         await sender.GetCommandsNext().RegisteredCommands["acab"].ExecuteAsync(acabcontext);
+                        //activity?.AddBaggage("MemoryThing", acabcontent).SetStatus(System.Diagnostics.ActivityStatusCode.Ok)?.Stop();
                         return true;
-                    case var m when new Regex(@"(.+)\b(is a cia psyop|are a cia psyop\b)").IsMatch(m):
-                        var matchcontent = new Regex(@"(.+)\b(is a cia psyop\b)").Match(m).Groups[1].Value;
+                    case var m when RegexHelper.PsyopRegex().IsMatch(m):
+                        var matchcontent = RegexHelper.PsyopRegex().Match(m).Groups[1].Value;
                         var context = sender.GetCommandsNext().CreateContext(message.Message,"::",sender.GetCommandsNext().RegisteredCommands["psyop"],matchcontent);
                         await sender.GetCommandsNext().RegisteredCommands["psyop"].ExecuteAsync(context);
+                        //activity?.AddBaggage("MemoryThing", matchcontent).SetStatus(System.Diagnostics.ActivityStatusCode.Ok)?.Stop();
                         return true;
-                    case var m when new Regex(@"(.+)\b(found on wish.com\b)").IsMatch(m):
-                        var wishcontent = new Regex(@"(.+)\b(found on wish.com\b)").Match(m).Groups[1].Value;
+                    case var m when RegexHelper.WishRegex().IsMatch(m):
+                        var wishcontent = RegexHelper.WishRegex().Match(m).Groups[1].Value;
                         var wishcontext = sender.GetCommandsNext().CreateContext(message.Message,"::",sender.GetCommandsNext().RegisteredCommands["wish"],wishcontent);
                         await sender.GetCommandsNext().RegisteredCommands["wish"].ExecuteAsync(wishcontext);
+                        //activity?.AddBaggage("MemoryThing", wishcontent).SetStatus(System.Diagnostics.ActivityStatusCode.Ok)?.Stop();
                         return true;
                 }
             }
@@ -51,22 +58,71 @@ namespace Homiebot.Discord.Commands
             return await Task.FromResult(false);
         }
     }
-    public class MemoryCommands : BaseCommandModule
+    [ModuleLifespan(ModuleLifespan.Transient)]
+    public class MemoryCommands(IServiceProvider services, Random random, ILogger<HomieBot> logger, IConfiguration config) : BaseCommandModule
     {
         //private readonly IMemoryProvider memory;
-        private readonly IServiceScope serviceScope;
-        private readonly Random random;
-        private readonly ILogger logger;
-        private readonly IConfiguration configuration;
-        private BotConfig botConfig;
-        public MemoryCommands(IServiceProvider services, Random random, ILogger<HomieBot> logger, IConfiguration config)
+        private readonly IServiceScope serviceScope = services.CreateScope();
+        private BotConfig botConfig = config.GetSection("BotConfig").Get<BotConfig>();
+        private Activity? activity = null;
+        public override Task BeforeExecutionAsync(CommandContext ctx)
         {
-            //this.memory = memoryProvider;
-            this.serviceScope = services.CreateScope();
-            this.random = random;
-            this.logger = logger;
-            this.configuration = config;
-            botConfig = configuration.GetSection("BotConfig").Get<BotConfig>();
+            activity = TelemetryHelpers.StartActivity(ctx.Command.Name);
+            return base.BeforeExecutionAsync(ctx);
+        }
+        public override Task AfterExecutionAsync(CommandContext ctx)
+        {
+            if(!(activity?.IsStopped ?? true))
+            {
+                if(activity.Status == ActivityStatusCode.Unset)
+                {
+                    activity?.SetStatus(ActivityStatusCode.Ok);
+                }
+                activity?.Stop();
+            }
+            activity?.Dispose();
+            return base.AfterExecutionAsync(ctx);
+        }
+
+        [Command("braindump")]
+        [Description("Dumps all the things the bot knows about to the channel, you can limit the list with fragments of the key")]
+        public async Task Braindump(CommandContext context, [RemainingText]string? key)
+        {
+            await context.TriggerTypingAsync();
+            string guildedKey = $"{context.Guild.Id}";
+            using var memory = serviceScope.ServiceProvider.GetRequiredService<IMemoryProvider>();
+            var filter = string.IsNullOrWhiteSpace(key) ? (i => true) : (Func<MemoryItem, bool>)(i => i.Key.Contains(key, StringComparison.OrdinalIgnoreCase));
+            var embed = new DiscordEmbedBuilder()
+            {
+                Title = $"Memory Dump for {context.Guild.Name}",
+                Color = DiscordColor.Azure,
+                Description = $"Here is what I know about {key ?? "everything"} so far"
+            };
+            bool responded = false;
+            await foreach(var item in memory.FindAsyncItems<MemoryItem>(filter))
+            {
+                embed.AddField(item.Key, item.Message, true);
+                if(embed.Fields.Count() > 10)
+                {
+                    await context.RespondAsync(embed);
+                    responded = true;
+                    embed = new DiscordEmbedBuilder()
+                    {
+                        Title = $"Memory Dump for {context.Guild.Name}",
+                        Color = DiscordColor.Azure,
+                        Description = $"Here is what I know about {key ?? "everything"} so far"
+                    };
+                }
+            }
+            if(embed.Fields.Count() > 0)
+            {
+                await context.RespondAsync(embed);
+                responded = true;
+            }
+            if(!responded)
+            {
+                await context.RespondAsync($"I don't know anything about {key}");
+            }
         }
 
         [Command("remember")]

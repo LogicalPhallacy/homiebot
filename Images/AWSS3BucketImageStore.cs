@@ -76,12 +76,7 @@ namespace Homiebot.Images
 
         public async Task<IImage> GetRandomTaggedImageAsync(string tag)
         {
-            ListObjectsV2Request request = new ListObjectsV2Request
-            {
-                BucketName = bucketName,
-                Prefix = $"{tag}/"
-            };
-            var things = await client.ListObjectsV2Async(request);
+            var things = await getObjects(tag);
             if(things.HttpStatusCode == System.Net.HttpStatusCode.OK)
             {
                 var chosen = things.S3Objects.ElementAt(random.Next(0,things.KeyCount));
@@ -92,12 +87,7 @@ namespace Homiebot.Images
 
         public async IAsyncEnumerable<IImage> GetTaggedImagesAsync(string tag)
         {
-            ListObjectsV2Request request = new ListObjectsV2Request
-            {
-                BucketName = bucketName,
-                Prefix = $"{tag}/"
-            };
-            var things = await client.ListObjectsV2Async(request);
+            var things = await getObjects(tag);
             if(things.HttpStatusCode == System.Net.HttpStatusCode.OK)
             {
                 foreach(var s3o in things.S3Objects)
@@ -109,6 +99,32 @@ namespace Homiebot.Images
             {
                 throw new Exception($"Bad Response from AWS: {things.HttpStatusCode}");
             }
+        }
+
+        public async Task<int> GetTaggedImageCountAsync(string tag)
+         => (await getObjects(tag)).S3Objects.Count;
+
+        public IEnumerable<string> GetTaggedImageIds(string tag)
+        {
+            var things = getObjects(tag).Result;
+            if(things.HttpStatusCode == System.Net.HttpStatusCode.OK)
+            {
+                foreach (var o in things.S3Objects)
+                {
+                    yield return o.Key;
+                }
+            }else{
+                yield break;
+            }
+        }
+        private async Task<ListObjectsV2Response> getObjects(string tag)
+        {
+            ListObjectsV2Request request = new ListObjectsV2Request
+            {
+                BucketName = bucketName,
+                Prefix = $"{tag}/"
+            };
+            return await client.ListObjectsV2Async(request);
         }
     }
 }

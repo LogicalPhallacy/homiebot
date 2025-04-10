@@ -12,7 +12,8 @@
         ],
         "Admins":[
             ""
-        ]
+        ],
+        "IgnoredCommands":[]
     },
     "LocalImageStoreConfig":{
         "ImageStorePath":"images"
@@ -35,5 +36,9 @@
     },
     "LocalFileStorageConfig":{
         "StoragePath":"brain"
+    },
+    "OpenAIConfig":{
+        "UseOpenAI":false,
+        "OpenAIKey":""
     }
 }

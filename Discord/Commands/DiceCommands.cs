@@ -11,22 +11,42 @@ using DSharpPlus.EventArgs;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
+using System.Diagnostics;
+using Homiebot.Web;
+using Homiebot.Helpers;
 
 namespace Homiebot.Discord.Commands 
 {
+    [ModuleLifespan(ModuleLifespan.Transient)]
     public class DiceCommands : BaseCommandModule
     {
-        private const string regex = @"(?:(\d+)\s*X\s*)?(\d*)D(\d*)((?:[+\/*-]\d+)|(?:[-][LH]))?";
         private readonly Random random;
         private readonly ILogger logger;
         private readonly IConfiguration config;
-        private Regex roll;
+        private Activity? activity = null;
+        public override Task BeforeExecutionAsync(CommandContext ctx)
+        {
+            activity = TelemetryHelpers.StartActivity(ctx.Command.Name);
+            return base.BeforeExecutionAsync(ctx);
+        }
+        public override Task AfterExecutionAsync(CommandContext ctx)
+        {
+            if(!(activity?.IsStopped ?? true))
+            {
+                if(activity.Status == ActivityStatusCode.Unset)
+                {
+                    activity?.SetStatus(ActivityStatusCode.Ok);
+                }
+                activity?.Stop();
+            }
+            activity?.Dispose();
+            return base.AfterExecutionAsync(ctx);
+        }
         public DiceCommands(Random random, ILogger<HomieBot> logger, IConfiguration config)
         {
             this.random = random;
             this.logger = logger;
             this.config = config;
-            roll = new Regex(regex,RegexOptions.IgnoreCase);
         }
 
         [Command("Roll")]
@@ -35,7 +55,7 @@ namespace Homiebot.Discord.Commands
         public async Task Roll(CommandContext context, string diceroll)
         {
             await context.TriggerTypingAsync();
-             var regexmatch = roll.Match(diceroll);
+             var regexmatch = RegexHelper.DiceRoll().Match(diceroll);
              if(regexmatch.Success)
              {
                  logger.LogInformation("input string {string} is a valid dice roll, parsing math",diceroll);

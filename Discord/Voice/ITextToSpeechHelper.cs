@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using System.IO;
@@ -15,5 +16,6 @@ namespace Homiebot.Discord.Voice
         public Task Speak(string text, VoiceTransmitSink outstream, CommandContext context = null);
         public VoicePersona CurrentVoice {get; set;}
         public IEnumerable<VoicePersona> AvailableVoices {get;}
+        public IEnumerable<VoicePersona> SearchVoices(string searchString) => VoiceProviders.SelectMany(vp => vp.SearchVoices(searchString));
     }
 }

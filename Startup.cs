@@ -11,6 +11,9 @@ using Homiebot.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Azure.Cosmos;
 using FileContextCore;
+using Microsoft.ApplicationInsights.AspNetCore;
+using Azure.Monitor.OpenTelemetry.AspNetCore;
+using Microsoft.Extensions.Logging;
 
 namespace Homiebot.Web
 {
@@ -31,7 +34,14 @@ namespace Homiebot.Web
             AddBrains(services,b);
             AddVoice(services,b);
             AddImageProcessor(services,b);
+            AddTextAnalyzer(services, b);
+            services.AddOpenTelemetry()
+                .UseAzureMonitor()
+                .WithTracing( t => t.AddSource(TelemetryHelpers.ActivityString));
+            services.AddLogging(l => l.AddOpenTelemetry());
+            //services.AddApplicationInsightsTelemetry();
             services.AddSingleton(typeof(Random));
+            //services.AddSingleton<IJavaScriptSnippet, JavaScriptSnippet>();
             services.AddHostedService<HomieBot>()
                 .AddControllersWithViews();
         }
@@ -101,7 +111,15 @@ namespace Homiebot.Web
                 _ => throw new NotImplementedException($"Processor {botConfig.ImageProcessor} is not implemented")
             });
         }
-
+        private void AddTextAnalyzer(IServiceCollection services, BotConfig botConfig)
+        {
+            services.AddSingleton(typeof(ITextAnalyzer),
+            botConfig.TextAnalysisProvider switch {
+                nameof(AzureTextAnalyzer) => typeof(AzureTextAnalyzer),
+                _ => typeof(NoTextAnalyzer)
+            }           
+            );
+        }
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {

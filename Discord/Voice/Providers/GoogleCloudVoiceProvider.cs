@@ -52,7 +52,7 @@ namespace Homiebot.Discord.Voice.Providers
             set => setActiveVoicePersona(value); 
             }
 
-        public async Task SpeakAsync(TextToSpeak text, VoiceTransmitSink outStream, CommandContext context = null)
+        public async Task SpeakAsync(TextToSpeak text, VoiceTransmitSink outStream, Func<Task> speaking, Action startSpeaking, Action stopSpeaking, CommandContext context = null)
         {
             try{
                 var synth = await internalClient.SynthesizeSpeechAsync(
@@ -70,7 +70,10 @@ namespace Homiebot.Discord.Voice.Providers
                         SpeakingRate = voiceSpeed
                     }
                 );
+                    await speaking();
+                    startSpeaking();
                     await AudioConversionHelper.ConvertForDiscord(synth.AudioContent.ToArray(),activeVoice.NaturalSampleRateHertz,1,outStream,this.logger);
+                    stopSpeaking();
             }catch(Exception e)
             {
                 logger.LogError(e,"Problem with Google Cloud API");

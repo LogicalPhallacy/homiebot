@@ -1,0 +1,13 @@
+{
+    "RestGimmicks": [
+        {
+            "TriggerString": "what time is it in @timezone",
+            "PreMessage": "idk let me check",
+            "PostMessage": "the time in @timezone is @() hope this helps",
+            "Endpoint": "http://worldtimeapi.org/api/timezone/@timezone",
+            "CustomFailureMessage": "clock didn't like that zone, pick one from here: http://worldtimeapi.org/timezones",
+            "Method": "GET",
+            "JsonResponse": true
+        }
+    ]
+}

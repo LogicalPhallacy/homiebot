@@ -6,6 +6,7 @@ using DSharpPlus.Entities;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using Homiebot.Discord.Voice;
+using Homiebot.Web;
 namespace Homiebot.Models
 {
     public struct GimmickRun
@@ -75,6 +76,7 @@ namespace Homiebot.Models
         }
         public async Task RunGimmick(CommandContext ctx, params string[] args)
         {
+            using var gimmickRunActivity = TelemetryHelpers.StartActivity(ctx.Command.Name);
             await ctx.TriggerTypingAsync();
             logger.LogInformation("Got a gimmick command: {gimmick}\nFrom Guild: {Guild} Channel:{Channel}", this.Command,ctx.Guild.Name,ctx.Channel.Name);
             //logger.LogInformation("Params for command are {params}", string.Join(',',args));
@@ -82,16 +84,20 @@ namespace Homiebot.Models
             foreach(var message in returnstring.SplitForDiscord()){
                 await ctx.RespondAsync(message);
             }
+            gimmickRunActivity?.SetStatus(System.Diagnostics.ActivityStatusCode.Ok)?.Stop();
         }
 
         public async Task SpeakGimmick(CommandContext context, params string[] args)
         {
+            using var gimmickRunActivity = TelemetryHelpers.StartActivity(context.Command.Name);
             await context.TriggerTypingAsync();
             if(CanVoice && textToSpeechHelper != null)
             {
                 await SpeechHelper.Speak(textToSpeechHelper,context,Replace(args),overrideLimit: true);
+                gimmickRunActivity?.SetStatus(System.Diagnostics.ActivityStatusCode.Ok)?.Stop();
                 return;
             }
+            gimmickRunActivity?.SetStatus(System.Diagnostics.ActivityStatusCode.Error, "NoTTS")?.Stop();
             await context.RespondAsync("Some things don't need saying homie");
         }
 

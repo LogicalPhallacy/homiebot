@@ -134,7 +134,7 @@ namespace Homiebot.Discord.Voice.Providers
 
         public string Name => "Azure Text to Speech";
 
-        public async Task SpeakAsync(TextToSpeak text, VoiceTransmitSink outStream, CommandContext context)
+        public async Task SpeakAsync(TextToSpeak text, VoiceTransmitSink outStream, Func<Task> speaking, Action startSpeaking, Action stopSpeaking, CommandContext context)
         {
             speechConfig.SetSpeechSynthesisOutputFormat( SpeechSynthesisOutputFormat.Raw24Khz16BitMonoPcm);
             speechConfig.SpeechSynthesisVoiceName = currentVoice.ShortName;
@@ -144,7 +144,10 @@ namespace Homiebot.Discord.Voice.Providers
                 var result = await speech.SpeakSsmlAsync(ssml);
                 if(result.Reason == ResultReason.SynthesizingAudioCompleted)
                 {
+                    await speaking();
+                    startSpeaking();
                     await AudioConversionHelper.ConvertForDiscord(result.AudioData,int.Parse(currentVoice.SampleRateHertz),1,outStream,logger);
+                    stopSpeaking();
                     return;
                 }
                 var err = SpeechSynthesisCancellationDetails.FromResult(result);

@@ -1,7 +1,9 @@
 using System;
 using System.IO;
+using System.Numerics;
 using System.Threading.Tasks;
 using Homiebot.Models;
+using Homiebot.Web;
 using SixLabors.Fonts;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing.Processing;
@@ -21,12 +23,12 @@ namespace Homiebot.Images
             this.random = random;
         }
 
-        private async Task<Font> getFont(MemeText m, string text)
+        private async Task<Font> getFont(MemeText m, string text, string font)
         {
-            var fam = SystemFonts.Find("Impact");
+            var fam = SystemFonts.Get(font);
             var basefont = new Font(fam,12, FontStyle.Bold);
             var imagebox = await Task.Run(
-                () => TextMeasurer.Measure(text, new RendererOptions(basefont))
+                () => TextMeasurer.MeasureSize(text, new TextOptions(basefont))
                 );
             var yscalefactor = m.Height / imagebox.Height;
             var xscalefactor = m.Width / imagebox.Width;
@@ -62,6 +64,8 @@ namespace Homiebot.Images
             return new Point(xpos-((xpos*2)/3),sourceHeight);
         }
 
+        private Vector2 pointToVector2(PointF point) => new(point.X, point.Y);
+
         public async Task<byte[]> ProcessImage(ImageMeme meme, params string[] replacements)
         {
             var imagebytes = await(await imageStore.GetImageAsync(meme.Template.ImageBaseIdentifier)).GetBytes();
@@ -69,31 +73,28 @@ namespace Homiebot.Images
             foreach(var text in meme.Template.memeText)
             {
                 // The options are optional
-                
-                TextOptions options = new TextOptions()
-                {
-                    ApplyKerning = true,
-                    TabWidth = 8, // a tab renders as 8 spaces wide
-                    //WrapTextWidth = 100, // greater than zero so we will word wrap at 100 pixels wide
-                    HorizontalAlignment = HorizontalAlignment.Center,
-                    VerticalAlignment = VerticalAlignment.Center
-                };
-                IBrush brush = Brushes.Solid(Color.Parse(text.FillColor));
-                IPen pen = Pens.Solid(Color.Parse(text.OutlineColor),2);
+                Brush brush = Brushes.Solid(Color.Parse(text.FillColor));
+                Pen pen = Pens.Solid(Color.Parse(text.OutlineColor),2);
                 //string text = "sample text";
                 string words = text.GetMemeText(random, replacements);
                 // draws a star with Horizontal red and blue hatching with a dash dot pattern outline.
-                Font f = await getFont(text, words);
+                Font f = await getFont(text, words, "Impact");
+                RichTextOptions options = new RichTextOptions(f)
+                {
+                    KerningMode = KerningMode.Auto,
+                    TabWidth = 8, // a tab renders as 8 spaces wide
+                    //WrapTextWidth = 100, // greater than zero so we will word wrap at 100 pixels wide
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Origin = findCenter(text)
+                };
                 await Task.Run(
                     () => image.Mutate( 
                         x=> x.DrawText(
-                            new DrawingOptions(){
-                                TextOptions = options
-                            }, 
+                            options,
                             words,
-                            f, 
                             brush, 
-                            pen, findCenter(text)
+                            pen
                         )
                     )
                 );
@@ -107,28 +108,36 @@ namespace Homiebot.Images
 
         public async Task<byte[]> OverlayImage(Stream baseImage, Stream overlayImage)
         {
+            using var overlayActivity = TelemetryHelpers.StartActivity("GenerateImageOverlay", System.Diagnostics.ActivityKind.Internal);
             baseImage.Position = 0;
             overlayImage.Position = 0;
             using var image = Image.Load(baseImage);
             using var overlay = Image.Load(overlayImage);
             // resize the overlay image
-            await Task.Run(() =>overlay.Mutate(
-                i => i.Resize(
-                    GetSize(overlay.Width, overlay.Height, image.Width, image.Height)
-                )
-            ));
-            // overlay the resized image
-            await Task.Run( () => 
-                image.Mutate(
-                i => i.DrawImage(
-                    overlay,
-                    findXOffCenter(image.Width, overlay.Width, image.Height-overlay.Height),
-                    1f
-                )
+            using (var scalingImage = TelemetryHelpers.StartActivity("ScaleImage", System.Diagnostics.ActivityKind.Internal)){
+                await Task.Run(() =>overlay.Mutate(
+                    i => i.Resize(
+                        GetSize(overlay.Width, overlay.Height, image.Width, image.Height)
+                    )
                 ));
+                scalingImage?.SetStatus(System.Diagnostics.ActivityStatusCode.Ok)?.Stop();
+            }
+            // overlay the resized image
+            using (var compositing = TelemetryHelpers.StartActivity("CompositeOverlay", System.Diagnostics.ActivityKind.Internal)){
+                await Task.Run( () => 
+                    image.Mutate(
+                    i => i.DrawImage(
+                        overlay,
+                        findXOffCenter(image.Width, overlay.Width, image.Height-overlay.Height),
+                        1f
+                    )
+                    ));
+                compositing?.SetStatus(System.Diagnostics.ActivityStatusCode.Ok)?.Stop();
+            }
             using (var ms = new MemoryStream())
             {
                 image.Save(ms,new PngEncoder());
+                overlayActivity?.SetStatus(System.Diagnostics.ActivityStatusCode.Ok)?.Stop();
                 return ms.ToArray();
             }
         }

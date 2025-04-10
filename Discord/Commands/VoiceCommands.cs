@@ -9,13 +9,35 @@ using System;
 using Homiebot.Discord.Voice;
 using Homiebot.Discord.Voice.Models;
 using DSharpPlus.Entities;
+using Homiebot.Web;
+using System.Diagnostics;
 
 namespace Homiebot.Discord.Commands
 {
+    [ModuleLifespan(ModuleLifespan.Transient)]
     public class VoiceCommands : BaseCommandModule
     {
         private readonly ILogger logger;
         private readonly ITextToSpeechHelper textToSpeechHelper;
+        private Activity? activity = null;
+        public override Task BeforeExecutionAsync(CommandContext ctx)
+        {
+            activity = TelemetryHelpers.StartActivity(ctx.Command.Name);
+            return base.BeforeExecutionAsync(ctx);
+        }
+        public override Task AfterExecutionAsync(CommandContext ctx)
+        {
+            if(!(activity?.IsStopped ?? true))
+            {
+                if(activity.Status == ActivityStatusCode.Unset)
+                {
+                    activity?.SetStatus(ActivityStatusCode.Ok);
+                }
+                activity?.Stop();
+            }
+            activity?.Dispose();
+            return base.AfterExecutionAsync(ctx);
+        }
         public VoiceCommands(ILogger<HomieBot> logger, ITextToSpeechHelper textToSpeechHelper)
         {
             this.logger = logger;
@@ -29,7 +51,8 @@ namespace Homiebot.Discord.Commands
             await context.TriggerTypingAsync();
             var voiceConnection = context.Client.GetVoiceNext().GetConnection(context.Guild);
             //var channel = context.Member?.VoiceState?.Channel;
-            var channel = context.Guild.Channels.Where( kvp => kvp.Value.Type == ChannelType.Voice).Select(kvp => kvp.Value).FirstOrDefault();
+            var channel = context.Guild.Channels.Where( kvp => kvp.Value.Type == ChannelType.Voice).Select(kvp => kvp.Value)
+                .Where(channel => channel.Users.Contains(context.Member)).First();
             
             if(channel == null)
             {
@@ -73,9 +96,24 @@ namespace Homiebot.Discord.Commands
         {
             await SpeechHelper.Speak(textToSpeechHelper,context,text);
         }
+        [Command("searchvoice")]
+        [Description("Searches available TTS voices for your text, will display up to 12 matches")]
+        public async Task SearchVoice(CommandContext context, [RemainingText] string text)
+        {
+            await context.TriggerTypingAsync();
+            var voiceResults = textToSpeechHelper.SearchVoices(text);
+            if(voiceResults.Count() < 12)
+            {
+                await context.RespondAsync("Here are your matches:\n" + string.Join('\n', voiceResults.Select(v => v.SearchDisplayName)));
+            }
+            else
+            {
+                await context.RespondAsync($"Found {voiceResults.Count()} matches, be more specific");    
+            }
+        }
 #nullable enable
         [Command("showvoice")]
-        [Description("Shows the available TTS voices, add a specific voice to see detailed info on it")]
+        [Description("Shows the available TTS voices, specify a specific voice to see detailed info on it")]
         public async Task ShowVoice(CommandContext context, [RemainingText] string? text)
         {
             await context.TriggerTypingAsync();
@@ -91,9 +129,12 @@ namespace Homiebot.Discord.Commands
                 return;
             }
             await context.RespondAsync($"CURRENT VOICE\n{textToSpeechHelper.CurrentVoice.VoiceName}");
-            string others = "AVAILABLE VOICES:\n";
-            others+= string.Join(' ',textToSpeechHelper.AvailableVoices.Select(v => v.VoiceName));
-            await context.RespondAsync(others);
+            
+            foreach(var provider in textToSpeechHelper.AvailableVoices.Select(v => v.VoiceProvider).Distinct())
+            {
+                await context.RespondAsync(provider.GetAvailableVoiceText());
+            }
+            
         }
 #nullable disable
         [Command("setvoice")]
