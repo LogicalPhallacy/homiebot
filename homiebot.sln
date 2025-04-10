@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "homiebot-web", "homiebot-web.csproj", "{276AD6A9-E01D-9593-E392-CF3ED1859A19}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{276AD6A9-E01D-9593-E392-CF3ED1859A19}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{276AD6A9-E01D-9593-E392-CF3ED1859A19}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{276AD6A9-E01D-9593-E392-CF3ED1859A19}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{276AD6A9-E01D-9593-E392-CF3ED1859A19}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C4162F9E-7928-42F7-BB84-C30352F581F6}
+	EndGlobalSection
+EndGlobal
