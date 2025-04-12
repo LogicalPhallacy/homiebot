@@ -299,5 +299,32 @@ namespace Homiebot.Discord.Commands
                 }
             }
         }
+        
+        [Command("ias")]
+        [Description("Homiebot will generate an its always sunny title card")]
+        public async Task AlwaysSunny(CommandContext context, [RemainingText]string text)
+        {
+            using var commandRun = TelemetryHelpers.StartActivity(context.Command.Name);
+            await context.TriggerTypingAsync();
+            string title = string.Empty;
+            try
+            {
+                title = await AlwaysSunnyHelper.GenerateTitleUrl(text);
+            }
+            catch(Exception e)
+            {
+                await context.RespondAsync($"Sorry homie, an error\n{e.Message}");
+                commandRun?.SetStatus(System.Diagnostics.ActivityStatusCode.Error, e.Message)?.Stop();
+                return;
+            }
+            if(string.IsNullOrWhiteSpace(title))
+            {
+                await context.RespondAsync("Sorry homie, I couldn't get a title card for that");
+                commandRun?.SetStatus(System.Diagnostics.ActivityStatusCode.Error, "No title returned")?.Stop();
+                return;
+            }
+            await context.RespondAsync(title);
+            commandRun?.SetStatus(System.Diagnostics.ActivityStatusCode.Ok)?.Stop();
+        }
     }
 }

@@ -26,7 +26,7 @@ namespace Homiebot.Discord
         private readonly IConfiguration config;
         private readonly IServiceProvider services;
         private string token;
-        private IEnumerable<string> commandMarkers;
+        private string[] commandMarkers;
         private IEnumerable<RESTGimmick> restGimmicks;
         private bool connected;
         private DiscordClient discordClient;
@@ -39,7 +39,7 @@ namespace Homiebot.Discord
         public DiscordHelper(string token, IEnumerable<string> commandMarkers, IConfiguration config, ILogger<HomieBot> logger, IServiceProvider services)
         {
             this.token = token;
-            this.commandMarkers = commandMarkers;
+            this.commandMarkers = commandMarkers.ToArray();
             this.config = config;
             this.logger = logger;
             this.services = services;
@@ -114,7 +114,7 @@ namespace Homiebot.Discord
             // TODO: Set up event emission for successful command runs
             // commands.CommandExecuted += (ext, args) => {}
             commands.CommandErrored += async (ext, args) => {
-                logger.LogError(args.Exception, "Failed to execute command {commandName}", args.Command.Name);
+                logger.LogError(args?.Exception ?? new Exception("Unknown Exception"), "Failed to execute command {commandName}", args?.Command?.Name ?? "Unknown");
             };
             logger.LogInformation("Trying Connect");
             try
