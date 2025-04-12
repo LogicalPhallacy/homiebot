@@ -71,7 +71,9 @@ namespace Homiebot.Discord
             });
             logger.LogInformation("Registering custom parser");
             //commands.RegisterConverter(new StringArrayParamConverter());
+            //where the commands are registered!
             logger.LogInformation("Registering Baseline Commands");
+            commands.SetHelpFormatter<CustomHelpFormatter>();
             commands.RegisterCommands<HomieCommands>();
             commands.RegisterCommands<ImageMemeCommands>();
             commands.RegisterCommands<ChatCommands>();
@@ -213,7 +215,7 @@ namespace Homiebot.Discord
             
         }
     }
-
+//where the custom help format is setup
     public class CustomHelpFormatter : DefaultHelpFormatter
     {   
         public CustomHelpFormatter(CommandContext ctx) : base(ctx) { }
